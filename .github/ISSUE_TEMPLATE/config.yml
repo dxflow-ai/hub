@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+    - name: 🧩 Browse the hub
+      url: https://dxflow.ai/hub
+      about: See existing templates before requesting a new one.
+    - name: 🤝 Contribute a template
+      url: https://github.com/dxflow-ai/hub/blob/main/README.md
+      about: Have a template to share? Add a Markdown entry and open a pull request.
+    - name: 🐛 Engine or install issues
+      url: https://github.com/dxflow-ai/community/issues
+      about: Bugs with the dxflow engine or installation belong in the community tracker.

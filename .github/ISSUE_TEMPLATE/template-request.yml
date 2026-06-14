@@ -1,0 +1,88 @@
+name: 🧩 Template Request
+description: Request a new application or workflow template for the dxflow hub.
+title: "[Template]: "
+labels: ["template", "triage"]
+body:
+    - type: markdown
+      attributes:
+          value: |
+              Want a tool or workflow added to the hub? Tell us what you need below.
+              Already have one to share? Contributions are welcome — add a Markdown entry under the matching domain and open a pull request instead.
+    - type: checkboxes
+      id: preflight
+      attributes:
+          label: Before you start
+          options:
+              - label: I have checked the [hub](https://dxflow.ai/hub) and this template doesn't already exist.
+                required: true
+    - type: input
+      id: tool
+      attributes:
+          label: Tool / workflow name
+          description: The name of the application or workflow you'd like templated.
+          placeholder: e.g. GROMACS, AlphaFold, Nextflow pipeline
+      validations:
+          required: true
+    - type: dropdown
+      id: domain
+      attributes:
+          label: Domain
+          description: Which domain does this belong to? (matches the hub's categories)
+          options:
+              - Getting Started
+              - Genomics
+              - Molecular
+              - Structural
+              - Data Science
+              - Fluid Flow
+              - Other
+      validations:
+          required: true
+    - type: textarea
+      id: description
+      attributes:
+          label: Description
+          description: What does this tool/workflow do, and how would you use it on dxflow?
+      validations:
+          required: true
+    - type: input
+      id: image
+      attributes:
+          label: Container image
+          description: The Docker/OCI image (and tag) the template should run, if you know it. Templates are defined as Docker Compose services.
+          placeholder: e.g. biocontainers/gromacs:2024.1
+      validations:
+          required: false
+    - type: dropdown
+      id: gpu
+      attributes:
+          label: Does it need a GPU?
+          options:
+              - "No"
+              - "Yes"
+              - Not sure
+      validations:
+          required: false
+    - type: input
+      id: resources
+      attributes:
+          label: Typical resources
+          description: Rough CPU / memory / storage this workload needs, if known.
+          placeholder: e.g. 8 CPU, 16 GB RAM, 50 GB disk
+      validations:
+          required: false
+    - type: input
+      id: link
+      attributes:
+          label: Reference link
+          description: Link to the tool's homepage, docs, or repository.
+          placeholder: https://...
+      validations:
+          required: false
+    - type: textarea
+      id: context
+      attributes:
+          label: Additional context
+          description: Anything else that would help us build a good template (example inputs, expected outputs, etc.).
+      validations:
+          required: false

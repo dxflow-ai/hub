@@ -1,0 +1,75 @@
+name: 🐛 Template Problem
+description: Report a problem with an existing template in the hub.
+title: "[Template Bug]: "
+labels: ["bug", "template", "triage"]
+body:
+    - type: markdown
+      attributes:
+          value: |
+              Found a template that's broken, outdated, or incorrect? Let us know below.
+    - type: checkboxes
+      id: preflight
+      attributes:
+          label: Before you start
+          options:
+              - label: I have searched the [existing issues](https://github.com/dxflow-ai/hub/issues) and this hasn't been reported yet.
+                required: true
+    - type: dropdown
+      id: domain
+      attributes:
+          label: Domain
+          description: Which domain is the template in?
+          options:
+              - Getting Started
+              - Genomics
+              - Molecular
+              - Structural
+              - Data Science
+              - Fluid Flow
+              - Other
+      validations:
+          required: true
+    - type: input
+      id: template
+      attributes:
+          label: Which template?
+          description: Name or path of the affected template.
+          placeholder: e.g. 2.genomics/01.fastqc.md
+      validations:
+          required: true
+    - type: dropdown
+      id: kind
+      attributes:
+          label: Type of problem
+          options:
+              - Won't deploy / start
+              - Crashes or errors at runtime
+              - Wrong or missing output
+              - Outdated image or version
+              - Incorrect configuration / resources
+              - Documentation in the template is wrong
+              - Other
+      validations:
+          required: true
+    - type: textarea
+      id: description
+      attributes:
+          label: What's wrong?
+          description: Describe the problem — what happens, and what you expected instead.
+      validations:
+          required: true
+    - type: textarea
+      id: logs
+      attributes:
+          label: Logs / output
+          description: Paste any relevant error output. Automatically formatted as code.
+          render: shell
+      validations:
+          required: false
+    - type: textarea
+      id: context
+      attributes:
+          label: Additional context
+          description: Anything else that might help.
+      validations:
+          required: false
