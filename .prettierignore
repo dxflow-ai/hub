@@ -1,0 +1,5 @@
+# Nuxt Content MDC pages.
+# Prettier's markdown formatter reflows and reindents the ::component
+# blocks (::card, ::card-group, ::callout, ::tabs, ::tab-item, ::steps),
+# which breaks their nesting and attributes. Keep markdown out of Prettier.
+*.md
