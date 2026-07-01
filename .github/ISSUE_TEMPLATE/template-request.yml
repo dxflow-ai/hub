@@ -33,8 +33,12 @@ body:
               - Genomics
               - Molecular
               - Structural
-              - Data Science
-              - Fluid Flow
+              - Analytics
+              - Simulation
+              - Visualization
+              - Development
+              - Desktop
+              - Infrastructure
               - Other
       validations:
           required: true
@@ -49,7 +53,7 @@ body:
       id: image
       attributes:
           label: Container image
-          description: The Docker/OCI image (and tag) the template should run, if you know it. Templates are defined as Docker Compose services.
+          description: The Docker/OCI image (and tag) the template should run, if you know it. Templates are defined as dxflow workflow steps.
           placeholder: e.g. biocontainers/gromacs:2024.1
       validations:
           required: false
