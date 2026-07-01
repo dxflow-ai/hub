@@ -10,38 +10,33 @@ Scipion is a workflow-based image processing framework for obtaining 3D models o
 ## Configuration
 
 ```yaml
-version: '3.8'
-
-services:
-  scipion:
-    image: scipion/scipion:latest
-    container_name: dxflow-scipion
-
-    # Web interface port
+name: scipion
+tags:
+  - structural
+steps:
+  - name: scipion
+    platform: docker
+    mode: parallel
+    image: diphyx/scipion:latest
+    env:
+      - DXF_PROXY_MAIN_PORT=6082
+      - DXF_PROXY_ADDITIONAL_PORTS=6100
+      - DXF_PROXY_TOOLBAR=/vnc.html
+      - DXF_PROXY_TOOLBAR_SOFTWARE=vnc
     ports:
-      - "8080:8080"
-
-    # Volumes
+      - host: "5901"
+        container: "5901"
+      - host: "6082"
+        container: "6082"
+      - host: "6100"
+        container: "6100"
     volumes:
-      - ./projects:/home/scipion/ScipionUserData/projects
-      - ./data:/home/scipion/ScipionUserData/data
-
-    # GPU support
-    deploy:
-      resources:
-        limits:
-          cpus: '16'
-          memory: 64G
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
-
-    # Environment
-    environment:
-      - DISPLAY=:0
-      - SCIPION_DOMAIN=localhost
+      - host: ./volume
+        container: /volume
+    resources:
+      cpu: "16"
+      memory: 64G
+      gpu: nvidia
 ```
 
 ## Usage
@@ -49,8 +44,8 @@ services:
 ### 1. Prepare data
 
 ```bash
-# Create directories
-mkdir -p projects data
+# Create the data directory
+mkdir -p volume
 ```
 
 ### 2. Deploy
@@ -60,7 +55,7 @@ dxflow workflow create --identity scipion scipion.yml
 dxflow workflow start scipion
 ```
 
-Access the web interface by opening your browser at `http://localhost:8080`.
+Access the desktop by opening your browser at `http://localhost:6082/vnc.html`.
 
 ### 3. Monitor
 
@@ -70,7 +65,7 @@ dxflow workflow logs --live scipion
 
 ### 4. Retrieve results
 
-Results are written to the mounted `./projects` and `./data` directories.
+Results are written to the mounted `./volume` directory.
 
 ## Typical workflow
 

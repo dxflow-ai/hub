@@ -15,34 +15,27 @@ FastQC is a quality control tool for high throughput sequence data. It runs a mo
 ## Configuration
 
 ```yaml
-version: '3.8'
-
-services:
-  fastqc:
-    image: biocontainers/fastqc:v0.11.9_cv8
-    container_name: dxflow-fastqc
-
-    # Working directory
-    working_dir: /data
-
-    # Mount volumes for input/output
+name: fastqc
+tags:
+  - genomics
+steps:
+  - name: fastqc
+    platform: docker
+    mode: sequential
+    image: ghcr.io/dxflow-ai/fastqc:latest
+    command:
+      - /bin/sh
+      - -c
+      - fastqc /data/input/*.fastq.gz --outdir /data/output --threads 4
     volumes:
-      - ./input:/data/input:ro
-      - ./output:/data/output
-
-    # Command to run FastQC
-    command: >
-      fastqc
-      /data/input/*.fastq.gz
-      --outdir /data/output
-      --threads 4
-
-    # Resource limits
-    deploy:
-      resources:
-        limits:
-          cpus: '4'
-          memory: 4G
+      - host: ./input
+        container: /data/input
+        mode: ro
+      - host: ./output
+        container: /data/output
+    resources:
+      cpu: "4"
+      memory: 4G
 ```
 
 ## Usage

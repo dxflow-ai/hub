@@ -10,37 +10,26 @@ OpenFOAM (Open Field Operation and Manipulation) is a free, open-source CFD soft
 ## Configuration
 
 ```yaml
-version: '3.8'
-
-services:
-  openfoam:
+name: openfoam
+tags:
+  - simulation
+steps:
+  - name: openfoam
+    platform: docker
+    mode: sequential
     image: openfoam/openfoam10-paraview510
-    container_name: dxflow-openfoam
-
-    # Working directory
-    working_dir: /workspace
-
-    # Volumes
+    command:
+      - tail
+      - -f
+      - /dev/null
     volumes:
-      - ./cases:/workspace/cases
-      - ./results:/workspace/results
-
-    # Resource allocation
-    deploy:
-      resources:
-        limits:
-          cpus: '16'
-          memory: 32G
-
-    # Keep container running
-    command: tail -f /dev/null
-
-    # Enable X11 for ParaView (optional)
-    environment:
-      - DISPLAY=${DISPLAY}
-
-    # Network mode for GUI
-    network_mode: host
+      - host: ./cases
+        container: /workspace/cases
+      - host: ./results
+        container: /workspace/results
+    resources:
+      cpu: "16"
+      memory: 32G
 ```
 
 ## Usage

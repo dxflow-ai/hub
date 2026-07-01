@@ -17,36 +17,31 @@ GROMACS is a versatile package for molecular dynamics simulations, primarily des
 ## Configuration
 
 ```yaml
-version: '3.8'
-
-services:
-  gromacs:
-    image: gromacs/gromacs:2023
-    container_name: dxflow-gromacs
-
-    # Working directory
-    working_dir: /workspace
-
-    # Mount volumes
+name: gromacs
+tags:
+  - molecular
+steps:
+  - name: gromacs
+    platform: docker
+    mode: sequential
+    image: gromacs/gromacs:gmx-2022.2-cuda-11.6.0-avx2
+    command:
+      - tail
+      - -f
+      - /dev/null
     volumes:
-      - ./input:/workspace/input:ro
-      - ./output:/workspace/output
-      - ./mdp:/workspace/mdp:ro
-
-    # GPU support (optional)
-    deploy:
-      resources:
-        limits:
-          cpus: '16'
-          memory: 32G
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
-
-    # Keep container running for interactive use
-    command: tail -f /dev/null
+      - host: ./input
+        container: /workspace/input
+        mode: ro
+      - host: ./output
+        container: /workspace/output
+      - host: ./mdp
+        container: /workspace/mdp
+        mode: ro
+    resources:
+      cpu: "16"
+      memory: 32G
+      gpu: nvidia
 ```
 
 ## Usage

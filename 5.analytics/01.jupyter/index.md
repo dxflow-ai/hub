@@ -10,38 +10,32 @@ JupyterLab is a web-based interactive development environment for notebooks, cod
 ## Configuration
 
 ```yaml
-version: '3.8'
-
-services:
-  jupyter:
+name: jupyter
+tags:
+  - analytics
+steps:
+  - name: jupyter
+    platform: docker
+    mode: sequential
     image: jupyter/scipy-notebook:latest
-    container_name: dxflow-jupyter
-
-    # Web interface port
-    ports:
-      - "8888:8888"
-
-    # Volumes for persistent data
-    volumes:
-      - ./notebooks:/home/jovyan/work
-      - ./data:/home/jovyan/data
-
-    # Environment variables
-    environment:
+    command:
+      - start-notebook.sh
+      - --NotebookApp.token=your-secret-token
+    env:
       - JUPYTER_ENABLE_LAB=yes
       - JUPYTER_TOKEN=your-secret-token
       - GRANT_SUDO=yes
-
-    # Resource limits
-    deploy:
-      resources:
-        limits:
-          cpus: '8'
-          memory: 16G
-
-    # User permissions
-    user: root
-    command: start-notebook.sh --NotebookApp.token='your-secret-token'
+    ports:
+      - host: "8888"
+        container: "8888"
+    volumes:
+      - host: ./notebooks
+        container: /home/jovyan/work
+      - host: ./data
+        container: /home/jovyan/data
+    resources:
+      cpu: "8"
+      memory: 16G
 ```
 
 ## Usage
@@ -120,18 +114,14 @@ plt.show()
 
 **Optional GPU Support:**
 
+For ML/DL, switch to a GPU image and request a GPU on the step:
+
 ```yaml
-# Add GPU support for ML/DL
-services:
-  jupyter:
+steps:
+  - name: jupyter
     image: jupyter/tensorflow-notebook:latest
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
+    resources:
+      gpu: nvidia
 ```
 
 ## Extensions
