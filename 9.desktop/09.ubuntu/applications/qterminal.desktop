@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=Terminal
+Exec=qterminal -w /volume/ -e /bin/bash
+Icon=/root/.local/share/icons/qterminal.svg
+Terminal=false
+Type=Application

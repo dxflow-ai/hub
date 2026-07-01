@@ -1,0 +1,242 @@
+---
+title: OpenFOAM
+description: Open source computational fluid dynamics (CFD) software
+navigation:
+    icon: i-diphyx:openfoam
+---
+
+OpenFOAM (Open Field Operation and Manipulation) is a free, open-source CFD software package with solvers and utilities for fluid flow simulations involving chemical reactions, turbulence, and heat transfer.
+
+## Configuration
+
+```yaml
+name: openfoam
+tags:
+  - simulation
+steps:
+  - name: openfoam
+    platform: docker
+    mode: sequential
+    image: openfoam/openfoam10-paraview510
+    command:
+      - tail
+      - -f
+      - /dev/null
+    volumes:
+      - host: ./cases
+        container: /workspace/cases
+      - host: ./results
+        container: /workspace/results
+    resources:
+      cpu: "16"
+      memory: 32G
+```
+
+## Usage
+
+### 1. Prepare data
+
+```bash
+# Create directories
+mkdir -p cases results
+```
+
+For a custom case, set up the case structure and upload your geometry:
+
+```bash
+# Create case structure
+mkdir -p cases/myCase/{0,constant,system}
+
+# Upload geometry
+dxflow artifact upload geometry.stl cases/myCase/constant/triSurface/
+```
+
+### 2. Deploy
+
+```bash
+# Deploy container
+dxflow workflow create --identity openfoam openfoam.yml
+dxflow workflow start openfoam
+```
+
+### 3. Monitor
+
+The OpenFOAM commands below are run inside the workflow container.
+
+**Cavity tutorial:**
+
+```bash
+# Copy tutorial case
+cp -r $FOAM_TUTORIALS/incompressible/icoFoam/cavity/cavity cases/
+
+# Enter case directory
+cd cases/cavity
+
+# Generate mesh
+blockMesh -case cases/cavity
+
+# Run solver
+icoFoam -case cases/cavity
+
+# Post-process
+postProcess -func graphCell -case cases/cavity
+```
+
+**Custom case:**
+
+```bash
+# Create mesh with snappyHexMesh
+snappyHexMesh -case cases/myCase
+
+# Check mesh quality
+checkMesh -case cases/myCase
+
+# Run simulation
+simpleFoam -case cases/myCase
+```
+
+### 4. Retrieve results
+
+```bash
+# Download results
+dxflow artifact download cases/myCase/results/ results/
+```
+
+## Common solvers
+
+| Solver | Application | Type |
+|--------|-------------|------|
+| **icoFoam** | Laminar incompressible | Transient |
+| **simpleFoam** | Turbulent incompressible | Steady-state |
+| **pimpleFoam** | Turbulent incompressible | Transient |
+| **interFoam** | Two-phase flow (VOF) | Transient |
+| **rhoSimpleFoam** | Compressible turbulent | Steady-state |
+| **sonicFoam** | Transonic/supersonic | Transient |
+| **buoyantBoussinesqFoam** | Natural convection | Transient |
+
+## Case structure
+
+```
+myCase/
+├── 0/              # Initial conditions
+│   ├── U           # Velocity field
+│   ├── p           # Pressure field
+│   └── T           # Temperature field (if applicable)
+├── constant/       # Constant properties
+│   ├── polyMesh/   # Mesh data
+│   ├── turbulenceProperties
+│   └── transportProperties
+└── system/         # Simulation control
+    ├── controlDict # Time control, output
+    ├── fvSchemes   # Discretization schemes
+    └── fvSolution  # Solution algorithms
+```
+
+## Mesh generation
+
+### blockMesh (structured)
+
+```cpp
+// blockMeshDict example
+vertices
+(
+    (0 0 0)
+    (1 0 0)
+    (1 1 0)
+    (0 1 0)
+    (0 0 0.1)
+    (1 0 0.1)
+    (1 1 0.1)
+    (0 1 0.1)
+);
+
+blocks
+(
+    hex (0 1 2 3 4 5 6 7) (20 20 1) simpleGrading (1 1 1)
+);
+
+boundary
+(
+    inlet
+    {
+        type patch;
+        faces ((0 4 7 3));
+    }
+    outlet
+    {
+        type patch;
+        faces ((2 6 5 1));
+    }
+);
+```
+
+### snappyHexMesh (unstructured)
+
+```bash
+# Generate background mesh
+blockMesh
+
+# Run snappyHexMesh
+snappyHexMesh -overwrite
+
+# Check mesh quality
+checkMesh
+```
+
+## Parallel processing
+
+```bash
+# Decompose case for parallel run
+decomposePar -case cases/myCase
+
+# Run in parallel (MPI)
+mpirun -np 16 simpleFoam -parallel -case cases/myCase
+
+# Reconstruct results
+reconstructPar -case cases/myCase
+```
+
+## Post-processing
+
+### ParaView visualization
+
+```bash
+# Create ParaView file
+paraFoam -case cases/myCase -touch
+
+# Open in ParaView (if X11 enabled)
+paraview cases/myCase/case.foam
+```
+
+### Sample data
+
+```bash
+# Sample along line
+postProcess -func 'sample' -case cases/myCase
+
+# Calculate forces/coefficients
+postProcess -func 'forceCoeffs' -case cases/myCase
+
+# Extract surface data
+postProcess -func 'surfaces' -case cases/myCase
+```
+
+## Requirements
+
+**Workstation:**
+- CPU: 8-16 cores
+- RAM: 16-32GB
+- Storage: 100GB SSD
+
+**Server/HPC:**
+- CPU: 32-128 cores
+- RAM: 64-256GB
+- Storage: 1TB+ fast storage
+- High-speed interconnect for parallel
+
+## References
+
+- **Website**: [OpenFOAM](https://www.openfoam.com/)
+- **Documentation**: [User Guide](https://www.openfoam.com/documentation/user-guide)
+- **Tutorials**: [OpenFOAM Tutorials](https://wiki.openfoam.com/)
+- **Forum**: [CFD Online](https://www.cfd-online.com/Forums/openfoam/)

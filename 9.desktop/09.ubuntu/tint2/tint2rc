@@ -1,0 +1,68 @@
+# Backgrounds
+# Background 1: Panel
+rounded = 0
+border_width = 1
+background_color = #000000 100
+border_color = #000000 100
+
+# Background 2: Active Task
+rounded = 3
+border_width = 1
+background_color = #334544 100
+border_color = #334544 100
+
+# Background 3: Inactive Task
+rounded = 3
+border_width = 1
+background_color = #3c3836 100
+border_color = #3c3836 100
+
+# Panel
+panel_items = LTC
+
+# Taskbar
+taskbar_mode = single_desktop
+taskbar_hide_if_empty = 0
+taskbar_padding = 4 4
+taskbar_background_id = 1
+taskbar_active_background_id = 1
+taskbar_name = 0
+taskbar_hide_inactive_tasks = 0
+taskbar_hide_different_monitor = 0
+taskbar_always_show_all_desktop_tasks = 0
+
+# Tasks
+urgent_nb_of_blink = 20
+task_icon = 0
+task_text = 1
+task_centered = 1
+task_maximum_size = 150 30
+task_padding = 4 8
+task_background_id = 3
+task_active_background_id = 2
+task_urgent_background_id = 2
+task_icon_asb = 100 0 0
+task_active_icon_asb = 100 0 0
+task_urgent_icon_asb = 100 0 0
+task_font = Sans 10
+task_font_color = #ebdbb2 100
+task_active_font_color = #ebdbb2 100
+task_urgent_font_color = #fb4934 100
+task_tooltip = 0
+
+# System Tray
+systray = 0
+
+# Clock
+time1_format = %H:%M %A, %d %B
+time1_font = Sans 10
+clock_font_color = #ebdbb2 100
+clock_padding = 4 8
+clock_background_id = 1
+clock_tooltip =
+
+# Launcher
+launcher_padding = 4 4
+launcher_tooltip = 1
+launcher_icon_size = 32
+launcher_apps_dir = /root/.local/share/applications

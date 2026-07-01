@@ -24,8 +24,12 @@ body:
               - Genomics
               - Molecular
               - Structural
-              - Data Science
-              - Fluid Flow
+              - Analytics
+              - Simulation
+              - Visualization
+              - Development
+              - Desktop
+              - Infrastructure
               - Other
       validations:
           required: true
