@@ -5,9 +5,11 @@ LABEL org.opencontainers.image.description="Quality control tool for high throug
 LABEL org.opencontainers.image.source="https://github.com/dxflow-ai/hub"
 LABEL org.opencontainers.image.version="0.12.1"
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends parallel \
-    && rm -rf /var/lib/apt/lists/*
+# Setup scripts
+COPY entrypoint.sh /opt/dxflow/entrypoint.sh
+RUN chmod +x /opt/dxflow/entrypoint.sh
 
 WORKDIR /data
 VOLUME [ "/data" ]
+
+ENTRYPOINT [ "/opt/dxflow/entrypoint.sh" ]

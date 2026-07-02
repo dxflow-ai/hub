@@ -109,8 +109,8 @@ RUN mkdir -p /opt/dxflow
 COPY prepare.sh /opt/dxflow/prepare.sh
 COPY postpare.sh /opt/dxflow/postpare.sh
 COPY launch.sh /opt/dxflow/launch.sh
-COPY runner.sh /opt/dxflow/runner.sh
-RUN chmod +x /opt/dxflow/runner.sh
+COPY entrypoint.sh /opt/dxflow/entrypoint.sh
+RUN chmod +x /opt/dxflow/entrypoint.sh
 
 ENV DISPLAY=":1"
 ENV WALLPAPER="show"
@@ -121,4 +121,4 @@ EXPOSE 5901 6082
 
 VOLUME [ "/volume" ]
 
-ENTRYPOINT [ "/opt/dxflow/runner.sh" ]
+ENTRYPOINT [ "/opt/dxflow/entrypoint.sh" ]
