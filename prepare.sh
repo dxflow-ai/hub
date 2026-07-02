@@ -65,8 +65,12 @@ if docker buildx version >/dev/null 2>&1; then
 else
   a="$(arch)" || die "unknown arch $(uname -m) — install buildx manually: https://github.com/docker/buildx#installing"
   log "install docker buildx plugin (linux/$a)"
-  version="$(curl -fsSL https://api.github.com/repos/docker/buildx/releases/latest | grep -m1 '"tag_name"' | cut -d'"' -f4)"
-  [ -n "$version" ] || die "could not resolve the latest buildx version"
+  # Resolve the latest tag from the full response (a piped grep -m1 would
+  # SIGPIPE curl and trip pipefail before we ever download)
+  release="$(curl -fsSL https://api.github.com/repos/docker/buildx/releases/latest)"
+  re='"tag_name":[[:space:]]*"([^"]+)"'
+  [[ "$release" =~ $re ]] || die "could not resolve the latest buildx version"
+  version="${BASH_REMATCH[1]}"
   # Download to a temp file first, then place it — clearer failure than writing straight to /usr/local
   tmp="$(mktemp)"
   curl -fSL "https://github.com/docker/buildx/releases/download/${version}/buildx-${version}.linux-${a}" -o "$tmp" || die "failed to download buildx (check disk space with 'df -h' and network)"
