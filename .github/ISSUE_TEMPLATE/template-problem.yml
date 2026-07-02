@@ -38,7 +38,7 @@ body:
       attributes:
           label: Which template?
           description: Name or path of the affected template.
-          placeholder: e.g. 2.genomics/01.fastqc.md
+          placeholder: e.g. 02.genomics/01.fastqc.md
       validations:
           required: true
     - type: dropdown
