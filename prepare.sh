@@ -71,9 +71,9 @@ else
   re='"tag_name":[[:space:]]*"([^"]+)"'
   [[ "$release" =~ $re ]] || die "could not resolve the latest buildx version"
   version="${BASH_REMATCH[1]}"
-  # Download to a temp file first, then place it — clearer failure than writing straight to /usr/local
+  # Download, then install into the Docker CLI-plugins dir
   tmp="$(mktemp)"
-  curl -fSL "https://github.com/docker/buildx/releases/download/${version}/buildx-${version}.linux-${a}" -o "$tmp" || die "failed to download buildx (check disk space with 'df -h' and network)"
+  curl -fSL "https://github.com/docker/buildx/releases/download/${version}/buildx-${version}.linux-${a}" -o "$tmp" || die "failed to download buildx"
   root install -D -m 0755 "$tmp" /usr/local/lib/docker/cli-plugins/docker-buildx
   rm -f "$tmp"
   docker buildx version >/dev/null 2>&1 || die "buildx install failed — see https://github.com/docker/buildx#installing"
