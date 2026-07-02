@@ -3,7 +3,7 @@
 set -u
 
 log() {
-  echo "[runner] $*";
+  echo "[entrypoint] $*";
 }
 
 run_hook() {
