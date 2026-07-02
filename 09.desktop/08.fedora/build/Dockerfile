@@ -1,40 +1,50 @@
-FROM ubuntu:22.04
+FROM fedora:41
 
-LABEL org.opencontainers.image.title="Ubuntu Desktop"
-LABEL org.opencontainers.image.description="Full Ubuntu Linux desktop accessible from your browser"
+LABEL org.opencontainers.image.title="Fedora Desktop"
+LABEL org.opencontainers.image.description="Full Fedora Linux desktop accessible from your browser"
 LABEL org.opencontainers.image.source="https://github.com/dxflow-ai/hub"
-LABEL org.opencontainers.image.version="22.04"
+LABEL org.opencontainers.image.version="41"
 
-ENV LANG="en_US.utf8"
-ENV DEBIAN_FRONTEND="noninteractive"
-
-# Extend the apt http timeout
-RUN echo 'Acquire::http::Timeout "120";' > /etc/apt/apt.conf.d/99timeout
+ENV LANG="C.UTF-8"
 
 # Install packages
-RUN apt-get update -q && \
-    apt-get install -y -q --no-install-recommends --reinstall --fix-missing \
-    bash grep gzip gnupg xz-utils zip file sed unzip gawk less tar manpages passwd procps ncurses-base tzdata sudo nano vim iputils-ping wget curl git python3 xorg xauth xinit openbox feh tint2 fonts-dejavu python3-xdg qterminal autocutsel wmctrl alsa-base alsa-utils pulseaudio pulseaudio-utils && \
-    rm -rf /var/lib/apt/lists/*
+RUN dnf install -y --setopt=install_weak_deps=False --allowerasing \
+    bash grep gzip xz zip file sed unzip gawk less which tar man-pages shadow-utils procps-ng ncurses tzdata sudo util-linux nano vim iputils wget curl git python3 xorg-x11-server-Xorg xorg-x11-xauth xorg-x11-xinit openbox feh dejavu-sans-fonts qterminal wmctrl alsa-lib alsa-utils pulseaudio pulseaudio-utils && \
+    dnf clean all && \
+    rm -rf /var/cache/dnf/*
 
 # Install turbovnc
-RUN wget -q -O- https://packagecloud.io/dcommander/turbovnc/gpgkey | gpg --dearmor >/etc/apt/trusted.gpg.d/TurboVNC.gpg && \
-    wget -q -O /etc/apt/sources.list.d/TurboVNC.list https://raw.githubusercontent.com/TurboVNC/repo/main/TurboVNC.list && \
-    apt-get update -q && \
-    apt-get install -y -q --no-install-recommends --reinstall --fix-missing turbovnc && \
+RUN wget -q -O /etc/yum.repos.d/TurboVNC.repo https://raw.githubusercontent.com/TurboVNC/repo/main/TurboVNC.repo && \
+    dnf install -y --setopt=install_weak_deps=False --allowerasing turbovnc && \
     ln -s /opt/TurboVNC/bin/Xvnc /usr/bin/Xvnc && \
     ln -s /opt/TurboVNC/bin/vncpasswd /usr/bin/vncpasswd && \
     ln -s /opt/TurboVNC/bin/vncserver /usr/bin/vncserver && \
     ln -s /opt/TurboVNC/bin/webserver /usr/bin/webserver && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/cache/dnf/*
+
+# Install tint2
+RUN dnf install -y --setopt=install_weak_deps=False --allowerasing make cmake gcc-c++ cairo pango glib2 imlib2-devel gtk3-devel libXinerama-devel libXrender-devel libXcomposite-devel libXdamage-devel libX11-devel libXrandr-devel librsvg2-devel && \
+    wget https://gitlab.com/o9000/tint2/-/archive/v17.0.2/tint2-v17.0.2.tar.gz -O /tmp/tint2.tar.gz && \
+    tar -zxf /tmp/tint2.tar.gz -C /tmp && \
+    cd /tmp/tint2-v17.0.2/ && cmake -D ENABLE_BATTERY=OFF -D ENABLE_TINT2CONF=OFF -D ENABLE_SN=OFF -B build && make -C build && make -C build install && \
+    rm -rf /tmp/* && \
+    rm -rf /var/cache/dnf/*
+
+# Install autocutsel
+RUN dnf install -y --setopt=install_weak_deps=False --allowerasing make libX11-devel libXtst-devel libXaw-devel && \
+    wget https://github.com/sigmike/autocutsel/releases/download/0.10.1/autocutsel-0.10.1.tar.gz -O /tmp/autocutsel.tar.gz && \
+    tar -zxf /tmp/autocutsel.tar.gz -C /tmp && \
+    cd /tmp/autocutsel-0.10.1/ && sh configure && make && make install && \
+    rm -rf /tmp/* && \
+    rm -rf /var/cache/dnf/*
 
 # Install qtfm
-RUN apt-get update -q && \
-    apt-get install -y -q --no-install-recommends --reinstall --fix-missing make qt5-qmake g++ qtbase5-dev qtbase5-dev-tools && \
+RUN dnf install -y --setopt=install_weak_deps=False --allowerasing make cmake gcc-c++ qt5-qtbase-devel && \
     wget https://github.com/rodlie/qtfm/archive/refs/tags/6.2.1.tar.gz -O /tmp/qtfm.tar.gz && \
     tar -zxf /tmp/qtfm.tar.gz -C /tmp && \
-    cd /tmp/qtfm-6.2.1/ && qmake && make && make install && rm -rf /tmp/* && \
-    rm -rf /var/lib/apt/lists/*
+    cd /tmp/qtfm-6.2.1/ && qmake-qt5 && make && make install && \
+    rm -rf /tmp/* && \
+    rm -rf /var/cache/dnf/*
 
 # Install noVNC
 RUN wget -q --no-check-certificate "https://github.com/novnc/noVNC/archive/refs/tags/v1.5.0.tar.gz" -O /tmp/novnc.tar.gz && \

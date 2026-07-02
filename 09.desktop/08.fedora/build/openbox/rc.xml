@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<openbox_config xmlns="http://openbox.org/3.4/rc" xmlns:xi="http://www.w3.org/2001/XInclude">
+    <theme>
+        <name>Dracula</name>
+        <titleLayout>IMC</titleLayout>
+    </theme>
+    <desktops>
+        <number>1</number>
+    </desktops>
+    <keyboard />
+    <mouse>
+        <context name="Root">
+            <mousebind button="Right" action="Press">
+                <action name="ShowMenu">
+                    <menu>root-menu</menu>
+                </action>
+            </mousebind>
+        </context>
+        <context name="Titlebar">
+            <mousebind button="Left" action="Press">
+                <action name="Focus" />
+                <action name="Raise" />
+            </mousebind>
+            <mousebind button="Left" action="Click">
+                <action name="Unshade" />
+            </mousebind>
+            <mousebind button="Left" action="Drag">
+                <action name="Move" />
+            </mousebind>
+        </context>
+        <context name="Iconify">
+            <mousebind button="Left" action="Click">
+                <action name="Iconify" />
+            </mousebind>
+        </context>
+        <context name="Maximize">
+            <mousebind button="Left" action="Click">
+                <action name="ToggleMaximize" />
+            </mousebind>
+        </context>
+        <context name="Close">
+            <mousebind button="Left" action="Click">
+                <action name="Close" />
+            </mousebind>
+        </context>
+    </mouse>
+    <menu>
+        <file>menu.xml</file>
+        <hideDelay>200</hideDelay>
+        <showIcons>no</showIcons>
+    </menu>
+    <applications>
+        <application type="normal">
+            <decor>no</decor>
+        </application>
+    </applications>
+</openbox_config>

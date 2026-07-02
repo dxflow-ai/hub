@@ -31,11 +31,18 @@ steps:
           - name: vnc
             host: "5901"
             container: "5901"
+          - name: audio
+            host: "6100"
+            container: "6100"
       env:
           - VNC_PASSWORD=changeme
           - WALLPAPER=show
           - PANEL=show
           - TASKBAR=show
+          - AUDIO=off
+          - AUDIO_PORT=6100
+          - AUDIO_CHANNELS=1
+          - AUDIO_RATE=22050
       resources:
           cpu: "2"
           memory: 4G
@@ -48,12 +55,17 @@ app.volume = ./volume
 [port]
 app.web = 6082
 app.vnc = 5901
+app.audio = 6100
 
 [env]
 app.VNC_PASSWORD = changeme
 app.WALLPAPER = show
 app.PANEL = show
 app.TASKBAR = show
+app.AUDIO = off
+app.AUDIO_PORT = 6100
+app.AUDIO_CHANNELS = 1
+app.AUDIO_RATE = 22050
 
 [resource]
 app.cpu = 2
@@ -98,3 +110,4 @@ Anything under `/volume` persists across restarts — mount a local directory th
 
 - Set a strong `VNC_PASSWORD`; if unset, the desktop falls back to the password `anonymous`.
 - Display options: `WALLPAPER`, `PANEL`, and `TASKBAR` (each `show` or `hide`) toggle the wallpaper, window decorations, and taskbar.
+- Audio: off by default. Set `AUDIO=on` to stream desktop sound to the browser; tune with `AUDIO_CHANNELS` (1 or 2) and `AUDIO_RATE` (8000/16000/22050/32000/44100). The audio port is `AUDIO_PORT` (default `6100`) — the client follows it, so to run two desktops on one host give each its own port by setting `AUDIO_PORT` and the matching `audio` port mapping together.
