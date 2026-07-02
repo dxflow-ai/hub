@@ -67,10 +67,11 @@ else
   log "install docker buildx plugin (linux/$a)"
   version="$(curl -fsSL https://api.github.com/repos/docker/buildx/releases/latest | grep -m1 '"tag_name"' | cut -d'"' -f4)"
   [ -n "$version" ] || die "could not resolve the latest buildx version"
-  plugins="/usr/local/lib/docker/cli-plugins"
-  root mkdir -p "$plugins"
-  root curl -fsSL "https://github.com/docker/buildx/releases/download/${version}/buildx-${version}.linux-${a}" -o "$plugins/docker-buildx"
-  root chmod +x "$plugins/docker-buildx"
+  # Download to a temp file first, then place it — clearer failure than writing straight to /usr/local
+  tmp="$(mktemp)"
+  curl -fSL "https://github.com/docker/buildx/releases/download/${version}/buildx-${version}.linux-${a}" -o "$tmp" || die "failed to download buildx (check disk space with 'df -h' and network)"
+  root install -D -m 0755 "$tmp" /usr/local/lib/docker/cli-plugins/docker-buildx
+  rm -f "$tmp"
   docker buildx version >/dev/null 2>&1 || die "buildx install failed — see https://github.com/docker/buildx#installing"
 fi
 
