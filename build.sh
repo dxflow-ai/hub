@@ -17,7 +17,7 @@ HUB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Workflow key (the <key> in folder NN.<key>)
 workflow="${1:-}"
-[ -n "$workflow" ] || { echo "usage: $0 <workflow>   (e.g. $0 fastqc)" >&2; exit 1; }
+[ -n "$workflow" ] || { echo "usage: $0 <workflow>" >&2; exit 1; }
 
 # Find the workflow folder by matching the part after the NN. prefix
 dir=""
