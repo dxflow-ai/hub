@@ -24,14 +24,18 @@ steps:
       - DXF_PROXY_TOOLBAR=/vnc.html
       - DXF_PROXY_TOOLBAR_SOFTWARE=vnc
     ports:
-      - host: "5901"
+      - name: vnc
+        host: "5901"
         container: "5901"
-      - host: "6082"
+      - name: web
+        host: "6082"
         container: "6082"
-      - host: "6100"
+      - name: audio
+        host: "6100"
         container: "6100"
     volumes:
-      - host: ./volume
+      - name: volume
+        host: ./volume
         container: /volume
     resources:
       cpu: "16"

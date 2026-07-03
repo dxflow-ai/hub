@@ -30,12 +30,15 @@ steps:
       - -f
       - /dev/null
     volumes:
-      - host: ./input
+      - name: input
+        host: ./input
         container: /workspace/input
         mode: ro
-      - host: ./output
+      - name: output
+        host: ./output
         container: /workspace/output
-      - host: ./mdp
+      - name: mdp
+        host: ./mdp
         container: /workspace/mdp
         mode: ro
     resources:

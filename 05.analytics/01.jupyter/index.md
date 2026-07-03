@@ -26,12 +26,15 @@ steps:
       - JUPYTER_TOKEN=your-secret-token
       - GRANT_SUDO=yes
     ports:
-      - host: "8888"
+      - name: notebook
+        host: "8888"
         container: "8888"
     volumes:
-      - host: ./notebooks
+      - name: notebooks
+        host: ./notebooks
         container: /home/jovyan/work
-      - host: ./data
+      - name: data
+        host: ./data
         container: /home/jovyan/data
     resources:
       cpu: "8"
