@@ -59,6 +59,7 @@ job.memory = 4G
 ```json
 {
     "arch": ["amd64"],
+    "image": "ghcr.io/dxflow-ai/fastqc:latest",
     "version": "0.12.1",
     "minimum": {
         "cpu": 2,

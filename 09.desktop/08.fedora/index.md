@@ -73,6 +73,7 @@ app.memory = 4G
 ```json
 {
     "arch": ["amd64", "arm64"],
+    "image": "ghcr.io/dxflow-ai/fedora:latest",
     "version": "41",
     "minimum": {
         "cpu": 2,

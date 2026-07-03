@@ -1,14 +1,12 @@
 #!/usr/bin/env bash
 #
-# Build one Hub workflow into a multi-arch OCI archive: .build/<key>.oci.tar
-#
-# Reads folder NN.<key>: needs a Dockerfile and an index.md whose JSON config
-# has the target arches, e.g. { "arch": ["amd64", "arm64"] }. Publish separately
-# with ./publish.sh. Setup once with ./prepare.sh.
+# Build one Hub workflow's image for this machine's architecture and load it
+# into the local Docker, so ./verify.sh and the engine (pull: missing) use it
+# without pulling from a registry. Push all arches with ./publish.sh; set up
+# the host once with ./prepare.sh.
 #
 # Usage:
-#   ./build.sh <workflow>                                    # arch from index.md
-#   PLATFORM=linux/amd64,linux/arm64 ./build.sh <workflow>   # override
+#   ./build.sh <workflow>    # e.g. ./build.sh fastqc
 #
 set -euo pipefail
 
@@ -29,7 +27,7 @@ done < <(find "$HUB_DIR" -mindepth 2 -maxdepth 2 -type d -not -path '*/.*' | sor
 [ -n "$dir" ] || { echo "unknown workflow: $workflow" >&2; exit 1; }
 [ -f "$dir/index.md" ] || { echo "no index.md in ${dir#"$HUB_DIR"/}" >&2; exit 1; }
 
-# Build context is the Dockerfile's directory: prefer build/, fall back to the workflow root
+# Build context is the Dockerfile's directory: prefer build/, fall back to the root
 if [ -f "$dir/build/Dockerfile" ]; then
   context="$dir/build"
 elif [ -f "$dir/Dockerfile" ]; then
@@ -37,27 +35,15 @@ elif [ -f "$dir/Dockerfile" ]; then
 else
   echo "no Dockerfile in ${dir#"$HUB_DIR"/}" >&2; exit 1
 fi
-dockerfile="$context/Dockerfile"
 
-# Target platforms: from index.md's "arch" array unless PLATFORM overrides
-if [ -z "${PLATFORM:-}" ]; then
-  archs="$(grep -m1 'arch' "$dir/index.md" | grep -oE 'amd64|arm64' || true)"
-  [ -n "$archs" ] || { echo "no arch in ${dir#"$HUB_DIR"/}/index.md" >&2; exit 1; }
-  PLATFORM=""
-  for a in $archs; do PLATFORM="${PLATFORM:+$PLATFORM,}linux/$a"; done
-fi
+# Target image this folder builds, from the json "image" field (the yaml may
+# reference more images, but only this one is ours to build)
+json="$(awk '/^```json/{flag=1; next} /^```/{if (flag) exit} flag' "$dir/index.md")"
+re='"image"[[:space:]]*:[[:space:]]*"([^"]+)"'
+[[ "$json" =~ $re ]] || { echo "no \"image\" in ${dir#"$HUB_DIR"/}/index.md json" >&2; exit 1; }
+image="${BASH_REMATCH[1]}"
 
-# Image tag from the Dockerfile's version label (falls back to latest)
-version="$(grep -m1 'org.opencontainers.image.version' "$dockerfile" | grep -oE '[0-9][0-9.]*' | head -1 || true)"
-
-# Build all arches into one multi-arch OCI archive
-mkdir -p "$HUB_DIR/.build"
-out="$HUB_DIR/.build/$workflow.oci.tar"
-
-echo "==> build $workflow  ($workflow:${version:-latest})  [$PLATFORM]"
-docker buildx build --pull --platform "$PLATFORM" \
-  --tag "$workflow:${version:-latest}" \
-  --output "type=oci,dest=$out" \
-  --file "$dockerfile" "$context"
-
-echo "wrote ${out#"$HUB_DIR"/}"
+# Build for this machine's arch and load it into the local Docker
+echo "==> build $image  (local, $(uname -m))"
+docker buildx build --load --tag "$image" --file "$context/Dockerfile" "$context"
+echo "==> loaded $image  (run ./verify.sh $workflow, or ./publish.sh $workflow)"

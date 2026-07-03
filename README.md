@@ -24,22 +24,22 @@ NN.<category>/          # a numbered category folder
 
 A workflow is published/released only once it has both `build/` and `verify/` (its image is built and end-to-end tested first). Every workflow ships its own image built from `build/` — even one that just re-publishes an upstream image — so it lands in our registry (`ghcr.io/dxflow-ai`) with a configurable, env-driven `entrypoint.sh`. The recipe is a `Dockerfile` for docker/podman, or the equivalent definition for singularity/apptainer. Entries with just an `index.md` are drafts — not built, verified, or published yet.
 
-`index.md` holds a `## Configuration` section with three fenced blocks: **`yaml`** (the workflow definition `dxflow workflow create` and `verify.sh` run), **`ini`** (override defaults), and **`json`** (metadata: `arch` list, image `version`, `minimum` resources).
+`index.md` holds a `## Configuration` section with three fenced blocks: **`yaml`** (the workflow definition `dxflow workflow create` and `verify.sh` run), **`ini`** (override defaults), and **`json`** (metadata: `arch` list, the `image` this folder builds/publishes, image `version`, `minimum` resources). The yaml may reference more images than `json.image` — the extras are reused from other tools; build/publish only handle this folder's own `image`, while verify checks every step image is present.
 
 When adding a tool, copy an existing published workflow (one that already has `build/` and `verify/`) as a reference.
 
 ## Scripts
 
-`<key>` is the folder name after the `NN.` prefix. Image build/publish runs on a Linux host, not macOS.
+`<key>` is the folder name after the `NN.` prefix. Runs on a Linux host, not macOS.
 
 ```bash
-./prepare.sh                    # one-time host setup: docker+buildx, builder, QEMU, skopeo
-./build.sh <key>                # build arches (from json "arch") → .build/<key>.oci.tar
-./publish.sh <key>              # push that archive to the registry as :<version> and :latest
-./verify.sh <key>               # end-to-end test the workflow through a live dxflow engine
+./prepare.sh                    # one-time host setup: docker+buildx, builder, QEMU, dxflow CLI
+./build.sh <key>                # build this arch and load it into local docker (for verify)
+./verify.sh <key>               # end-to-end test the loaded image through a live dxflow engine
+./publish.sh <key>              # build all arches (from json "arch") and push a multi-arch image
 ```
 
-Overrides: `PLATFORM=linux/amd64,linux/arm64 ./build.sh <key>`, `REGISTRY=ghcr.io/dxflow-ai ./publish.sh <key>`. Publishing needs `docker login` to the registry first.
+Run `build` before `verify` — verify uses the locally-loaded image (the engine's `pull: missing` finds it, no registry pull). `publish` builds and pushes both arches as one `:latest` + `:<version>` manifest, and needs `docker login` to the registry first.
 
 `verify.sh` needs the `dxflow` CLI, `docker`, and a reachable engine. It builds the image, deploys and starts the real workflow, uploads `verify/input/`, then runs the tool's `verify/check.sh` — which asserts success using helpers verify.sh provides: `wait_exit` + `expect_output`/`expect_file` for a batch tool that produces files, or `wait_running` + `expect_http`/`expect_port` for a long-running service (desktop, IDE, notebook). The engine must be started with its **working directory set to its volume dir** (it passes relative volume paths straight to `docker run -v`), and needs Docker ≥ 23.
 

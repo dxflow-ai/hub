@@ -3,8 +3,8 @@
 # Set up a host for ./build.sh, ./publish.sh, and ./verify.sh. Idempotent — run anytime.
 #
 # Installs whatever is missing: docker + buildx, a multi-arch buildx builder
-# ("dxflow"), QEMU binfmt emulators (cross-arch builds), skopeo (publishing),
-# and the dxflow CLI (verify). Meant for a fresh Linux build host (e.g. EC2).
+# ("dxflow"), QEMU binfmt emulators (cross-arch builds), and the dxflow CLI
+# (verify). Meant for a fresh Linux build host (e.g. EC2).
 # It does NOT start the dxflow engine — verify needs a running engine, which is a
 # stateful daemon you start yourself.
 #
@@ -95,19 +95,7 @@ docker buildx inspect --bootstrap "$builder" >/dev/null
 log "install QEMU binfmt emulators"
 docker run --privileged --rm tonistiigi/binfmt --install all >/dev/null
 
-# 5. skopeo (for publishing)
-if have skopeo; then
-  log "skopeo ok"
-else
-  log "install skopeo"
-  if have apt-get; then root apt-get update -qq && root apt-get install -y -qq skopeo
-  elif have dnf; then root dnf install -y -q skopeo
-  elif have yum; then root yum install -y -q skopeo
-  else die "no known package manager — install skopeo manually: https://github.com/containers/skopeo/blob/main/install.md"
-  fi
-fi
-
-# 6. dxflow CLI (for ./verify.sh) — the engine binary; verify drives it and boots against it
+# 5. dxflow CLI (for ./verify.sh) — the engine binary; verify drives it and boots against it
 if have dxflow; then
   log "dxflow CLI ok"
 else

@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 #
-# Verify a Hub workflow end-to-end through the dxflow engine: build its image,
-# deploy and start the real workflow from index.md, feed it the tool's fixtures,
-# and run the tool's own success check. Needs a reachable dxflow engine and the
-# `dxflow` CLI on PATH (plus docker to build the image).
+# Verify a Hub workflow end-to-end through the dxflow engine: deploy and start
+# the real workflow from index.md using the step images ./build.sh already
+# loaded locally, feed it the tool's fixtures, and run the tool's own success
+# check. Build every step's image with ./build.sh first. Needs a reachable
+# dxflow engine and the `dxflow` CLI on PATH (plus docker to check the images).
 #
 # Each tool provides a verify/ folder next to its build/ sources:
 #   verify/check.sh   required — the success check. Sourced after the workflow
@@ -145,15 +146,6 @@ done < <(find "$HUB_DIR" -mindepth 2 -maxdepth 2 -type d -not -path '*/.*' | sor
 [ -n "$dir" ] || die "unknown workflow: $workflow"
 [ -f "$dir/index.md" ] || die "no index.md in ${dir#"$HUB_DIR"/}"
 
-# Build context is the Dockerfile's directory: prefer build/, fall back to the root
-if [ -f "$dir/build/Dockerfile" ]; then
-  context="$dir/build"
-elif [ -f "$dir/Dockerfile" ]; then
-  context="$dir"
-else
-  die "no Dockerfile in ${dir#"$HUB_DIR"/}"
-fi
-
 # The tool's verify fixtures
 verify="$dir/verify"
 [ -f "$verify/check.sh" ] || die "no verify/check.sh in ${dir#"$HUB_DIR"/}"
@@ -170,14 +162,21 @@ if [ -f "$verify/config.sh" ]; then
   TIMEOUT="${timeout:-$TIMEOUT}"
 fi
 
-# Extract the workflow YAML (first ```yaml block under ## Configuration)
-yaml="$(mktemp)"
+# Extract the workflow YAML (first ```yaml block under ## Configuration).
+# Keep the .yml name — the CLI keys off the extension to treat it as a workflow file.
+workdir="$(mktemp -d)"
+yaml="$workdir/workflow.yml"
 awk '/^```yaml/{flag=1; next} /^```/{if (flag) exit} flag' "$dir/index.md" >"$yaml"
 [ -s "$yaml" ] || die "no yaml config block in ${dir#"$HUB_DIR"/}/index.md"
 
-# Image tag from the yaml — build it locally so the engine uses it (pull: missing)
-image="$(grep -m1 'image:' "$yaml" | sed 's/.*image:[[:space:]]*//')"
-[ -n "$image" ] || die "no image in the workflow yaml"
+# Every image the workflow's steps use must already be built locally (./build.sh
+# in each image's own tool), so the engine runs them via pull: missing without
+# pulling from the registry
+images="$(grep -oE 'image:[[:space:]]*[^[:space:]]+' "$yaml" | sed 's/image:[[:space:]]*//')"
+[ -n "$images" ] || die "no image in the workflow yaml"
+while IFS= read -r img; do
+  docker image inspect "$img" >/dev/null 2>&1 || die "image not built locally: $img  (run ./build.sh for its tool first)"
+done <<< "$images"
 
 identity="verify-$workflow"
 
@@ -185,15 +184,11 @@ cleanup() {
   dxflow workflow remove "$identity" >/dev/null 2>&1 || true
   dxflow artifact delete "$input_dir/" >/dev/null 2>&1 || true
   dxflow artifact delete "$output_dir/" >/dev/null 2>&1 || true
-  rm -f "$yaml"
-  docker image rm -f "$image" >/dev/null 2>&1 || true
+  rm -rf "$workdir"
 }
 trap cleanup EXIT
 
-# Build the image and run the workflow.
-
-log "build $image"
-docker build --load --tag "$image" --file "$context/Dockerfile" "$context"
+# Run the workflow.
 
 # Start from a clean slate
 dxflow workflow remove "$identity" >/dev/null 2>&1 || true

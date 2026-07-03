@@ -3,7 +3,6 @@ FROM ubuntu:22.04
 LABEL org.opencontainers.image.title="Ubuntu Desktop"
 LABEL org.opencontainers.image.description="Full Ubuntu Linux desktop accessible from your browser"
 LABEL org.opencontainers.image.source="https://github.com/dxflow-ai/hub"
-LABEL org.opencontainers.image.version="22.04"
 
 ENV LANG="en_US.utf8"
 ENV DEBIAN_FRONTEND="noninteractive"

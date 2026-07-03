@@ -75,6 +75,7 @@ app.memory = 4G
 ```json
 {
     "arch": ["amd64", "arm64"],
+    "image": "ghcr.io/dxflow-ai/ubuntu:latest",
     "version": "22.04",
     "minimum": {
         "cpu": 2,
