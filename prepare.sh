@@ -95,16 +95,31 @@ docker buildx inspect --bootstrap "$builder" >/dev/null
 log "install QEMU binfmt emulators"
 docker run --privileged --rm tonistiigi/binfmt --install all >/dev/null
 
-# 5. dxflow CLI (for ./verify.sh) — the engine binary; verify drives it and boots against it
+# 5. dxflow CLI (for ./verify.sh) — the engine binary; verify drives it and boots
+# against it. Keep it at the latest release: the workflow API is version-sensitive,
+# so a stale CLI against a newer engine fails (e.g. "name required"). (Re)install
+# whenever it is missing or behind the latest tag.
+a="$(arch)" || die "unknown arch $(uname -m) — install dxflow manually: https://github.com/dxflow-ai/community/releases/latest"
+# Resolve the latest tag from the full response (a piped grep -m1 would SIGPIPE
+# curl and trip pipefail before we ever read it)
+release="$(curl -fsSL https://api.github.com/repos/dxflow-ai/community/releases/latest)"
+re='"tag_name":[[:space:]]*"v?([^"]+)"'
+[[ "$release" =~ $re ]] || die "could not resolve the latest dxflow version"
+latest="${BASH_REMATCH[1]}"
+# Installed version, if any (dxflow prints "dxflow version X.Y.Z")
+current=""
 if have dxflow; then
-  log "dxflow CLI ok"
+  vre='([0-9]+\.[0-9]+\.[0-9]+)'
+  [[ "$(dxflow --version 2>/dev/null || true)" =~ $vre ]] && current="${BASH_REMATCH[1]}"
+fi
+if [ "$current" = "$latest" ]; then
+  log "dxflow CLI ok (v$latest)"
 else
-  a="$(arch)" || die "unknown arch $(uname -m) — install dxflow manually: https://github.com/dxflow-ai/community/releases/latest"
-  log "install dxflow CLI (linux/$a)"
+  log "install dxflow CLI v$latest (linux/$a)${current:+, replacing v$current}"
   tmp="$(mktemp -d)"
   trap 'rm -rf "$tmp"' EXIT
   curl -fsSL "https://github.com/dxflow-ai/community/releases/latest/download/dxflow_linux_$a.tar.gz" | tar -xz -C "$tmp"
-  root mv "$tmp/dxflow" /usr/local/bin/
+  root install -m 0755 "$tmp/dxflow" /usr/local/bin/dxflow
 fi
 
 log "ready — ./build.sh, ./publish.sh, ./verify.sh <workflow>"
