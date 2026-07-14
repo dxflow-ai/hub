@@ -20,14 +20,19 @@ class PCMPlayer {
         this.convertValue = 32768;
         this.typedArray = Int16Array;
 
-        this.interval = setInterval(this.flush.bind(this), this.option.flushTime);
+        this.interval = setInterval(
+            this.flush.bind(this),
+            this.option.flushTime,
+        );
 
         this.initAudioContext();
         this.bindAudioContextEvent();
     }
 
     initAudioContext() {
-        this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        this.audioCtx = new (
+            window.AudioContext || window.webkitAudioContext
+        )();
 
         this.gainNode = this.audioCtx.createGain();
         this.gainNode.gain.value = 0.1;
@@ -41,7 +46,9 @@ class PCMPlayer {
 
     feed(data) {
         const isTypedArray =
-            (data.byteLength && data.buffer && data.buffer.constructor == ArrayBuffer) ||
+            (data.byteLength &&
+                data.buffer &&
+                data.buffer.constructor == ArrayBuffer) ||
             data.constructor == ArrayBuffer;
 
         if (!isTypedArray) {
@@ -103,7 +110,11 @@ class PCMPlayer {
         }
 
         const length = this.samples.length / this.option.channels;
-        const audioBuffer = this.audioCtx.createBuffer(this.option.channels, length, this.option.rate);
+        const audioBuffer = this.audioCtx.createBuffer(
+            this.option.channels,
+            length,
+            this.option.rate,
+        );
 
         for (let channel = 0; channel < this.option.channels; channel++) {
             const audioData = audioBuffer.getChannelData(channel);
@@ -146,7 +157,8 @@ class PCMPlayer {
         const self = this;
         if (typeof self.option.onstatechange === "function") {
             this.audioCtx.onstatechange = function (event) {
-                self.audioCtx && self.option.onstatechange(this, event, self.audioCtx.state);
+                self.audioCtx &&
+                    self.option.onstatechange(this, event, self.audioCtx.state);
             };
         }
     }
