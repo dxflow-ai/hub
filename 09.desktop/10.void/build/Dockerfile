@@ -4,6 +4,9 @@ LABEL org.opencontainers.image.title="Void Desktop"
 LABEL org.opencontainers.image.description="Full Void Linux desktop accessible from your browser"
 LABEL org.opencontainers.image.source="https://github.com/dxflow-ai/hub"
 
+# Update xbps itself before installing (the pinned base lags the rolling repo)
+RUN xbps-install -Suy xbps
+
 # Install packages
 RUN xbps-install -Sy \
     bash grep gzip xz zip file sed unzip gawk less which tar man-pages shadow procps-ng ncurses tzdata sudo util-linux nano vim iputils wget curl git python3 xorg-server xauth xinit openbox feh tint2 dejavu-fonts-ttf qterminal qtfm turbovnc autocutsel wmctrl alsa-lib alsa-utils pulseaudio && \
