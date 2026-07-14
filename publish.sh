@@ -60,5 +60,6 @@ fi
 # Build all arches and push as one multi-arch manifest
 echo "==> publish $image  [$platform]${version:+  (+ :$version)}"
 docker buildx build --pull --push --platform "$platform" \
+  --provenance=false --sbom=false \
   "${args[@]}" \
   --file "$context/Dockerfile" "$context"
