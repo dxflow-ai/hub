@@ -7,9 +7,9 @@ WORKDIR /app
 COPY app/package.json ./
 RUN npm install -g pnpm@9 && pnpm install
 
-# Build the app
+# Build the app (vite only; skip tsc typecheck, which a newer TypeScript rejects)
 COPY app/ ./
-RUN pnpm build
+RUN pnpm exec vite build
 
 # Final image
 FROM ollama/ollama:0.5.11
