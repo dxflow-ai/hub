@@ -16,7 +16,7 @@ RUN curl -L -o /tmp/xdeb https://github.com/xdeb-org/xdeb/releases/latest/downlo
 # Install rstudio-server (current build, compatible with modern R)
 RUN curl -L -o /tmp/rstudio-server.deb https://download2.rstudio.org/server/jammy/amd64/rstudio-server-2026.07.0-139-amd64.deb && \
     cd /tmp && \
-    /tmp/xdeb -Sd /tmp/rstudio-server.deb && \
+    /tmp/xdeb -Sd --not-deps="musl" /tmp/rstudio-server.deb && \
     xbps-install -y -R /tmp/binpkgs rstudio-server && \
     chmod +x /usr/lib/rstudio-server/bin/rserver
 
