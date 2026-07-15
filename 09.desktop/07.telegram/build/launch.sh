@@ -4,7 +4,7 @@
 echo "Launching ..."
 
 # Start the application
-nohup telegram-desktop &
+nohup Telegram &
 
 # Wait for the application to start
 while ! wmctrl -l | grep "Telegram"; do
