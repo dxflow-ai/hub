@@ -5,102 +5,111 @@ navigation:
     icon: i-diphyx:scipion
 ---
 
-Scipion is a workflow-based image processing framework for obtaining 3D models of macromolecular complexes using cryo-EM data. It integrates several software packages while presenting a unified, web-based interface.
+Scipion is a workflow-based image processing framework for obtaining 3D models of macromolecular complexes from cryo-EM data, backed by remote compute. It integrates packages like RELION, Xmipp, EMAN2, and CTFfind behind a unified GUI, streamed here in a remote desktop session on the [Ubuntu Desktop](/hub/desktop/ubuntu) image.
 
 ## Configuration
 
 ```yaml
 name: scipion
 tags:
-  - structural
+    - structural
 steps:
-  - name: scipion
-    platform: docker
-    mode: parallel
-    image: diphyx/scipion:latest
-    env:
-      - DXF_PROXY_MAIN_PORT=6082
-      - DXF_PROXY_ADDITIONAL_PORTS=6100
-      - DXF_PROXY_TOOLBAR=/vnc.html
-      - DXF_PROXY_TOOLBAR_SOFTWARE=vnc
-    ports:
-      - name: vnc
-        host: "5901"
-        container: "5901"
-      - name: web
-        host: "6082"
-        container: "6082"
-      - name: audio
-        host: "6100"
-        container: "6100"
-    volumes:
-      - name: volume
-        host: ./volume
-        container: /volume
-    resources:
-      cpu: "16"
-      memory: 64G
-      gpu: nvidia
+    - name: app
+      platform: docker
+      mode: parallel
+      image: ghcr.io/dxflow-ai/scipion:latest
+      volumes:
+          - name: volume
+            host: ./volume
+            container: /volume
+      ports:
+          - name: web
+            host: "6082"
+            container: "6082"
+          - name: vnc
+            host: "5901"
+            container: "5901"
+          - name: audio
+            host: "6100"
+            container: "6100"
+      env:
+          - VNC_PASSWORD=changeme
+          - WALLPAPER=show
+          - PANEL=show
+          - TASKBAR=hide
+          - AUDIO=off
+          - AUDIO_PORT=6100
+          - AUDIO_CHANNELS=1
+          - AUDIO_RATE=22050
+      resources:
+          cpu: "16"
+          memory: 64G
+          gpu: nvidia
+```
+
+```ini
+[volume]
+app.volume = ./volume
+
+[port]
+app.web = 6082
+app.vnc = 5901
+app.audio = 6100
+
+[env]
+app.VNC_PASSWORD = changeme
+app.WALLPAPER = show
+app.PANEL = show
+app.TASKBAR = hide
+app.AUDIO = off
+app.AUDIO_PORT = 6100
+app.AUDIO_CHANNELS = 1
+app.AUDIO_RATE = 22050
+
+[resource]
+app.cpu = 16
+app.memory = 64G
+app.gpu = nvidia
+```
+
+```json
+{
+    "arch": ["amd64"],
+    "image": "ghcr.io/dxflow-ai/scipion:latest",
+    "version": "3.4",
+    "minimum": {
+        "cpu": 8,
+        "memory": "32G",
+        "storage": "100G"
+    }
+}
 ```
 
 ## Usage
 
-### 1. Prepare data
-
-```bash
-# Create the data directory
-mkdir -p volume
-```
-
-### 2. Deploy
+### 1. Deploy
 
 ```bash
 dxflow workflow create --identity scipion scipion.yml
+
+# Start with defaults, or tune per run with --override
 dxflow workflow start scipion
+dxflow workflow start scipion \
+    --override env.app.VNC_PASSWORD=my-strong-pass
 ```
 
-Access the desktop by opening your browser at `http://localhost:6082/vnc.html`.
+### 2. Open the app
 
-### 3. Monitor
+Open your browser at `http://localhost:6082/vnc.html` and enter the password you set in `VNC_PASSWORD`. The Scipion project manager opens on the desktop. Port `5901` is also exposed for connecting a native VNC client.
 
-```bash
-dxflow workflow logs --live scipion
-```
+### 3. Persist data
 
-### 4. Retrieve results
+Mount your movies and datasets under `/volume` — the Scipion user data directory is linked there, so projects and results survive restarts.
 
-Results are written to the mounted `./volume` directory.
+## Notes
 
-## Typical workflow
-
-1. **Import movies** - Import raw cryo-EM movies
-2. **Motion correction** - Correct beam-induced motion
-3. **CTF estimation** - Estimate contrast transfer function
-4. **Particle picking** - Pick particles (manual/automatic)
-5. **2D classification** - Classify and average particles
-6. **3D initial model** - Generate initial 3D model
-7. **3D refinement** - Refine to high resolution
-8. **Post-processing** - Sharpen and validate map
-
-## Integrated packages
-
-- **RELION** - Refinement and classification
-- **Xmipp** - Complete processing suite
-- **EMAN2** - 2D/3D reconstruction
-- **CTFfind4** - CTF estimation
-- **MotionCor2** - Motion correction
-- **Gautomatch** - Particle picking
-
-## Requirements
-
-**Workstation:**
-- CPU: 16+ cores
-- RAM: 64GB minimum
-- GPU: NVIDIA RTX 3090 or better
-- Storage: 2TB+ NVMe SSD
-
-## References
-
-- **Website**: [Scipion](http://scipion.i2pc.es/)
-- **Documentation**: [Scipion Docs](http://scipion.i2pc.es/docs/docs/user/user-documentation)
-- **Tutorials**: [Scipion Tutorials](http://scipion.i2pc.es/docs/docs/user/tutorials)
+- Set a strong `VNC_PASSWORD`; if unset, the desktop falls back to the password `anonymous`.
+- Scipion is GPU- and compute-heavy: attach an NVIDIA GPU and give the step ample CPU, memory, and fast storage. The typical pipeline runs import → motion correction → CTF estimation → particle picking → 2D/3D classification → refinement → post-processing.
+- The image installs the Scipion core; some plugins (e.g. Xmipp, RELION, MotionCor2) are installed on demand from the plugin manager and may need additional download and build time.
+- The panel is kept and the taskbar hidden by default so Scipion's multiple windows are easy to manage. Set `TASKBAR=show` or `PANEL=hide` to change that.
+- Audio: off by default. Set `AUDIO=on` to stream desktop sound; tune with `AUDIO_CHANNELS` (1 or 2) and `AUDIO_RATE` (8000/16000/22050/32000/44100). The audio port is `AUDIO_PORT` (default `6100`) — the client follows it, so to run two sessions on one host give each its own port by setting `AUDIO_PORT` and the matching `audio` port mapping together.
