@@ -5,157 +5,85 @@ navigation:
     icon: i-diphyx:jupyter
 ---
 
-JupyterLab is a web-based interactive development environment for notebooks, code, and data, supporting Python, R, and Julia with a code editor, terminal access, file browser, an extension ecosystem, and real-time collaboration.
+JupyterLab is a web-based interactive development environment for notebooks, code, and data, backed by remote compute. This image bundles JupyterLab on top of Miniconda, served straight to the browser — no desktop or VNC.
 
 ## Configuration
 
 ```yaml
 name: jupyter
 tags:
-  - analytics
+    - analytics
 steps:
-  - name: jupyter
-    platform: docker
-    mode: sequential
-    image: jupyter/scipy-notebook:latest
-    command:
-      - start-notebook.sh
-      - --NotebookApp.token=your-secret-token
-    env:
-      - JUPYTER_ENABLE_LAB=yes
-      - JUPYTER_TOKEN=your-secret-token
-      - GRANT_SUDO=yes
-    ports:
-      - name: notebook
-        host: "8888"
-        container: "8888"
-    volumes:
-      - name: notebooks
-        host: ./notebooks
-        container: /home/jovyan/work
-      - name: data
-        host: ./data
-        container: /home/jovyan/data
-    resources:
-      cpu: "8"
-      memory: 16G
+    - name: app
+      platform: docker
+      mode: parallel
+      image: ghcr.io/dxflow-ai/jupyter:latest
+      volumes:
+          - name: volume
+            host: ./volume
+            container: /volume
+      ports:
+          - name: web
+            host: "8888"
+            container: "8888"
+      env:
+          - WORKING_DIR=
+      resources:
+          cpu: "4"
+          memory: 8G
+```
+
+```ini
+[volume]
+app.volume = ./volume
+
+[port]
+app.web = 8888
+
+[env]
+app.WORKING_DIR =
+
+[resource]
+app.cpu = 4
+app.memory = 8G
+```
+
+```json
+{
+    "arch": ["amd64", "arm64"],
+    "image": "ghcr.io/dxflow-ai/jupyter:latest",
+    "version": "4.2",
+    "minimum": {
+        "cpu": 4,
+        "memory": "8G",
+        "storage": "50G"
+    }
+}
 ```
 
 ## Usage
 
-### 1. Prepare data
+### 1. Deploy
 
 ```bash
-# Create directories
-mkdir -p notebooks data
-
-# Upload data files
-dxflow artifact upload /local/dataset.csv data/
-```
-
-### 2. Deploy
-
-```bash
-# Deploy Jupyter Lab
 dxflow workflow create --identity jupyter jupyter.yml
+
+# Start with defaults, or open a specific working directory
 dxflow workflow start jupyter
-
-# Access Jupyter Lab
-# Open browser: http://localhost:8888
-# Token: your-secret-token
+dxflow workflow start jupyter \
+    --override env.app.WORKING_DIR=projects/analysis
 ```
 
-### 3. Monitor
+### 2. Open the notebook
 
-```bash
-# View live logs
-dxflow workflow logs --live jupyter
+Open your browser at `http://localhost:8888`. JupyterLab opens on the working directory and needs no token — keep the port private and reach it through the platform's authenticated proxy.
 
-# List workflows
-dxflow workflow list
-```
+### 3. Persist data
 
-### 4. Retrieve results
+Notebooks and data live under `/volume`, so your work survives restarts — mount a local directory there to keep it.
 
-```bash
-# Download notebooks
-dxflow artifact download notebooks/ /local/notebooks/
-```
+## Notes
 
-## Working with notebooks
-
-```python
-# Example Python notebook
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-
-# Load data
-data = pd.read_csv('/home/jovyan/data/dataset.csv')
-
-# Analyze
-data.describe()
-
-# Visualize
-plt.figure(figsize=(10, 6))
-plt.plot(data['x'], data['y'])
-plt.xlabel('X axis')
-plt.ylabel('Y axis')
-plt.title('Data Visualization')
-plt.show()
-```
-
-## Pre-installed libraries
-
-**Data Science Stack:**
-- NumPy - Numerical computing
-- Pandas - Data manipulation
-- Matplotlib - Visualization
-- Seaborn - Statistical plots
-- SciPy - Scientific computing
-- Scikit-learn - Machine learning
-
-**Optional GPU Support:**
-
-For ML/DL, switch to a GPU image and request a GPU on the step:
-
-```yaml
-steps:
-  - name: jupyter
-    image: jupyter/tensorflow-notebook:latest
-    resources:
-      gpu: nvidia
-```
-
-## Extensions
-
-Popular JupyterLab extensions. Run the following commands inside the jupyter workflow container:
-
-```bash
-# Install extensions
-pip install jupyterlab-git jupyterlab-lsp
-
-# Code formatter
-pip install jupyterlab_code_formatter black
-
-# Table of contents
-pip install jupyterlab-toc
-```
-
-## Requirements
-
-**Light Workloads:**
-- CPU: 4 cores
-- RAM: 8GB
-- Storage: 50GB
-
-**Standard Workloads:**
-- CPU: 8 cores
-- RAM: 16GB+
-- Storage: 100GB SSD
-
-## References
-
-- **Website**: [JupyterLab](https://jupyterlab.readthedocs.io/)
-- **Documentation**: [JupyterLab Docs](https://jupyterlab.readthedocs.io/en/stable/)
-- **Gallery**: [Notebook Gallery](https://github.com/jupyter/jupyter/wiki)
+- `WORKING_DIR` is resolved under `/volume` (empty opens `/volume`). Set it to a subpath like `projects/analysis` to open straight into a project.
+- The token is disabled (`--NotebookApp.token=''`); JupyterLab is meant to sit behind the platform's authenticated proxy, so do not expose port `8888` directly to the internet.
+- Miniconda is at `/opt/miniconda` and on the `PATH` — use `conda` and `pip` from a notebook terminal to add libraries such as `numpy`, `pandas`, `scikit-learn`, or extensions like `jupyterlab-git`.
