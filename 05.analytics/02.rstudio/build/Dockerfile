@@ -5,7 +5,7 @@ LABEL org.opencontainers.image.description="Browser-based IDE for R statistical 
 LABEL org.opencontainers.image.source="https://github.com/dxflow-ai/hub"
 
 # Install packages (R is required by rstudio-server to run sessions)
-RUN xbps-install -Sy bash shadow binutils findutils tar gzip curl xbps xz libcrypto1.1 libssl1.1 R && \
+RUN xbps-install -Sy bash shadow binutils findutils tar gzip curl xbps xz openssl R && \
     xbps-remove -O && \
     rm -rf /var/cache/xbps/*
 
@@ -13,11 +13,11 @@ RUN xbps-install -Sy bash shadow binutils findutils tar gzip curl xbps xz libcry
 RUN curl -L -o /tmp/xdeb https://github.com/xdeb-org/xdeb/releases/latest/download/xdeb && \
     chmod +x /tmp/xdeb
 
-# Install rstudio-server
-RUN curl -L -o /tmp/rstudio-server.deb https://download2.rstudio.org/server/bionic/amd64/rstudio-server-1.4.1717-amd64.deb && \
+# Install rstudio-server (current build, compatible with modern R)
+RUN curl -L -o /tmp/rstudio-server.deb https://download2.rstudio.org/server/jammy/amd64/rstudio-server-2026.07.0-139-amd64.deb && \
     cd /tmp && \
     /tmp/xdeb -Sd /tmp/rstudio-server.deb && \
-    xbps-install -y -R /tmp/binpkgs rstudio-server-1.4.1717_1 && \
+    xbps-install -y -R /tmp/binpkgs rstudio-server && \
     chmod +x /usr/lib/rstudio-server/bin/rserver
 
 # Cleanup
