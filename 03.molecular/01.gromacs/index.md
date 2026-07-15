@@ -5,356 +5,103 @@ navigation:
     icon: i-diphyx:gromacs
 ---
 
-GROMACS is a versatile package for molecular dynamics simulations, primarily designed for simulations of proteins, lipids, and nucleic acids. It is free, open-source software licensed under the GNU Lesser General Public License, with GPU acceleration and efficient scaling across hundreds of processors.
-
-**Key features:**
-- GPU acceleration (CUDA/OpenCL)
-- Advanced force fields (AMBER, CHARMM, OPLS)
-- Free energy calculations
-- Trajectory analysis tools
-- Parallel scaling across multiple nodes
+GROMACS is a versatile, high-performance package for molecular dynamics simulations of proteins, lipids, and nucleic acids, backed by remote compute. This image is built once with **both MPI and CUDA** support: `gmx_mpi` uses an attached NVIDIA GPU when present and falls back to CPU/MPI when not — so the same image covers both modes.
 
 ## Configuration
+
+Attach a GPU with `resources.gpu: nvidia` for CUDA acceleration, or remove it to run CPU/MPI-only.
 
 ```yaml
 name: gromacs
 tags:
-  - molecular
+    - molecular
 steps:
-  - name: gromacs
-    platform: docker
-    mode: sequential
-    image: gromacs/gromacs:gmx-2022.2-cuda-11.6.0-avx2
-    command:
-      - tail
-      - -f
-      - /dev/null
-    volumes:
-      - name: input
-        host: ./input
-        container: /workspace/input
-        mode: ro
-      - name: output
-        host: ./output
-        container: /workspace/output
-      - name: mdp
-        host: ./mdp
-        container: /workspace/mdp
-        mode: ro
-    resources:
-      cpu: "16"
-      memory: 32G
-      gpu: nvidia
+    - name: app
+      platform: docker
+      mode: parallel
+      image: ghcr.io/dxflow-ai/gromacs:latest
+      command:
+          - tail
+          - -f
+          - /dev/null
+      volumes:
+          - name: volume
+            host: ./volume
+            container: /volume
+      resources:
+          cpu: "16"
+          memory: 32G
+          gpu: nvidia
+```
+
+```ini
+[volume]
+app.volume = ./volume
+
+[resource]
+app.cpu = 16
+app.memory = 32G
+app.gpu = nvidia
+```
+
+```json
+{
+    "arch": ["amd64"],
+    "image": "ghcr.io/dxflow-ai/gromacs:latest",
+    "version": "2025.2",
+    "minimum": {
+        "cpu": 8,
+        "memory": "16G",
+        "storage": "50G"
+    }
+}
 ```
 
 ## Usage
 
-### 1. Prepare data
-
-Upload your input files:
+### 1. Deploy
 
 ```bash
-# Create directories
-mkdir -p input output mdp
+dxflow workflow create --identity gromacs gromacs.yml
 
-# Upload protein structure
-dxflow artifact upload protein.pdb input/
-
-# Upload topology files
-dxflow artifact upload topol.top input/
-dxflow artifact upload posre.itp input/
-
-# Upload MDP parameter files
-dxflow artifact upload em.mdp mdp/         # Energy minimization
-dxflow artifact upload nvt.mdp mdp/        # NVT equilibration
-dxflow artifact upload npt.mdp mdp/        # NPT equilibration
-dxflow artifact upload md.mdp mdp/         # Production MD
+# With a GPU (default), or CPU-only by dropping the gpu resource
+dxflow workflow start gromacs
 ```
 
-### 2. Deploy
+The container stays up so you can run `gmx_mpi` commands against data mounted at `/volume`.
+
+### 2. Run a simulation
+
+The `gmx_mpi` commands below run inside the workflow container; put your inputs under `/volume`.
 
 ```bash
-# Deploy GROMACS container
-dxflow workflow create --identity gromacs-sim gromacs.yml
-dxflow workflow start gromacs-sim
-```
-
-### 3. Monitor
-
-The following `gmx` commands run inside the workflow container.
-
-```bash
-# Generate topology
-gmx pdb2gmx -f input/protein.pdb -o output/processed.gro -water spce
-
-# Define simulation box
-gmx editconf -f output/processed.gro -o output/newbox.gro -c -d 1.0 -bt cubic
-
-# Solvate system
-gmx solvate -cp output/newbox.gro -cs spc216.gro -o output/solv.gro -p topol.top
-
-# Add ions
-gmx grompp -f mdp/ions.mdp -c output/solv.gro -p topol.top -o output/ions.tpr
-
-gmx genion -s output/ions.tpr -o output/solv_ions.gro -p topol.top -pname NA -nname CL -neutral
+# Prepare the system
+gmx_mpi pdb2gmx -f protein.pdb -o processed.gro -water spce
+gmx_mpi editconf -f processed.gro -o newbox.gro -c -d 1.0 -bt cubic
+gmx_mpi solvate -cp newbox.gro -cs spc216.gro -o solv.gro -p topol.top
 
 # Energy minimization
-gmx grompp -f mdp/em.mdp -c output/solv_ions.gro -p topol.top -o output/em.tpr
+gmx_mpi grompp -f em.mdp -c solv.gro -p topol.top -o em.tpr
+gmx_mpi mdrun -v -deffnm em
 
-gmx mdrun -v -deffnm output/em
-
-# NVT equilibration
-gmx grompp -f mdp/nvt.mdp -c output/em.gro -r output/em.gro -p topol.top -o output/nvt.tpr
-
-gmx mdrun -v -deffnm output/nvt
-
-# NPT equilibration
-gmx grompp -f mdp/npt.mdp -c output/nvt.gro -r output/nvt.gro -t output/nvt.cpt -p topol.top -o output/npt.tpr
-
-gmx mdrun -v -deffnm output/npt
-
-# Production MD
-gmx grompp -f mdp/md.mdp -c output/npt.gro -t output/npt.cpt -p topol.top -o output/md.tpr
-
-gmx mdrun -v -deffnm output/md -nb gpu
+# Production MD (add -nb gpu on a GPU node)
+gmx_mpi grompp -f md.mdp -c npt.gro -t npt.cpt -p topol.top -o md.tpr
+gmx_mpi mdrun -v -deffnm md -nb gpu
 ```
 
-Analyze the resulting trajectory (these `gmx` commands also run inside the workflow container):
+### 3. Retrieve results
 
-```bash
-# RMSD analysis
-gmx rms -s output/md.tpr -f output/md.xtc -o output/rmsd.xvg -tu ns
+Everything under `/volume` persists — trajectories, logs, and analysis outputs are written there.
 
-# RMSF analysis
-gmx rmsf -s output/md.tpr -f output/md.xtc -o output/rmsf.xvg -res
+## Notes
 
-# Radius of gyration
-gmx gyrate -s output/md.tpr -f output/md.xtc -o output/gyrate.xvg
-```
-
-### 4. Retrieve results
-
-```bash
-# Download all output files
-dxflow artifact download output/ /local/results/
-```
-
-## MDP parameter files
-
-### Energy minimization (em.mdp)
-
-```
-; em.mdp - Energy minimization
-
-integrator  = steep
-emtol       = 1000.0
-emstep      = 0.01
-nsteps      = 50000
-
-nstlist     = 10
-cutoff-scheme = Verlet
-ns_type     = grid
-coulombtype = PME
-rcoulomb    = 1.0
-rvdw        = 1.0
-pbc         = xyz
-```
-
-### NVT equilibration (nvt.mdp)
-
-```
-; nvt.mdp - NVT equilibration
-
-define      = -DPOSRES
-integrator  = md
-nsteps      = 50000
-dt          = 0.002
-
-nstenergy   = 500
-nstlog      = 500
-nstxout-compressed = 500
-
-continuation = no
-constraint_algorithm = lincs
-constraints = h-bonds
-
-cutoff-scheme = Verlet
-ns_type     = grid
-nstlist     = 10
-rcoulomb    = 1.0
-rvdw        = 1.0
-
-coulombtype = PME
-pme_order   = 4
-fourierspacing = 0.16
-
-tcoupl      = V-rescale
-tc-grps     = Protein Non-Protein
-tau_t       = 0.1 0.1
-ref_t       = 300 300
-
-pcoupl      = no
-pbc         = xyz
-
-gen_vel     = yes
-gen_temp    = 300
-gen_seed    = -1
-```
-
-### NPT equilibration (npt.mdp)
-
-```
-; npt.mdp - NPT equilibration
-
-define      = -DPOSRES
-integrator  = md
-nsteps      = 50000
-dt          = 0.002
-
-nstenergy   = 500
-nstlog      = 500
-nstxout-compressed = 500
-
-continuation = yes
-constraint_algorithm = lincs
-constraints = h-bonds
-
-cutoff-scheme = Verlet
-ns_type     = grid
-nstlist     = 10
-rcoulomb    = 1.0
-rvdw        = 1.0
-
-coulombtype = PME
-pme_order   = 4
-fourierspacing = 0.16
-
-tcoupl      = V-rescale
-tc-grps     = Protein Non-Protein
-tau_t       = 0.1 0.1
-ref_t       = 300 300
-
-pcoupl      = Parrinello-Rahman
-pcoupltype  = isotropic
-tau_p       = 2.0
-ref_p       = 1.0
-compressibility = 4.5e-5
-
-pbc         = xyz
-
-gen_vel     = no
-```
-
-### Production MD (md.mdp)
-
-```
-; md.mdp - Production MD
-
-integrator  = md
-nsteps      = 50000000  ; 100 ns
-dt          = 0.002
-
-nstenergy   = 5000
-nstlog      = 5000
-nstxout-compressed = 5000
-compressed-x-grps = System
-
-continuation = yes
-constraint_algorithm = lincs
-constraints = h-bonds
-
-cutoff-scheme = Verlet
-ns_type     = grid
-nstlist     = 10
-rcoulomb    = 1.0
-rvdw        = 1.0
-
-coulombtype = PME
-pme_order   = 4
-fourierspacing = 0.16
-
-tcoupl      = V-rescale
-tc-grps     = Protein Non-Protein
-tau_t       = 0.1 0.1
-ref_t       = 300 300
-
-pcoupl      = Parrinello-Rahman
-pcoupltype  = isotropic
-tau_p       = 2.0
-ref_p       = 1.0
-compressibility = 4.5e-5
-refcoord_scaling = com
-
-pbc         = xyz
-
-gen_vel     = no
-```
-
-## Analysis tools
-
-```bash
-# Energy analysis
-gmx energy -f md.edr -o energy.xvg
-
-# Hydrogen bonds
-gmx hbond -f md.xtc -s md.tpr -num hbond.xvg
-
-# Secondary structure (DSSP required)
-gmx do_dssp -f md.xtc -s md.tpr -o ss.xpm
-
-# Distance analysis
-gmx distance -f md.xtc -s md.tpr -select 'resname LYS and name CA' -oall dist.xvg
-
-# Cluster analysis
-gmx cluster -f md.xtc -s md.tpr -method gromos -cutoff 0.2
-```
-
-## Performance tips
-
-**GPU Acceleration:**
-- Use `-nb gpu` flag for neighbor list on GPU
-- Use `-pme gpu` for PME calculations on GPU
-- Use `-bonded gpu` for bonded interactions on GPU
-- Monitor GPU utilization with `nvidia-smi`
-
-**Parallel Execution:**
-```bash
-# MPI parallelization
-mpirun -np 16 gmx_mpi mdrun -v -deffnm md
-
-# Thread-MPI (automatic)
-gmx mdrun -v -deffnm md -ntmpi 4 -ntomp 4
-```
-
-Use `-tunepme yes` for automatic PME tuning.
-
-## Requirements
-
-**CPU-Only:**
-- CPU: 16+ cores
-- RAM: 32GB minimum
-- Storage: 500GB SSD
-
-**GPU-Accelerated (Recommended):**
-- CPU: 8-16 cores
-- GPU: NVIDIA RTX 3090, A100
-- RAM: 32-64GB
-- Storage: 1TB NVMe SSD
-
-**HPC Cluster:**
-- Multiple GPU nodes
-- High-speed interconnect
-- Parallel filesystem
+- **GPU vs CPU**: with a GPU attached, offload work with `mdrun -nb gpu` (and `-pme gpu`, `-bonded gpu`); check `nvidia-smi`. Without a GPU, `gmx_mpi` runs on CPU automatically.
+- **MPI parallelism**: launch multiple ranks with `mpirun -np <N> gmx_mpi mdrun -v -deffnm md`; use `-ntomp` for OpenMP threads per rank and `-tunepme yes` for automatic PME tuning.
+- Built from source with `-DGMX_SIMD=AVX2_256` and its own bundled FFTW; the `GMXRC` environment is sourced for interactive shells.
+- Supports the common force fields (AMBER, CHARMM, GROMOS, OPLS), free-energy and umbrella-sampling methods, and REMD.
 
 ## References
 
-- **Official Website**: [GROMACS](https://www.gromacs.org/)
+- **Website**: [GROMACS](https://www.gromacs.org/)
 - **Documentation**: [GROMACS Manual](https://manual.gromacs.org/)
 - **Tutorials**: [GROMACS Tutorials](http://www.mdtutorials.com/gmx/)
-- **User Forum**: [GROMACS Forum](https://gromacs.bioexcel.eu/)
-
-```
-Abraham, M.J., Murtola, T., Schulz, R., Páll, S., Smith, J.C., Hess, B., Lindahl, E. (2015).
-GROMACS: High performance molecular simulations through multi-level parallelism from laptops to supercomputers.
-SoftwareX, 1-2, 19-25.
-```
