@@ -36,6 +36,11 @@ RUN ARCH=$(uname -m) && \
 # Update PATH to include Miniconda
 ENV PATH="/opt/miniconda/bin:$PATH"
 
+# Use conda-forge and avoid the Anaconda default channels (which now require ToS)
+RUN conda config --system --remove channels defaults 2>/dev/null || true && \
+    conda config --system --add channels conda-forge && \
+    conda config --system --set channel_priority strict
+
 # Give the editor the full screen by hiding the window decorations and taskbar
 ENV PANEL="hide"
 ENV TASKBAR="hide"
