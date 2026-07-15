@@ -3,7 +3,6 @@ FROM fedora:41
 LABEL org.opencontainers.image.title="Fedora Desktop"
 LABEL org.opencontainers.image.description="Full Fedora Linux desktop accessible from your browser"
 LABEL org.opencontainers.image.source="https://github.com/dxflow-ai/hub"
-LABEL org.opencontainers.image.version="41"
 
 ENV LANG="C.UTF-8"
 

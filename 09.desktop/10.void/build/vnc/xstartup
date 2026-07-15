@@ -1,0 +1,28 @@
+#!/bin/sh
+
+# Set openbox config path
+export OPENBOX_CONFIG=/root/.config/openbox
+
+# Show panel if activated
+if [ "$PANEL" = "show" ]; then
+    sed -i 's|<decor>no</decor>|<decor>yes</decor>|' $OPENBOX_CONFIG/rc.xml
+fi
+
+# Start openbox
+openbox-session &
+
+# Start clipboard manager
+autocutsel -fork &
+
+# Set wallpaper if activated
+if [ "$WALLPAPER" = "show" ]; then
+    feh --bg-scale /root/.config/openbox/wallpaper.jpg
+fi
+
+# Start taskbar if activated
+if [ "$TASKBAR" = "show" ]; then
+    tint2 -c /root/.config/tint2/tint2rc &
+fi
+
+# Wait for exit
+wait

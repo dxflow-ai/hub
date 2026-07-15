@@ -1,0 +1,129 @@
+code {
+    font-size: 0.86rem !important;
+    font-family: "IBM Plex Mono", monospace !important;
+}
+
+p code {
+    font-size: 0.82rem !important;
+    border-radius: 0.2rem;
+    padding: 0 0.2rem;
+}
+
+.dark p code {
+    color: rgb(80, 250, 123);
+    border: 1px solid rgb(80, 250, 123);
+}
+
+.light p code {
+    color: rgb(59, 120, 243);
+    border: 1px solid rgb(59, 120, 243);
+    font-weight: bold;
+}
+
+li pre {
+    margin-top: 0.5rem;
+}
+
+.prose pre {
+    overflow: auto !important;
+}
+
+.prose p {
+    line-height: 2rem;
+}
+
+.prose > p {
+    margin-top: 0.2rem;
+    margin-bottom: 0.2rem;
+}
+
+.prose ol li,
+.prose ul li {
+    margin-top: 0.5rem;
+}
+
+.prose ul,
+.prose ol {
+    display: block;
+    list-style: disc;
+    padding-left: 1rem;
+}
+
+.prose ol {
+    list-style-type: decimal;
+}
+
+.prose li {
+    display: list-item;
+}
+
+.prose ul ul,
+.prose ol ul {
+    list-style-type: circle;
+    margin-left: 1rem;
+}
+
+.prose ul ul ul,
+.prose ul ol ul {
+    list-style-type: square;
+    margin-left: 1rem;
+}
+
+.prose ol ol,
+.prose ul ol {
+    list-style-type: lower-latin;
+    margin-left: 1rem;
+}
+
+.prose p mjx-container {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.prose li mjx-container {
+    display: block;
+    margin-top: 1rem;
+}
+
+.prose h1 {
+    font-size: 2rem;
+}
+
+.prose h2 {
+    font-size: 1.7rem;
+}
+
+.prose h3 {
+    font-size: 1.5rem;
+}
+
+.prose h4 {
+    font-size: 1.3rem;
+}
+
+.prose h5 {
+    font-size: 1.2rem;
+}
+
+.prose h6 {
+    font-size: 1rem;
+}
+
+th {
+    text-align: left;
+}
+
+th,
+td {
+    padding: 4px;
+}
+
+.dark th {
+    background-color: #444444;
+    border-bottom: 1px solid #575757;
+}
+
+.light th {
+    background-color: #f6f6f6;
+    border-bottom: 1px solid #e7e7e7;
+}

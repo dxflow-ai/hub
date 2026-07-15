@@ -1,14 +1,12 @@
 #!/usr/bin/env bash
 #
-# Push a built Hub workflow (.build/<key>.oci.tar) to a registry, all arches in
-# one manifest, tagged <registry>/<key>:<version> and :latest.
-#
-# Run ./build.sh <workflow> first. Setup once with ./prepare.sh, then log in:
+# Build a Hub workflow's image for all its target arches and push it to the
+# registry as one multi-arch manifest (:latest and :<version>). Set up the host
+# once with ./prepare.sh, then log in to the registry:
 #   echo "$GHCR_TOKEN" | docker login ghcr.io -u <user> --password-stdin
 #
 # Usage:
-#   ./publish.sh <workflow>                                # prompts for registry
-#   REGISTRY=ghcr.io/dxflow-ai ./publish.sh <workflow>     # override
+#   ./publish.sh <workflow>    # e.g. ./publish.sh fastqc
 #
 set -euo pipefail
 
@@ -27,34 +25,41 @@ while IFS= read -r d; do
 done < <(find "$HUB_DIR" -mindepth 2 -maxdepth 2 -type d -not -path '*/.*' | sort)
 
 [ -n "$dir" ] || { echo "unknown workflow: $workflow" >&2; exit 1; }
+[ -f "$dir/index.md" ] || { echo "no index.md in ${dir#"$HUB_DIR"/}" >&2; exit 1; }
 
-# Dockerfile holds the version label: prefer build/, fall back to the workflow root
+# Build context is the Dockerfile's directory: prefer build/, fall back to the root
 if [ -f "$dir/build/Dockerfile" ]; then
-  dockerfile="$dir/build/Dockerfile"
+  context="$dir/build"
 elif [ -f "$dir/Dockerfile" ]; then
-  dockerfile="$dir/Dockerfile"
+  context="$dir"
 else
   echo "no Dockerfile in ${dir#"$HUB_DIR"/}" >&2; exit 1
 fi
 
-# The archive ./build.sh produced
-out="$HUB_DIR/.build/$workflow.oci.tar"
-[ -f "$out" ] || { echo "not built: ${out#"$HUB_DIR"/}  (run ./build.sh $workflow)" >&2; exit 1; }
+# Target image this folder publishes, from the json "image" field
+json="$(awk '/^```json/{flag=1; next} /^```/{if (flag) exit} flag' "$dir/index.md")"
+re='"image"[[:space:]]*:[[:space:]]*"([^"]+)"'
+[[ "$json" =~ $re ]] || { echo "no \"image\" in ${dir#"$HUB_DIR"/}/index.md json" >&2; exit 1; }
+image="${BASH_REMATCH[1]}"
 
-# Target registry (prompt unless REGISTRY overrides)
-if [ -z "${REGISTRY:-}" ]; then
-  read -r -p "Registry [ghcr.io/dxflow-ai]: " REGISTRY
-  REGISTRY="${REGISTRY:-ghcr.io/dxflow-ai}"
+# Target platforms from the json "arch" array
+archs="$(printf '%s' "$json" | grep -oE 'amd64|arm64' || true)"
+[ -n "$archs" ] || { echo "no arch in ${dir#"$HUB_DIR"/}/index.md json" >&2; exit 1; }
+platform=""
+for a in $archs; do platform="${platform:+$platform,}linux/$a"; done
+
+# Version from the json — adds the :<version> tag and the OCI version label
+re='"version"[[:space:]]*:[[:space:]]*"([^"]+)"'
+version=""
+[[ "$json" =~ $re ]] && version="${BASH_REMATCH[1]}"
+args=(--tag "$image")
+if [ -n "$version" ]; then
+  args+=(--tag "${image%:*}:$version" --label "org.opencontainers.image.version=$version")
 fi
 
-# Version tag from the Dockerfile's label (falls back to latest)
-version="$(grep -m1 'org.opencontainers.image.version' "$dockerfile" | grep -oE '[0-9][0-9.]*' | head -1 || true)"
-image="$REGISTRY/$workflow"
-primary="${version:-latest}"
-
-# Push the archive, then mirror the version tag to :latest
-echo "==> publish $workflow  ($image)"
-skopeo copy --all "oci-archive:$out" "docker://$image:$primary"
-if [ "$primary" != "latest" ]; then
-  skopeo copy --all "docker://$image:$primary" "docker://$image:latest"
-fi
+# Build all arches and push as one multi-arch manifest
+echo "==> publish $image  [$platform]${version:+  (+ :$version)}"
+docker buildx build --pull --push --platform "$platform" \
+  --provenance=false --sbom=false \
+  "${args[@]}" \
+  --file "$context/Dockerfile" "$context"

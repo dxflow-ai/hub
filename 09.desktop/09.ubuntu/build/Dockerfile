@@ -3,7 +3,6 @@ FROM ubuntu:22.04
 LABEL org.opencontainers.image.title="Ubuntu Desktop"
 LABEL org.opencontainers.image.description="Full Ubuntu Linux desktop accessible from your browser"
 LABEL org.opencontainers.image.source="https://github.com/dxflow-ai/hub"
-LABEL org.opencontainers.image.version="22.04"
 
 ENV LANG="en_US.utf8"
 ENV DEBIAN_FRONTEND="noninteractive"
@@ -18,8 +17,8 @@ RUN apt-get update -q && \
     rm -rf /var/lib/apt/lists/*
 
 # Install turbovnc
-RUN wget -q -O- https://packagecloud.io/dcommander/turbovnc/gpgkey | gpg --dearmor >/etc/apt/trusted.gpg.d/TurboVNC.gpg && \
-    wget -q -O /etc/apt/sources.list.d/TurboVNC.list https://raw.githubusercontent.com/TurboVNC/repo/main/TurboVNC.list && \
+RUN wget -q --tries=5 --waitretry=5 --retry-connrefused -O- https://packagecloud.io/dcommander/turbovnc/gpgkey | gpg --dearmor >/etc/apt/trusted.gpg.d/TurboVNC.gpg && \
+    wget -q --tries=5 --waitretry=5 --retry-connrefused -O /etc/apt/sources.list.d/TurboVNC.list https://raw.githubusercontent.com/TurboVNC/repo/main/TurboVNC.list && \
     apt-get update -q && \
     apt-get install -y -q --no-install-recommends --reinstall --fix-missing turbovnc && \
     ln -s /opt/TurboVNC/bin/Xvnc /usr/bin/Xvnc && \
@@ -31,19 +30,19 @@ RUN wget -q -O- https://packagecloud.io/dcommander/turbovnc/gpgkey | gpg --dearm
 # Install qtfm
 RUN apt-get update -q && \
     apt-get install -y -q --no-install-recommends --reinstall --fix-missing make qt5-qmake g++ qtbase5-dev qtbase5-dev-tools && \
-    wget https://github.com/rodlie/qtfm/archive/refs/tags/6.2.1.tar.gz -O /tmp/qtfm.tar.gz && \
+    wget -q --tries=5 --waitretry=5 --retry-connrefused https://github.com/rodlie/qtfm/archive/refs/tags/6.2.1.tar.gz -O /tmp/qtfm.tar.gz && \
     tar -zxf /tmp/qtfm.tar.gz -C /tmp && \
     cd /tmp/qtfm-6.2.1/ && qmake && make && make install && rm -rf /tmp/* && \
     rm -rf /var/lib/apt/lists/*
 
 # Install noVNC
-RUN wget -q --no-check-certificate "https://github.com/novnc/noVNC/archive/refs/tags/v1.5.0.tar.gz" -O /tmp/novnc.tar.gz && \
+RUN wget -q --tries=5 --waitretry=5 --retry-connrefused --no-check-certificate "https://github.com/novnc/noVNC/archive/refs/tags/v1.5.0.tar.gz" -O /tmp/novnc.tar.gz && \
     tar -zxf /tmp/novnc.tar.gz -C /opt && \
     mv /opt/noVNC-1.5.0 /opt/novnc && \
     rm -rf /tmp/novnc.tar.gz
 
 # Install websockify
-RUN wget -q --no-check-certificate "https://github.com/novnc/websockify/archive/refs/tags/v0.12.0.tar.gz" -O /tmp/websockify.tar.gz && \
+RUN wget -q --tries=5 --waitretry=5 --retry-connrefused --no-check-certificate "https://github.com/novnc/websockify/archive/refs/tags/v0.12.0.tar.gz" -O /tmp/websockify.tar.gz && \
     tar -zxf /tmp/websockify.tar.gz -C /opt && \
     mkdir -p /opt/novnc/utils && \
     mv /opt/websockify-0.12.0 /opt/novnc/utils/websockify && \

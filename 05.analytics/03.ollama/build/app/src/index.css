@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+    font-size: 0.95rem;
+}
+
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #797979 transparent;
+}
+
+@media print {
+    * {
+        overflow: visible !important;
+    }
+}
