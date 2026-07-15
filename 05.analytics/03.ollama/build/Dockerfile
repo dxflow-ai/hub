@@ -20,8 +20,8 @@ LABEL org.opencontainers.image.source="https://github.com/dxflow-ai/hub"
 
 ENV DEBIAN_FRONTEND="noninteractive"
 
-# Install the web server for the interface
-RUN apt-get update -q && \
+# Install the web server for the interface (retry flaky mirrors, esp. arm64 ports)
+RUN apt-get -o Acquire::Retries=5 -o Acquire::http::Timeout=30 update -q && \
     apt-get install -y -q --no-install-recommends nginx curl && \
     rm -rf /var/lib/apt/lists/*
 
