@@ -29,8 +29,11 @@ RUN ARCH=$(uname -m) && \
 # Update PATH to include Miniconda
 ENV PATH="/opt/miniconda/bin:$PATH"
 
-# Install JupyterLab
-RUN conda install -y -c conda-forge jupyterlab && \
+# Install JupyterLab from conda-forge (the Anaconda default channels now require ToS)
+RUN conda config --system --remove channels defaults 2>/dev/null || true && \
+    conda config --system --add channels conda-forge && \
+    conda config --system --set channel_priority strict && \
+    conda install -y --override-channels -c conda-forge jupyterlab && \
     conda clean -afy
 
 # Setup scripts
