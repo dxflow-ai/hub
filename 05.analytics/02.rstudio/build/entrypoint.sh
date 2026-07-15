@@ -22,6 +22,7 @@ USER="${USER:-diphyx}"
 export USER
 export HOME="/volume/${USER}"
 mkdir -p "${HOME}"
+chown -R "${USER}:${USER}" "${HOME}" 2>/dev/null || true
 
 # Start RStudio Server
 log "starting rstudio-server on :8787"

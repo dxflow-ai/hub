@@ -4,8 +4,8 @@ LABEL org.opencontainers.image.title="RStudio Server"
 LABEL org.opencontainers.image.description="Browser-based IDE for R statistical computing and graphics"
 LABEL org.opencontainers.image.source="https://github.com/dxflow-ai/hub"
 
-# Install packages
-RUN xbps-install -Sy bash shadow binutils findutils tar gzip curl xbps xz libcrypto1.1 libssl1.1 && \
+# Install packages (R is required by rstudio-server to run sessions)
+RUN xbps-install -Sy bash shadow binutils findutils tar gzip curl xbps xz libcrypto1.1 libssl1.1 R && \
     xbps-remove -O && \
     rm -rf /var/cache/xbps/*
 
@@ -24,6 +24,9 @@ RUN curl -L -o /tmp/rstudio-server.deb https://download2.rstudio.org/server/bion
 RUN xbps-remove -O && \
     rm -rf /var/cache/xbps/* && \
     rm -rf /tmp/*
+
+# Create the RStudio session user (rsession runs as a real user, not root)
+RUN useradd -d /volume/diphyx -s /bin/bash diphyx
 
 # Setup scripts
 RUN mkdir -p /opt/dxflow
