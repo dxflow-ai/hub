@@ -3,9 +3,9 @@ FROM node:22-alpine AS ui
 
 WORKDIR /app
 
-# Install dependencies first for layer caching
+# Install dependencies (pnpm 9 runs esbuild's build script; pnpm 10 blocks it)
 COPY app/package.json ./
-RUN npm install -g pnpm && pnpm install
+RUN npm install -g pnpm@9 && pnpm install
 
 # Build the app
 COPY app/ ./
