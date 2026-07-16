@@ -178,7 +178,11 @@ while IFS= read -r img; do
   docker image inspect "$img" >/dev/null 2>&1 || die "image not built locally: $img  (run ./build.sh for its tool first)"
 done <<< "$images"
 
-identity="verify-$workflow"
+# The engine requires identities to match ^[a-z]{2}[a-z0-9]{6,10}$ (lowercase
+# alphanumeric, 8-12 chars, no separators), so derive a stable one from the key.
+identity="vf$(printf '%s' "$workflow" | tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9')"
+while [ "${#identity}" -lt 8 ]; do identity="${identity}0"; done
+identity="${identity:0:12}"
 
 cleanup() {
   dxflow workflow remove "$identity" >/dev/null 2>&1 || true
