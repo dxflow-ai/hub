@@ -8,7 +8,7 @@ ENV DEBIAN_FRONTEND="noninteractive"
 
 # Install dependencies
 RUN apt-get update -q && \
-    apt-get install -y -q --no-install-recommends wget unzip python3 openmpi-bin libopenmpi-dev && \
+    apt-get install -y -q --no-install-recommends ca-certificates wget unzip python3 openmpi-bin libopenmpi-dev && \
     rm -rf /var/lib/apt/lists/*
 
 # Install pip and numpy
@@ -26,7 +26,7 @@ RUN mkdir -p /models && \
 # SU2 environment
 ENV SU2_RUN="/models/SU2-v8.0.1-linux64/bin"
 ENV PATH="/models/SU2-v8.0.1-linux64/bin:$PATH"
-ENV PYTHONPATH="/models/SU2-v8.0.1-linux64/bin:$PYTHONPATH"
+ENV PYTHONPATH="/models/SU2-v8.0.1-linux64/bin"
 ENV OMPI_ALLOW_RUN_AS_ROOT=1
 ENV OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
 
