@@ -36,7 +36,11 @@ done < <(find "$HUB_DIR" -mindepth 2 -maxdepth 2 -type d -not -path '*/.*' | sor
 [ -n "$dir" ] || die "unknown workflow: $workflow"
 [ -f "$dir/index.md" ] || die "no index.md in ${dir#"$HUB_DIR"/}"
 
-identity="run-$workflow"
+# The engine requires identities to match ^[a-z]{2}[a-z0-9]{6,10}$ (lowercase
+# alphanumeric, 8-12 chars, no separators), so derive a stable one from the key.
+identity="rn$(printf '%s' "$workflow" | tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9')"
+while [ "${#identity}" -lt 8 ]; do identity="${identity}0"; done
+identity="${identity:0:12}"
 
 # Secondary actions operate on the already-running workflow.
 case "$action" in

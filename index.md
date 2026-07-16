@@ -27,9 +27,15 @@ The dxflow Hub is a curated catalog of production-ready workflows. Each is a dxf
   ::
 
   ::card{title="Analytics" to="/hub/analytics" icon="i-hugeicons:analytics-01"}
-  **Interactive computing** — notebooks, statistics, ML, and local LLMs.
+  **Interactive computing** — notebooks, statistics, and machine learning.
 
-  Examples: Jupyter Lab, RStudio, Ollama
+  Examples: Jupyter Lab, RStudio
+  ::
+
+  ::card{title="AI" to="/hub/ai" icon="i-hugeicons:ai-brain-01"}
+  **Large language models** — run and serve open LLMs with a chat UI and API.
+
+  Examples: Ollama
   ::
 
   ::card{title="Simulation" to="/hub/simulation" icon="i-hugeicons:chart-column"}
@@ -51,9 +57,27 @@ The dxflow Hub is a curated catalog of production-ready workflows. Each is a dxf
   ::
 
   ::card{title="Desktop" to="/hub/desktop" icon="i-hugeicons:computer"}
-  **Remote desktops & apps** — Linux desktops, browsers, and graphics tools.
+  **Remote Linux desktops** — full GUI environments streamed to your browser.
 
-  Examples: Ubuntu, Firefox, GIMP
+  Examples: Ubuntu, Fedora, Void
+  ::
+
+  ::card{title="Browser" to="/hub/browser" icon="i-hugeicons:globe-02"}
+  **Web browsers** — full desktop browsers in a remote session.
+
+  Examples: Chromium, Firefox, Vivaldi
+  ::
+
+  ::card{title="Graphics" to="/hub/graphics" icon="i-hugeicons:image-02"}
+  **Image & vector editing** — creative tools streamed to your browser.
+
+  Examples: GIMP, Inkscape
+  ::
+
+  ::card{title="Messaging" to="/hub/messaging" icon="i-hugeicons:message-01"}
+  **Chat clients** — encrypted and cloud messaging in a remote session.
+
+  Examples: Signal, Telegram
   ::
 
   ::card{title="Infrastructure" to="/hub/infrastructure" icon="i-hugeicons:server-stack-01"}

@@ -12,7 +12,7 @@ Ollama runs open large language models locally, backed by remote compute. This i
 ```yaml
 name: ollama
 tags:
-    - analytics
+    - ai
 steps:
     - name: app
       platform: docker
