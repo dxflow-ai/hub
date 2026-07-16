@@ -6,10 +6,10 @@ LABEL org.opencontainers.image.source="https://github.com/dxflow-ai/hub"
 
 ENV DEBIAN_FRONTEND="noninteractive"
 
-# Install dependencies
-RUN apt-get update -q && \
-    apt-get install -y -q --no-install-recommends unzip && \
-    rm -rf /var/lib/apt/lists/*
+# Install dependencies (the base image runs as a non-root user with passwordless sudo)
+RUN sudo apt-get update -q && \
+    sudo apt-get install -y -q --no-install-recommends unzip && \
+    sudo rm -rf /var/lib/apt/lists/*
 
 WORKDIR /data
 VOLUME [ "/data" ]
