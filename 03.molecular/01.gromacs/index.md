@@ -29,7 +29,7 @@ steps:
             host: ./volume
             container: /volume
       resources:
-          cpu: "16"
+          cpu: "4"
           memory: 32G
           gpu: nvidia
 ```
@@ -39,7 +39,7 @@ steps:
 app.volume = ./volume
 
 [resource]
-app.cpu = 16
+app.cpu = 4
 app.memory = 32G
 app.gpu = nvidia
 ```
@@ -50,7 +50,7 @@ app.gpu = nvidia
     "image": "ghcr.io/dxflow-ai/gromacs:latest",
     "version": "2025.2",
     "minimum": {
-        "cpu": 8,
+        "cpu": 2,
         "memory": "16G",
         "storage": "50G"
     }

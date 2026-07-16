@@ -27,7 +27,7 @@ steps:
             host: ./volume
             container: /data
       resources:
-          cpu: "16"
+          cpu: "4"
           memory: 32G
 ```
 
@@ -36,7 +36,7 @@ steps:
 app.volume = ./volume
 
 [resource]
-app.cpu = 16
+app.cpu = 4
 app.memory = 32G
 ```
 
@@ -46,7 +46,7 @@ app.memory = 32G
     "image": "ghcr.io/dxflow-ai/openfoam:latest",
     "version": "10",
     "minimum": {
-        "cpu": 8,
+        "cpu": 2,
         "memory": "16G",
         "storage": "50G"
     }

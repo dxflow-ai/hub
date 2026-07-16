@@ -42,7 +42,7 @@ steps:
           - AUDIO_CHANNELS=1
           - AUDIO_RATE=22050
       resources:
-          cpu: "16"
+          cpu: "4"
           memory: 64G
           gpu: nvidia
 ```
@@ -67,7 +67,7 @@ app.AUDIO_CHANNELS = 1
 app.AUDIO_RATE = 22050
 
 [resource]
-app.cpu = 16
+app.cpu = 4
 app.memory = 64G
 app.gpu = nvidia
 ```
@@ -78,7 +78,7 @@ app.gpu = nvidia
     "image": "ghcr.io/dxflow-ai/scipion:latest",
     "version": "3.4",
     "minimum": {
-        "cpu": 8,
+        "cpu": 2,
         "memory": "32G",
         "storage": "100G"
     }
