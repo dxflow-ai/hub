@@ -185,22 +185,34 @@ while [ "${#identity}" -lt 8 ]; do identity="${identity}0"; done
 identity="${identity:0:12}"
 
 cleanup() {
+  dxflow workflow stop "$identity" >/dev/null 2>&1 || true
   dxflow workflow remove "$identity" >/dev/null 2>&1 || true
   dxflow artifact delete "$input_dir/" >/dev/null 2>&1 || true
   dxflow artifact delete "$output_dir/" >/dev/null 2>&1 || true
   rm -rf "$workdir"
 }
-trap cleanup EXIT
+trap cleanup EXIT INT TERM
 
 # Run the workflow.
 
-# Start from a clean slate
+# Start from a clean slate. The engine tears a workflow down asynchronously
+# (containers and state are removed in the background), so a remove followed
+# immediately by a create can race and report "already exists". Stop and remove
+# first, then retry the create until the engine has fully released the identity.
+dxflow workflow stop "$identity" >/dev/null 2>&1 || true
 dxflow workflow remove "$identity" >/dev/null 2>&1 || true
 dxflow artifact delete "$input_dir/" >/dev/null 2>&1 || true
 dxflow artifact delete "$output_dir/" >/dev/null 2>&1 || true
 
 log "create $identity"
-dxflow workflow create --identity "$identity" "$yaml"
+tries=0
+until dxflow workflow create --identity "$identity" "$yaml"; do
+  tries=$((tries + 1))
+  [ "$tries" -ge 15 ] && die "could not create $identity — engine still holds the identity after cleanup"
+  log "identity busy — retrying cleanup ($tries)"
+  dxflow workflow remove "$identity" >/dev/null 2>&1 || true
+  sleep 2
+done
 
 if [ -d "$verify/input" ]; then
   log "upload input -> $input_dir/"
