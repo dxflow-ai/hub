@@ -7,6 +7,23 @@ navigation:
 
 RStudio Server provides a browser-based development environment for R — with an editor, console, plots, and package management — backed by remote compute. It's served straight to the browser, no desktop or VNC.
 
+## Usage
+
+### 1. Deploy
+
+```bash
+dxflow workflow create --identity rstudio hub://rstudio
+dxflow workflow start rstudio
+```
+
+### 2. Open the IDE
+
+Open your browser at `http://localhost:8787`. RStudio opens without a login prompt — keep the port private and reach it through the platform's authenticated proxy.
+
+### 3. Persist data
+
+The R user's home directory lives under `/volume`, so your projects, history, and installed packages survive restarts — mount a local directory there to keep them.
+
 ## Configuration
 
 ```yaml
@@ -55,23 +72,6 @@ app.memory = 8G
     }
 }
 ```
-
-## Usage
-
-### 1. Deploy
-
-```bash
-dxflow workflow create --identity rstudio rstudio.yml
-dxflow workflow start rstudio
-```
-
-### 2. Open the IDE
-
-Open your browser at `http://localhost:8787`. RStudio opens without a login prompt — keep the port private and reach it through the platform's authenticated proxy.
-
-### 3. Persist data
-
-The R user's home directory lives under `/volume`, so your projects, history, and installed packages survive restarts — mount a local directory there to keep them.
 
 ## Notes
 

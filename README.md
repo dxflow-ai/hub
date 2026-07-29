@@ -11,7 +11,8 @@ Workflows live in numbered category folders; each workflow is a numbered folder 
 ```
 NN.<category>/          # a numbered category folder
   00.index.md           # category landing page
-  NN.<key>/             # a numbered workflow folder — <key> is the handle the scripts take
+  NN.<key>/             # a numbered workflow folder — <key> is the handle the scripts take,
+                        #   and the name it publishes as: dxflow workflow create hub://<key>
     index.md            # required: docs + workflow definition (## Configuration blocks)
     build/              # required to publish — the image sources:
       Dockerfile        #   image recipe (or a podman/singularity/apptainer equivalent)
@@ -23,6 +24,10 @@ NN.<category>/          # a numbered category folder
 ```
 
 A workflow is published/released only once it has both `build/` and `verify/` (its image is built and end-to-end tested first). Every workflow ships its own image built from `build/` — even one that just re-publishes an upstream image — so it lands in our registry (`ghcr.io/dxflow-ai`) with a configurable, env-driven `entrypoint.sh`. The recipe is a `Dockerfile` for docker/podman, or the equivalent definition for singularity/apptainer. Entries with just an `index.md` are drafts — not built, verified, or published yet.
+
+The engine reads this repository live from GitHub (`main` branch): `dxflow workflow create hub://<key>` locates `NN.<category>/NN.<key>/index.md`, extracts its `## Configuration` yaml block, and deploys it. `dxflow workflow hub search <query>` and `dxflow workflow hub inspect <key>` browse the same content, so a merged entry is deployable by name right away. The `## Configuration` section is what makes an entry deployable — a draft, which has yet to gain one, carries a `## Coming soon` section instead and stays out of hub search results.
+
+A published entry lays its sections out as: intro → `## Usage` → `## Configuration` → any reference sections (output files, notes, references).
 
 `index.md` holds a `## Configuration` section with three fenced blocks: **`yaml`** (the workflow definition `dxflow workflow create` and `verify.sh` run), **`ini`** (override defaults), and **`json`** (metadata: `arch` list, the `image` this folder builds/publishes, image `version`, `minimum` resources). The yaml may reference more images than `json.image` — the extras are reused from other tools; build/publish only handle this folder's own `image`, while verify checks every step image is present.
 

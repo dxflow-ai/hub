@@ -7,62 +7,12 @@ navigation:
 
 GROMACS is a versatile, high-performance package for molecular dynamics simulations of proteins, lipids, and nucleic acids, backed by remote compute. This image is built once with **both MPI and CUDA** support: `gmx_mpi` uses an attached NVIDIA GPU when present and falls back to CPU/MPI when not — so the same image covers both modes.
 
-## Configuration
-
-Attach a GPU with `resources.gpu: nvidia` for CUDA acceleration, or remove it to run CPU/MPI-only.
-
-```yaml
-name: gromacs
-tags:
-    - molecular
-steps:
-    - name: app
-      platform: docker
-      mode: parallel
-      image: ghcr.io/dxflow-ai/gromacs:latest
-      command:
-          - tail
-          - -f
-          - /dev/null
-      volumes:
-          - name: volume
-            host: ./volume
-            container: /volume
-      resources:
-          cpu: "16"
-          memory: 32G
-          gpu: nvidia
-```
-
-```ini
-[volume]
-app.volume = ./volume
-
-[resource]
-app.cpu = 16
-app.memory = 32G
-app.gpu = nvidia
-```
-
-```json
-{
-    "arch": ["amd64"],
-    "image": "ghcr.io/dxflow-ai/gromacs:latest",
-    "version": "2025.2",
-    "minimum": {
-        "cpu": 8,
-        "memory": "16G",
-        "storage": "50G"
-    }
-}
-```
-
 ## Usage
 
 ### 1. Deploy
 
 ```bash
-dxflow workflow create --identity gromacs gromacs.yml
+dxflow workflow create --identity gromacs hub://gromacs
 
 # With a GPU (default), or CPU-only by dropping the gpu resource
 dxflow workflow start gromacs
@@ -92,6 +42,56 @@ gmx_mpi mdrun -v -deffnm md -nb gpu
 ### 3. Retrieve results
 
 Everything under `/volume` persists — trajectories, logs, and analysis outputs are written there.
+
+## Configuration
+
+Attach a GPU with `resources.gpu: nvidia` for CUDA acceleration, or remove it to run CPU/MPI-only.
+
+```yaml
+name: gromacs
+tags:
+    - molecular
+steps:
+    - name: app
+      platform: docker
+      mode: parallel
+      image: ghcr.io/dxflow-ai/gromacs:latest
+      command:
+          - tail
+          - -f
+          - /dev/null
+      volumes:
+          - name: volume
+            host: ./volume
+            container: /volume
+      resources:
+          cpu: "4"
+          memory: 32G
+          gpu: nvidia
+```
+
+```ini
+[volume]
+app.volume = ./volume
+
+[resource]
+app.cpu = 4
+app.memory = 32G
+app.gpu = nvidia
+```
+
+```json
+{
+    "arch": ["amd64"],
+    "image": "ghcr.io/dxflow-ai/gromacs:latest",
+    "version": "2025.2",
+    "minimum": {
+        "cpu": 2,
+        "memory": "16G",
+        "storage": "50G"
+    }
+}
+```
 
 ## Notes
 

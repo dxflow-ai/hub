@@ -7,58 +7,12 @@ navigation:
 
 SU2 is an open-source suite for computational fluid dynamics and PDE-constrained optimization, widely used in aerodynamics and aerospace, backed by remote compute. This image bundles SU2 8.0.1 with MPI; the container stays up so you can run solver and optimization commands against cases mounted at `/data`.
 
-## Configuration
-
-```yaml
-name: su2
-tags:
-    - simulation
-steps:
-    - name: app
-      platform: docker
-      mode: parallel
-      image: ghcr.io/dxflow-ai/su2:latest
-      command:
-          - tail
-          - -f
-          - /dev/null
-      volumes:
-          - name: volume
-            host: ./volume
-            container: /data
-      resources:
-          cpu: "16"
-          memory: 32G
-```
-
-```ini
-[volume]
-app.volume = ./volume
-
-[resource]
-app.cpu = 16
-app.memory = 32G
-```
-
-```json
-{
-    "arch": ["amd64"],
-    "image": "ghcr.io/dxflow-ai/su2:latest",
-    "version": "8.0.1",
-    "minimum": {
-        "cpu": 8,
-        "memory": "16G",
-        "storage": "50G"
-    }
-}
-```
-
 ## Usage
 
 ### 1. Deploy
 
 ```bash
-dxflow workflow create --identity su2 su2.yml
+dxflow workflow create --identity su2 hub://su2
 dxflow workflow start su2
 ```
 
@@ -83,6 +37,52 @@ parallel_computation.py -f case.cfg -n 16
 ### 3. Retrieve results
 
 Everything under `/data` persists — restart files, surface/volume solutions, and history are written there. Visualize with the [ParaView](/hub/visualization/paraview) image.
+
+## Configuration
+
+```yaml
+name: su2
+tags:
+    - simulation
+steps:
+    - name: app
+      platform: docker
+      mode: parallel
+      image: ghcr.io/dxflow-ai/su2:latest
+      command:
+          - tail
+          - -f
+          - /dev/null
+      volumes:
+          - name: volume
+            host: ./volume
+            container: /data
+      resources:
+          cpu: "4"
+          memory: 32G
+```
+
+```ini
+[volume]
+app.volume = ./volume
+
+[resource]
+app.cpu = 4
+app.memory = 32G
+```
+
+```json
+{
+    "arch": ["amd64"],
+    "image": "ghcr.io/dxflow-ai/su2:latest",
+    "version": "8.0.1",
+    "minimum": {
+        "cpu": 2,
+        "memory": "16G",
+        "storage": "50G"
+    }
+}
+```
 
 ## Common tools
 

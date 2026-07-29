@@ -7,6 +7,28 @@ navigation:
 
 ParaView is an open-source, parallel visualization application for exploring and rendering large scientific datasets, streamed here in a remote desktop session and backed by remote compute. It builds on the [Ubuntu Desktop](/hub/desktop/ubuntu) image — ParaView launches maximized with the window decorations and taskbar hidden, so the app fills the screen.
 
+## Usage
+
+### 1. Deploy
+
+```bash
+dxflow workflow create --identity paraview hub://paraview
+
+# Start with defaults, or tune per run with --override
+dxflow workflow start paraview
+dxflow workflow start paraview \
+    --override env.app.VNC_PASSWORD=my-strong-pass \
+    --override env.app.TASKBAR=show
+```
+
+### 2. Open the app
+
+Open your browser at `http://localhost:6082/vnc.html` and enter the password you set in `VNC_PASSWORD`. ParaView is already running and maximized. Port `5901` is also exposed for connecting a native VNC client.
+
+### 3. Persist data
+
+Mount your datasets under `/volume` and save your work there — anything under `/volume` persists across restarts.
+
 ## Configuration
 
 ```yaml
@@ -82,28 +104,6 @@ app.memory = 8G
     }
 }
 ```
-
-## Usage
-
-### 1. Deploy
-
-```bash
-dxflow workflow create --identity paraview paraview.yml
-
-# Start with defaults, or tune per run with --override
-dxflow workflow start paraview
-dxflow workflow start paraview \
-    --override env.app.VNC_PASSWORD=my-strong-pass \
-    --override env.app.TASKBAR=show
-```
-
-### 2. Open the app
-
-Open your browser at `http://localhost:6082/vnc.html` and enter the password you set in `VNC_PASSWORD`. ParaView is already running and maximized. Port `5901` is also exposed for connecting a native VNC client.
-
-### 3. Persist data
-
-Mount your datasets under `/volume` and save your work there — anything under `/volume` persists across restarts.
 
 ## Notes
 

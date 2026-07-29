@@ -7,6 +7,28 @@ navigation:
 
 Visual Studio Code, streamed here in a remote desktop session and backed by remote compute. It builds on the [Ubuntu Desktop](/hub/desktop/ubuntu) image — VS Code launches maximized with the window decorations and taskbar hidden, and ships with Miniconda for Python environments.
 
+## Usage
+
+### 1. Deploy
+
+```bash
+dxflow workflow create --identity vscode hub://vscode
+
+# Start with defaults, or tune per run with --override
+dxflow workflow start vscode
+dxflow workflow start vscode \
+    --override env.app.VNC_PASSWORD=my-strong-pass \
+    --override env.app.TASKBAR=show
+```
+
+### 2. Open the editor
+
+Open your browser at `http://localhost:6082/vnc.html` and enter the password you set in `VNC_PASSWORD`. VS Code is already running and maximized. Port `5901` is also exposed for connecting a native VNC client.
+
+### 3. Persist data
+
+The editor profile and extensions live under `/volume`, so settings, extensions, and workspaces survive restarts — mount a local directory there to keep your work.
+
 ## Configuration
 
 ```yaml
@@ -82,28 +104,6 @@ app.memory = 4G
     }
 }
 ```
-
-## Usage
-
-### 1. Deploy
-
-```bash
-dxflow workflow create --identity vscode vscode.yml
-
-# Start with defaults, or tune per run with --override
-dxflow workflow start vscode
-dxflow workflow start vscode \
-    --override env.app.VNC_PASSWORD=my-strong-pass \
-    --override env.app.TASKBAR=show
-```
-
-### 2. Open the editor
-
-Open your browser at `http://localhost:6082/vnc.html` and enter the password you set in `VNC_PASSWORD`. VS Code is already running and maximized. Port `5901` is also exposed for connecting a native VNC client.
-
-### 3. Persist data
-
-The editor profile and extensions live under `/volume`, so settings, extensions, and workspaces survive restarts — mount a local directory there to keep your work.
 
 ## Notes
 

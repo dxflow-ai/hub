@@ -7,58 +7,12 @@ navigation:
 
 OpenFOAM (Open Field Operation and Manipulation) is a free, open-source CFD package with solvers and utilities for fluid flow, turbulence, heat transfer, and reacting flows, backed by remote compute. This image bundles OpenFOAM 10 (with ParaView); the container stays up so you can run mesh, solver, and post-processing commands against cases mounted at `/data`.
 
-## Configuration
-
-```yaml
-name: openfoam
-tags:
-    - simulation
-steps:
-    - name: app
-      platform: docker
-      mode: parallel
-      image: ghcr.io/dxflow-ai/openfoam:latest
-      command:
-          - tail
-          - -f
-          - /dev/null
-      volumes:
-          - name: volume
-            host: ./volume
-            container: /data
-      resources:
-          cpu: "16"
-          memory: 32G
-```
-
-```ini
-[volume]
-app.volume = ./volume
-
-[resource]
-app.cpu = 16
-app.memory = 32G
-```
-
-```json
-{
-    "arch": ["amd64"],
-    "image": "ghcr.io/dxflow-ai/openfoam:latest",
-    "version": "10",
-    "minimum": {
-        "cpu": 8,
-        "memory": "16G",
-        "storage": "50G"
-    }
-}
-```
-
 ## Usage
 
 ### 1. Deploy
 
 ```bash
-dxflow workflow create --identity openfoam openfoam.yml
+dxflow workflow create --identity openfoam hub://openfoam
 dxflow workflow start openfoam
 ```
 
@@ -90,6 +44,52 @@ reconstructPar
 ### 4. Retrieve results
 
 Everything under `/data` persists — meshes, time directories, and logs are written there. Visualize with the [ParaView](/hub/visualization/paraview) image.
+
+## Configuration
+
+```yaml
+name: openfoam
+tags:
+    - simulation
+steps:
+    - name: app
+      platform: docker
+      mode: parallel
+      image: ghcr.io/dxflow-ai/openfoam:latest
+      command:
+          - tail
+          - -f
+          - /dev/null
+      volumes:
+          - name: volume
+            host: ./volume
+            container: /data
+      resources:
+          cpu: "4"
+          memory: 32G
+```
+
+```ini
+[volume]
+app.volume = ./volume
+
+[resource]
+app.cpu = 4
+app.memory = 32G
+```
+
+```json
+{
+    "arch": ["amd64"],
+    "image": "ghcr.io/dxflow-ai/openfoam:latest",
+    "version": "10",
+    "minimum": {
+        "cpu": 2,
+        "memory": "16G",
+        "storage": "50G"
+    }
+}
+```
 
 ## Common solvers
 

@@ -89,9 +89,12 @@ The dxflow Hub is a curated catalog of production-ready workflows. Each is a dxf
 
 ## Deploy a workflow
 
+Every entry is addressable as `hub://<name>`, where `<name>` is the workflow's folder name — the engine reads the definition straight from this catalog:
+
 ```bash
-# Browse workflows at https://dxflow.ai/hub, then:
-dxflow workflow create --identity my-workflow <workflow>.yml
+# Browse from the CLI, then deploy by name
+dxflow workflow hub search fastqc
+dxflow workflow create --identity my-workflow hub://fastqc
 dxflow workflow start my-workflow
 dxflow workflow logs --live my-workflow
 ```

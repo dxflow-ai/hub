@@ -13,6 +13,46 @@ Pangolin assigns SARS-CoV-2 genome sequences to Pango lineages for genomic surve
 - Bundled lineage and designation data (pdata)
 - CSV report with lineage, conflict, and QC status per sequence
 
+## Usage
+
+### 1. Prepare data
+
+Upload a FASTA file of one or more SARS-CoV-2 consensus genomes:
+
+```bash
+# Create input/output directories
+mkdir -p input output
+
+# Upload your sequences
+dxflow artifact upload /local/sequences.fasta input/
+```
+
+### 2. Deploy
+
+```bash
+dxflow workflow create --identity pangolin hub://pangolin
+```
+
+### 3. Start (with optional tuning)
+
+The step reads `INPUT` (the query FASTA), `THREADS`, and `EXTRA` (extra `pangolin` flags, e.g. `--analysis-mode fast`). Override them per run:
+
+```bash
+# Start with defaults
+dxflow workflow start pangolin
+
+# Or point at another file and pass extra flags
+dxflow workflow start pangolin \
+    --override env.job.INPUT=/data/input/genomes.fasta \
+    --override env.job.EXTRA=--analysis-mode\ usher
+```
+
+### 4. Retrieve results
+
+```bash
+dxflow artifact download output/ /local/pangolin-results/
+```
+
 ## Configuration
 
 ```yaml
@@ -67,46 +107,6 @@ job.memory = 8G
         "storage": "10G"
     }
 }
-```
-
-## Usage
-
-### 1. Prepare data
-
-Upload a FASTA file of one or more SARS-CoV-2 consensus genomes:
-
-```bash
-# Create input/output directories
-mkdir -p input output
-
-# Upload your sequences
-dxflow artifact upload /local/sequences.fasta input/
-```
-
-### 2. Deploy
-
-```bash
-dxflow workflow create --identity pangolin pangolin.yml
-```
-
-### 3. Start (with optional tuning)
-
-The step reads `INPUT` (the query FASTA), `THREADS`, and `EXTRA` (extra `pangolin` flags, e.g. `--analysis-mode fast`). Override them per run:
-
-```bash
-# Start with defaults
-dxflow workflow start pangolin
-
-# Or point at another file and pass extra flags
-dxflow workflow start pangolin \
-    --override env.job.INPUT=/data/input/genomes.fasta \
-    --override env.job.EXTRA=--analysis-mode\ usher
-```
-
-### 4. Retrieve results
-
-```bash
-dxflow artifact download output/ /local/pangolin-results/
 ```
 
 ## Output files

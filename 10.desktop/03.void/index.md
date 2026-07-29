@@ -9,6 +9,28 @@ A complete Void Linux desktop environment, accessible from your browser and back
 
 Built on Void Linux — a lightweight, independent rolling-release distribution with the `xbps` package manager.
 
+## Usage
+
+### 1. Deploy
+
+```bash
+dxflow workflow create --identity void hub://void
+
+# Start with defaults, or tune per run with --override
+dxflow workflow start void
+dxflow workflow start void \
+    --override env.app.VNC_PASSWORD=my-strong-pass \
+    --override env.app.TASKBAR=hide
+```
+
+### 2. Open the desktop
+
+Open your browser at `http://localhost:6082/vnc.html` and enter the password you set in `VNC_PASSWORD`. Port `5901` is also exposed for connecting a native VNC client.
+
+### 3. Persist data
+
+Anything under `/volume` persists across restarts — mount a local directory there to keep your files and app state.
+
 ## Configuration
 
 ```yaml
@@ -84,28 +106,6 @@ app.memory = 4G
     }
 }
 ```
-
-## Usage
-
-### 1. Deploy
-
-```bash
-dxflow workflow create --identity void void.yml
-
-# Start with defaults, or tune per run with --override
-dxflow workflow start void
-dxflow workflow start void \
-    --override env.app.VNC_PASSWORD=my-strong-pass \
-    --override env.app.TASKBAR=hide
-```
-
-### 2. Open the desktop
-
-Open your browser at `http://localhost:6082/vnc.html` and enter the password you set in `VNC_PASSWORD`. Port `5901` is also exposed for connecting a native VNC client.
-
-### 3. Persist data
-
-Anything under `/volume` persists across restarts — mount a local directory there to keep your files and app state.
 
 ## Notes
 

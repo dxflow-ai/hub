@@ -7,6 +7,34 @@ navigation:
 
 Ollama runs open large language models locally, backed by remote compute. This image bundles the Ollama server with a built-in web chat interface — open the page, pick a model, and start chatting. The Ollama HTTP API is served from the same port for your own apps.
 
+## Usage
+
+### 1. Deploy
+
+```bash
+dxflow workflow create --identity ollama hub://ollama
+
+# Start with the default model, or choose another at start
+dxflow workflow start ollama
+dxflow workflow start ollama \
+    --override env.app.STARTUP_MODEL=qwen2.5:1.5b
+```
+
+### 2. Open the interface
+
+Open your browser at `http://localhost:8080`. The chat UI lists the installed models — pick one and start a conversation. The streaming response renders as it is generated.
+
+### 3. Use the API
+
+The Ollama HTTP API is proxied under the same port at `/api`, so your own tools can call it:
+
+```bash
+curl http://localhost:8080/api/chat -d '{
+  "model": "smollm2:135m",
+  "messages": [{ "role": "user", "content": "Hello!" }]
+}'
+```
+
 ## Configuration
 
 ```yaml
@@ -59,34 +87,6 @@ app.memory = 8G
         "storage": "50G"
     }
 }
-```
-
-## Usage
-
-### 1. Deploy
-
-```bash
-dxflow workflow create --identity ollama ollama.yml
-
-# Start with the default model, or choose another at start
-dxflow workflow start ollama
-dxflow workflow start ollama \
-    --override env.app.STARTUP_MODEL=qwen2.5:1.5b
-```
-
-### 2. Open the interface
-
-Open your browser at `http://localhost:8080`. The chat UI lists the installed models — pick one and start a conversation. The streaming response renders as it is generated.
-
-### 3. Use the API
-
-The Ollama HTTP API is proxied under the same port at `/api`, so your own tools can call it:
-
-```bash
-curl http://localhost:8080/api/chat -d '{
-  "model": "smollm2:135m",
-  "messages": [{ "role": "user", "content": "Hello!" }]
-}'
 ```
 
 ## Notes

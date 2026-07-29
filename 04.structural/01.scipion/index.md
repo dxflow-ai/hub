@@ -7,6 +7,27 @@ navigation:
 
 Scipion is a workflow-based image processing framework for obtaining 3D models of macromolecular complexes from cryo-EM data, backed by remote compute. It integrates packages like RELION, Xmipp, EMAN2, and CTFfind behind a unified GUI, streamed here in a remote desktop session on the [Ubuntu Desktop](/hub/desktop/ubuntu) image.
 
+## Usage
+
+### 1. Deploy
+
+```bash
+dxflow workflow create --identity scipion hub://scipion
+
+# Start with defaults, or tune per run with --override
+dxflow workflow start scipion
+dxflow workflow start scipion \
+    --override env.app.VNC_PASSWORD=my-strong-pass
+```
+
+### 2. Open the app
+
+Open your browser at `http://localhost:6082/vnc.html` and enter the password you set in `VNC_PASSWORD`. The Scipion project manager opens on the desktop. Port `5901` is also exposed for connecting a native VNC client.
+
+### 3. Persist data
+
+Mount your movies and datasets under `/volume` — the Scipion user data directory is linked there, so projects and results survive restarts.
+
 ## Configuration
 
 ```yaml
@@ -42,7 +63,7 @@ steps:
           - AUDIO_CHANNELS=1
           - AUDIO_RATE=22050
       resources:
-          cpu: "16"
+          cpu: "4"
           memory: 64G
           gpu: nvidia
 ```
@@ -67,7 +88,7 @@ app.AUDIO_CHANNELS = 1
 app.AUDIO_RATE = 22050
 
 [resource]
-app.cpu = 16
+app.cpu = 4
 app.memory = 64G
 app.gpu = nvidia
 ```
@@ -78,33 +99,12 @@ app.gpu = nvidia
     "image": "ghcr.io/dxflow-ai/scipion:latest",
     "version": "3.4",
     "minimum": {
-        "cpu": 8,
+        "cpu": 2,
         "memory": "32G",
         "storage": "100G"
     }
 }
 ```
-
-## Usage
-
-### 1. Deploy
-
-```bash
-dxflow workflow create --identity scipion scipion.yml
-
-# Start with defaults, or tune per run with --override
-dxflow workflow start scipion
-dxflow workflow start scipion \
-    --override env.app.VNC_PASSWORD=my-strong-pass
-```
-
-### 2. Open the app
-
-Open your browser at `http://localhost:6082/vnc.html` and enter the password you set in `VNC_PASSWORD`. The Scipion project manager opens on the desktop. Port `5901` is also exposed for connecting a native VNC client.
-
-### 3. Persist data
-
-Mount your movies and datasets under `/volume` — the Scipion user data directory is linked there, so projects and results survive restarts.
 
 ## Notes
 

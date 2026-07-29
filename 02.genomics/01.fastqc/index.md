@@ -13,6 +13,60 @@ FastQC is a quality control tool for high throughput sequence data. It runs a mo
 - Summary graphs and tables of quality control metrics
 - Export reports in HTML format
 
+## Usage
+
+### 1. Prepare data
+
+Upload your FASTQ files:
+
+```bash
+# Create input directory
+mkdir -p input output
+
+# Upload your sequencing files
+dxflow artifact upload /local/sample_R1.fastq.gz input/
+dxflow artifact upload /local/sample_R2.fastq.gz input/
+```
+
+### 2. Deploy
+
+```bash
+# Deploy FastQC workflow
+dxflow workflow create --identity fastqc-analysis hub://fastqc
+```
+
+### 3. Start (with optional tuning)
+
+The step reads three env vars: `INPUT` (the input glob — point it at `.fastq.gz`, `.fastq`, `.bam`, or `.sam`), `THREADS` (how many files FastQC processes in parallel — set `1` for serial), and `EXTRA` (any additional `fastqc` flags from the [Options](#options) tables, e.g. `--extract`, `--format bam`, `--adapters …`). Tune them per run with `--override` — no need to edit the workflow:
+
+```bash
+# Start with defaults (all *.fastq.gz, THREADS=4, no extra flags)
+dxflow workflow start fastqc-analysis
+
+# Or override at start — e.g. process BAM files with extra flags
+dxflow workflow start fastqc-analysis \
+    --override env.job.INPUT=/data/input/*.bam \
+    --override env.job.THREADS=8 \
+    --override env.job.EXTRA=--extract
+```
+
+### 4. Monitor
+
+```bash
+# View logs
+dxflow workflow logs fastqc-analysis
+
+# Check status
+dxflow workflow list
+```
+
+### 5. Retrieve results
+
+```bash
+# Download HTML reports
+dxflow artifact download output/ /local/fastqc-results/
+```
+
 ## Configuration
 
 ```yaml
@@ -67,60 +121,6 @@ job.memory = 4G
         "storage": "10G"
     }
 }
-```
-
-## Usage
-
-### 1. Prepare data
-
-Upload your FASTQ files:
-
-```bash
-# Create input directory
-mkdir -p input output
-
-# Upload your sequencing files
-dxflow artifact upload /local/sample_R1.fastq.gz input/
-dxflow artifact upload /local/sample_R2.fastq.gz input/
-```
-
-### 2. Deploy
-
-```bash
-# Deploy FastQC workflow
-dxflow workflow create --identity fastqc-analysis fastqc.yml
-```
-
-### 3. Start (with optional tuning)
-
-The step reads three env vars: `INPUT` (the input glob — point it at `.fastq.gz`, `.fastq`, `.bam`, or `.sam`), `THREADS` (how many files FastQC processes in parallel — set `1` for serial), and `EXTRA` (any additional `fastqc` flags from the [Options](#options) tables, e.g. `--extract`, `--format bam`, `--adapters …`). Tune them per run with `--override` — no need to edit the workflow:
-
-```bash
-# Start with defaults (all *.fastq.gz, THREADS=4, no extra flags)
-dxflow workflow start fastqc-analysis
-
-# Or override at start — e.g. process BAM files with extra flags
-dxflow workflow start fastqc-analysis \
-    --override env.job.INPUT=/data/input/*.bam \
-    --override env.job.THREADS=8 \
-    --override env.job.EXTRA=--extract
-```
-
-### 4. Monitor
-
-```bash
-# View logs
-dxflow workflow logs fastqc-analysis
-
-# Check status
-dxflow workflow list
-```
-
-### 5. Retrieve results
-
-```bash
-# Download HTML reports
-dxflow artifact download output/ /local/fastqc-results/
 ```
 
 ## Output files
