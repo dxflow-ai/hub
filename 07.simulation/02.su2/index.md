@@ -7,6 +7,37 @@ navigation:
 
 SU2 is an open-source suite for computational fluid dynamics and PDE-constrained optimization, widely used in aerodynamics and aerospace, backed by remote compute. This image bundles SU2 8.0.1 with MPI; the container stays up so you can run solver and optimization commands against cases mounted at `/data`.
 
+## Usage
+
+### 1. Deploy
+
+```bash
+dxflow workflow create --identity su2 hub://su2
+dxflow workflow start su2
+```
+
+The container stays up so you can run SU2 commands against data mounted at `/data`.
+
+### 2. Run a case
+
+Put your `.cfg` config and `.su2` mesh under `/data`, then run inside the workflow container:
+
+```bash
+cd /data
+
+# Serial run
+SU2_CFD case.cfg
+
+# Parallel run (N ranks)
+mpirun -np 16 SU2_CFD case.cfg
+# or the Python driver
+parallel_computation.py -f case.cfg -n 16
+```
+
+### 3. Retrieve results
+
+Everything under `/data` persists — restart files, surface/volume solutions, and history are written there. Visualize with the [ParaView](/hub/visualization/paraview) image.
+
 ## Configuration
 
 ```yaml
@@ -52,37 +83,6 @@ app.memory = 32G
     }
 }
 ```
-
-## Usage
-
-### 1. Deploy
-
-```bash
-dxflow workflow create --identity su2 su2.yml
-dxflow workflow start su2
-```
-
-The container stays up so you can run SU2 commands against data mounted at `/data`.
-
-### 2. Run a case
-
-Put your `.cfg` config and `.su2` mesh under `/data`, then run inside the workflow container:
-
-```bash
-cd /data
-
-# Serial run
-SU2_CFD case.cfg
-
-# Parallel run (N ranks)
-mpirun -np 16 SU2_CFD case.cfg
-# or the Python driver
-parallel_computation.py -f case.cfg -n 16
-```
-
-### 3. Retrieve results
-
-Everything under `/data` persists — restart files, surface/volume solutions, and history are written there. Visualize with the [ParaView](/hub/visualization/paraview) image.
 
 ## Common tools
 

@@ -7,6 +7,28 @@ navigation:
 
 Vivaldi is a highly customizable web browser, streamed here in a remote desktop session and backed by remote compute. It builds on the [Void Desktop](/hub/desktop/void) image — Vivaldi launches maximized with the window decorations and taskbar hidden, so the browser fills the screen.
 
+## Usage
+
+### 1. Deploy
+
+```bash
+dxflow workflow create --identity vivaldi hub://vivaldi
+
+# Start with defaults, or tune per run with --override
+dxflow workflow start vivaldi
+dxflow workflow start vivaldi \
+    --override env.app.VNC_PASSWORD=my-strong-pass \
+    --override env.app.TASKBAR=show
+```
+
+### 2. Open the browser
+
+Open your browser at `http://localhost:6082/vnc.html` and enter the password you set in `VNC_PASSWORD`. Vivaldi is already running and maximized. Port `5901` is also exposed for connecting a native VNC client.
+
+### 3. Persist data
+
+The browser profile lives under `/volume`, so history, bookmarks, and signed-in sessions survive restarts — mount a local directory there to keep your data.
+
 ## Configuration
 
 ```yaml
@@ -82,28 +104,6 @@ app.memory = 4G
     }
 }
 ```
-
-## Usage
-
-### 1. Deploy
-
-```bash
-dxflow workflow create --identity vivaldi vivaldi.yml
-
-# Start with defaults, or tune per run with --override
-dxflow workflow start vivaldi
-dxflow workflow start vivaldi \
-    --override env.app.VNC_PASSWORD=my-strong-pass \
-    --override env.app.TASKBAR=show
-```
-
-### 2. Open the browser
-
-Open your browser at `http://localhost:6082/vnc.html` and enter the password you set in `VNC_PASSWORD`. Vivaldi is already running and maximized. Port `5901` is also exposed for connecting a native VNC client.
-
-### 3. Persist data
-
-The browser profile lives under `/volume`, so history, bookmarks, and signed-in sessions survive restarts — mount a local directory there to keep your data.
 
 ## Notes
 

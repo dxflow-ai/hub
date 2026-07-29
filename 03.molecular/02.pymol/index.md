@@ -7,6 +7,28 @@ navigation:
 
 PyMOL is a molecular visualization system for rendering and analyzing 3D structures and simulation trajectories, streamed here in a remote desktop session and backed by remote compute. It builds on the [Ubuntu Desktop](/hub/desktop/ubuntu) image — PyMOL opens on the desktop with the taskbar hidden but the panel kept, so its viewer and control windows are easy to arrange.
 
+## Usage
+
+### 1. Deploy
+
+```bash
+dxflow workflow create --identity pymol hub://pymol
+
+# Start with defaults, or tune per run with --override
+dxflow workflow start pymol
+dxflow workflow start pymol \
+    --override env.app.VNC_PASSWORD=my-strong-pass \
+    --override env.app.TASKBAR=show
+```
+
+### 2. Open the app
+
+Open your browser at `http://localhost:6082/vnc.html` and enter the password you set in `VNC_PASSWORD`. PyMOL is already running — its viewer and control windows open on the desktop. Port `5901` is also exposed for connecting a native VNC client.
+
+### 3. Persist data
+
+Mount your structures and trajectories under `/volume` and save your sessions there — anything under `/volume` persists across restarts.
+
 ## Configuration
 
 ```yaml
@@ -82,28 +104,6 @@ app.memory = 4G
     }
 }
 ```
-
-## Usage
-
-### 1. Deploy
-
-```bash
-dxflow workflow create --identity pymol pymol.yml
-
-# Start with defaults, or tune per run with --override
-dxflow workflow start pymol
-dxflow workflow start pymol \
-    --override env.app.VNC_PASSWORD=my-strong-pass \
-    --override env.app.TASKBAR=show
-```
-
-### 2. Open the app
-
-Open your browser at `http://localhost:6082/vnc.html` and enter the password you set in `VNC_PASSWORD`. PyMOL is already running — its viewer and control windows open on the desktop. Port `5901` is also exposed for connecting a native VNC client.
-
-### 3. Persist data
-
-Mount your structures and trajectories under `/volume` and save your sessions there — anything under `/volume` persists across restarts.
 
 ## Notes
 

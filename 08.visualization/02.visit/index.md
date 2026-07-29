@@ -7,6 +7,28 @@ navigation:
 
 VisIt is an interactive tool for visualizing and analyzing large simulation datasets across many mesh and field types, streamed here in a remote desktop session and backed by remote compute. It builds on the [Ubuntu Desktop](/hub/desktop/ubuntu) image — VisIt opens on the desktop with the taskbar hidden but the panel kept, so its multiple windows are easy to move around.
 
+## Usage
+
+### 1. Deploy
+
+```bash
+dxflow workflow create --identity visit hub://visit
+
+# Start with defaults, or tune per run with --override
+dxflow workflow start visit
+dxflow workflow start visit \
+    --override env.app.VNC_PASSWORD=my-strong-pass \
+    --override env.app.TASKBAR=show
+```
+
+### 2. Open the app
+
+Open your browser at `http://localhost:6082/vnc.html` and enter the password you set in `VNC_PASSWORD`. VisIt is already running — its GUI and viewer windows open on the desktop. Port `5901` is also exposed for connecting a native VNC client.
+
+### 3. Persist data
+
+Mount your simulation data under `/volume` and save your work there — anything under `/volume` persists across restarts.
+
 ## Configuration
 
 ```yaml
@@ -82,28 +104,6 @@ app.memory = 8G
     }
 }
 ```
-
-## Usage
-
-### 1. Deploy
-
-```bash
-dxflow workflow create --identity visit visit.yml
-
-# Start with defaults, or tune per run with --override
-dxflow workflow start visit
-dxflow workflow start visit \
-    --override env.app.VNC_PASSWORD=my-strong-pass \
-    --override env.app.TASKBAR=show
-```
-
-### 2. Open the app
-
-Open your browser at `http://localhost:6082/vnc.html` and enter the password you set in `VNC_PASSWORD`. VisIt is already running — its GUI and viewer windows open on the desktop. Port `5901` is also exposed for connecting a native VNC client.
-
-### 3. Persist data
-
-Mount your simulation data under `/volume` and save your work there — anything under `/volume` persists across restarts.
 
 ## Notes
 

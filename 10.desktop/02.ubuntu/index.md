@@ -9,6 +9,28 @@ A complete Ubuntu Linux desktop environment, accessible from your browser and ba
 
 This image is also the base other desktop and GUI workflows build on.
 
+## Usage
+
+### 1. Deploy
+
+```bash
+dxflow workflow create --identity ubuntu hub://ubuntu
+
+# Start with defaults, or tune per run with --override
+dxflow workflow start ubuntu
+dxflow workflow start ubuntu \
+    --override env.app.VNC_PASSWORD=my-strong-pass \
+    --override env.app.TASKBAR=hide
+```
+
+### 2. Open the desktop
+
+Open your browser at `http://localhost:6082/vnc.html` and enter the password you set in `VNC_PASSWORD`. Port `5901` is also exposed for connecting a native VNC client.
+
+### 3. Persist data
+
+Anything under `/volume` persists across restarts — mount a local directory there to keep your files and app state.
+
 ## Configuration
 
 ```yaml
@@ -84,28 +106,6 @@ app.memory = 4G
     }
 }
 ```
-
-## Usage
-
-### 1. Deploy
-
-```bash
-dxflow workflow create --identity ubuntu ubuntu.yml
-
-# Start with defaults, or tune per run with --override
-dxflow workflow start ubuntu
-dxflow workflow start ubuntu \
-    --override env.app.VNC_PASSWORD=my-strong-pass \
-    --override env.app.TASKBAR=hide
-```
-
-### 2. Open the desktop
-
-Open your browser at `http://localhost:6082/vnc.html` and enter the password you set in `VNC_PASSWORD`. Port `5901` is also exposed for connecting a native VNC client.
-
-### 3. Persist data
-
-Anything under `/volume` persists across restarts — mount a local directory there to keep your files and app state.
 
 ## Notes
 

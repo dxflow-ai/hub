@@ -7,6 +7,27 @@ navigation:
 
 JupyterLab is a web-based interactive development environment for notebooks, code, and data, backed by remote compute. This image bundles JupyterLab on top of Miniconda, served straight to the browser — no desktop or VNC.
 
+## Usage
+
+### 1. Deploy
+
+```bash
+dxflow workflow create --identity jupyter hub://jupyter
+
+# Start with defaults, or open a specific working directory
+dxflow workflow start jupyter
+dxflow workflow start jupyter \
+    --override env.app.WORKING_DIR=projects/analysis
+```
+
+### 2. Open the notebook
+
+Open your browser at `http://localhost:8888`. JupyterLab opens on the working directory and needs no token — keep the port private and reach it through the platform's authenticated proxy.
+
+### 3. Persist data
+
+Notebooks and data live under `/volume`, so your work survives restarts — mount a local directory there to keep it.
+
 ## Configuration
 
 ```yaml
@@ -60,27 +81,6 @@ app.memory = 8G
     }
 }
 ```
-
-## Usage
-
-### 1. Deploy
-
-```bash
-dxflow workflow create --identity jupyter jupyter.yml
-
-# Start with defaults, or open a specific working directory
-dxflow workflow start jupyter
-dxflow workflow start jupyter \
-    --override env.app.WORKING_DIR=projects/analysis
-```
-
-### 2. Open the notebook
-
-Open your browser at `http://localhost:8888`. JupyterLab opens on the working directory and needs no token — keep the port private and reach it through the platform's authenticated proxy.
-
-### 3. Persist data
-
-Notebooks and data live under `/volume`, so your work survives restarts — mount a local directory there to keep it.
 
 ## Notes
 

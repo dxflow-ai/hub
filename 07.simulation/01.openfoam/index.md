@@ -7,6 +7,44 @@ navigation:
 
 OpenFOAM (Open Field Operation and Manipulation) is a free, open-source CFD package with solvers and utilities for fluid flow, turbulence, heat transfer, and reacting flows, backed by remote compute. This image bundles OpenFOAM 10 (with ParaView); the container stays up so you can run mesh, solver, and post-processing commands against cases mounted at `/data`.
 
+## Usage
+
+### 1. Deploy
+
+```bash
+dxflow workflow create --identity openfoam hub://openfoam
+dxflow workflow start openfoam
+```
+
+The container stays up so you can run OpenFOAM commands against data mounted at `/data`.
+
+### 2. Run a case
+
+The commands below run inside the workflow container.
+
+```bash
+# Copy a tutorial case into the mounted volume
+cp -r $FOAM_TUTORIALS/incompressible/icoFoam/cavity/cavity /data/cavity
+cd /data/cavity
+
+# Mesh, solve, post-process
+blockMesh
+icoFoam
+postProcess -func 'writeCellCentres'
+```
+
+### 3. Run in parallel
+
+```bash
+decomposePar
+mpirun -np 16 simpleFoam -parallel
+reconstructPar
+```
+
+### 4. Retrieve results
+
+Everything under `/data` persists — meshes, time directories, and logs are written there. Visualize with the [ParaView](/hub/visualization/paraview) image.
+
 ## Configuration
 
 ```yaml
@@ -52,44 +90,6 @@ app.memory = 32G
     }
 }
 ```
-
-## Usage
-
-### 1. Deploy
-
-```bash
-dxflow workflow create --identity openfoam openfoam.yml
-dxflow workflow start openfoam
-```
-
-The container stays up so you can run OpenFOAM commands against data mounted at `/data`.
-
-### 2. Run a case
-
-The commands below run inside the workflow container.
-
-```bash
-# Copy a tutorial case into the mounted volume
-cp -r $FOAM_TUTORIALS/incompressible/icoFoam/cavity/cavity /data/cavity
-cd /data/cavity
-
-# Mesh, solve, post-process
-blockMesh
-icoFoam
-postProcess -func 'writeCellCentres'
-```
-
-### 3. Run in parallel
-
-```bash
-decomposePar
-mpirun -np 16 simpleFoam -parallel
-reconstructPar
-```
-
-### 4. Retrieve results
-
-Everything under `/data` persists — meshes, time directories, and logs are written there. Visualize with the [ParaView](/hub/visualization/paraview) image.
 
 ## Common solvers
 

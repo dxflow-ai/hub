@@ -13,6 +13,46 @@ SAMtools provides utilities for sorting, indexing, filtering, and inspecting seq
 - Sort and index alignments for fast random access
 - Summarize alignments with `flagstat` and `stats`
 
+## Usage
+
+### 1. Prepare data
+
+Upload an alignment file (SAM, BAM, or CRAM):
+
+```bash
+# Create input/output directories
+mkdir -p input output
+
+# Upload your alignment
+dxflow artifact upload /local/sample.bam input/
+```
+
+### 2. Deploy
+
+```bash
+dxflow workflow create --identity samtools hub://samtools
+```
+
+### 3. Start (with optional tuning)
+
+The step reads `INPUT` (the alignment to process) and `THREADS` (sort/compression threads). Override them per run:
+
+```bash
+# Start with defaults
+dxflow workflow start samtools
+
+# Or point at a BAM with more threads
+dxflow workflow start samtools \
+    --override env.job.INPUT=/data/input/sample.bam \
+    --override env.job.THREADS=8
+```
+
+### 4. Retrieve results
+
+```bash
+dxflow artifact download output/ /local/samtools-results/
+```
+
 ## Configuration
 
 ```yaml
@@ -65,46 +105,6 @@ job.memory = 4G
         "storage": "10G"
     }
 }
-```
-
-## Usage
-
-### 1. Prepare data
-
-Upload an alignment file (SAM, BAM, or CRAM):
-
-```bash
-# Create input/output directories
-mkdir -p input output
-
-# Upload your alignment
-dxflow artifact upload /local/sample.bam input/
-```
-
-### 2. Deploy
-
-```bash
-dxflow workflow create --identity samtools samtools.yml
-```
-
-### 3. Start (with optional tuning)
-
-The step reads `INPUT` (the alignment to process) and `THREADS` (sort/compression threads). Override them per run:
-
-```bash
-# Start with defaults
-dxflow workflow start samtools
-
-# Or point at a BAM with more threads
-dxflow workflow start samtools \
-    --override env.job.INPUT=/data/input/sample.bam \
-    --override env.job.THREADS=8
-```
-
-### 4. Retrieve results
-
-```bash
-dxflow artifact download output/ /local/samtools-results/
 ```
 
 ## Output files

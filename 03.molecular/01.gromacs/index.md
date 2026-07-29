@@ -7,6 +7,42 @@ navigation:
 
 GROMACS is a versatile, high-performance package for molecular dynamics simulations of proteins, lipids, and nucleic acids, backed by remote compute. This image is built once with **both MPI and CUDA** support: `gmx_mpi` uses an attached NVIDIA GPU when present and falls back to CPU/MPI when not — so the same image covers both modes.
 
+## Usage
+
+### 1. Deploy
+
+```bash
+dxflow workflow create --identity gromacs hub://gromacs
+
+# With a GPU (default), or CPU-only by dropping the gpu resource
+dxflow workflow start gromacs
+```
+
+The container stays up so you can run `gmx_mpi` commands against data mounted at `/volume`.
+
+### 2. Run a simulation
+
+The `gmx_mpi` commands below run inside the workflow container; put your inputs under `/volume`.
+
+```bash
+# Prepare the system
+gmx_mpi pdb2gmx -f protein.pdb -o processed.gro -water spce
+gmx_mpi editconf -f processed.gro -o newbox.gro -c -d 1.0 -bt cubic
+gmx_mpi solvate -cp newbox.gro -cs spc216.gro -o solv.gro -p topol.top
+
+# Energy minimization
+gmx_mpi grompp -f em.mdp -c solv.gro -p topol.top -o em.tpr
+gmx_mpi mdrun -v -deffnm em
+
+# Production MD (add -nb gpu on a GPU node)
+gmx_mpi grompp -f md.mdp -c npt.gro -t npt.cpt -p topol.top -o md.tpr
+gmx_mpi mdrun -v -deffnm md -nb gpu
+```
+
+### 3. Retrieve results
+
+Everything under `/volume` persists — trajectories, logs, and analysis outputs are written there.
+
 ## Configuration
 
 Attach a GPU with `resources.gpu: nvidia` for CUDA acceleration, or remove it to run CPU/MPI-only.
@@ -56,42 +92,6 @@ app.gpu = nvidia
     }
 }
 ```
-
-## Usage
-
-### 1. Deploy
-
-```bash
-dxflow workflow create --identity gromacs gromacs.yml
-
-# With a GPU (default), or CPU-only by dropping the gpu resource
-dxflow workflow start gromacs
-```
-
-The container stays up so you can run `gmx_mpi` commands against data mounted at `/volume`.
-
-### 2. Run a simulation
-
-The `gmx_mpi` commands below run inside the workflow container; put your inputs under `/volume`.
-
-```bash
-# Prepare the system
-gmx_mpi pdb2gmx -f protein.pdb -o processed.gro -water spce
-gmx_mpi editconf -f processed.gro -o newbox.gro -c -d 1.0 -bt cubic
-gmx_mpi solvate -cp newbox.gro -cs spc216.gro -o solv.gro -p topol.top
-
-# Energy minimization
-gmx_mpi grompp -f em.mdp -c solv.gro -p topol.top -o em.tpr
-gmx_mpi mdrun -v -deffnm em
-
-# Production MD (add -nb gpu on a GPU node)
-gmx_mpi grompp -f md.mdp -c npt.gro -t npt.cpt -p topol.top -o md.tpr
-gmx_mpi mdrun -v -deffnm md -nb gpu
-```
-
-### 3. Retrieve results
-
-Everything under `/volume` persists — trajectories, logs, and analysis outputs are written there.
 
 ## Notes
 
