@@ -46,7 +46,7 @@ tags:
     - simulation
 steps:
     - name: app
-      platform: docker
+      runtime: docker
       mode: parallel
       image: ghcr.io/dxflow-ai/su2:latest
       command:

@@ -61,7 +61,7 @@ tags:
     - genomics
 steps:
     - name: job
-      platform: docker
+      runtime: docker
       mode: parallel
       image: ghcr.io/dxflow-ai/pangolin:latest
       volumes:
