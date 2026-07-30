@@ -39,7 +39,7 @@ tags:
     - desktop
 steps:
     - name: app
-      platform: docker
+      runtime: docker
       mode: parallel
       image: ghcr.io/dxflow-ai/ubuntu:latest
       volumes:
