@@ -18,7 +18,7 @@ dxflow workflow start rstudio
 
 ### 2. Open the IDE
 
-Open your browser at `http://localhost:8787`. RStudio opens without a login prompt — keep the port private and reach it through the platform's authenticated proxy.
+Open your browser at `http://localhost:8787`. RStudio opens without a login prompt — keep the port private and reach it through an authenticated reverse proxy you put in front of it.
 
 ### 3. Persist data
 
@@ -75,5 +75,5 @@ app.memory = 8G
 
 ## Notes
 
-- Authentication is disabled (`--auth-none=1`); RStudio Server is meant to sit behind the platform's authenticated proxy, so do not expose port `8787` directly to the internet.
+- Authentication is disabled (`--auth-none=1`); RStudio Server is meant to sit behind an authenticated reverse proxy, so do not expose port `8787` directly to the internet.
 - The home directory is `/volume/$USER` (default user `diphyx`) — install R packages with `install.packages()` and they persist there.

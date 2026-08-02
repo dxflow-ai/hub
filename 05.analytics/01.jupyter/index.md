@@ -22,7 +22,7 @@ dxflow workflow start jupyter \
 
 ### 2. Open the notebook
 
-Open your browser at `http://localhost:8888`. JupyterLab opens on the working directory and needs no token — keep the port private and reach it through the platform's authenticated proxy.
+Open your browser at `http://localhost:8888`. JupyterLab opens on the working directory and needs no token — keep the port private and reach it through an authenticated reverse proxy you put in front of it.
 
 ### 3. Persist data
 
@@ -85,5 +85,5 @@ app.memory = 8G
 ## Notes
 
 - `WORKING_DIR` is resolved under `/volume` (empty opens `/volume`). Set it to a subpath like `projects/analysis` to open straight into a project.
-- The token is disabled (`--NotebookApp.token=''`); JupyterLab is meant to sit behind the platform's authenticated proxy, so do not expose port `8888` directly to the internet.
+- The token is disabled (`--NotebookApp.token=''`); JupyterLab is meant to sit behind an authenticated reverse proxy, so do not expose port `8888` directly to the internet.
 - Miniconda is at `/opt/miniconda` and on the `PATH` — use `conda` and `pip` from a notebook terminal to add libraries such as `numpy`, `pandas`, `scikit-learn`, or extensions like `jupyterlab-git`.

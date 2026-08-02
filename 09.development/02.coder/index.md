@@ -22,7 +22,7 @@ dxflow workflow start coder \
 
 ### 2. Open the editor
 
-Open your browser at `http://localhost:8080`. code-server opens on the working directory and needs no password — keep the port private and reach it through the platform's authenticated proxy.
+Open your browser at `http://localhost:8080`. code-server opens on the working directory and needs no password — keep the port private and reach it through an authenticated reverse proxy you put in front of it.
 
 ### 3. Persist data
 
@@ -85,5 +85,5 @@ app.memory = 4G
 ## Notes
 
 - `WORKING_DIR` is resolved under `/volume` (default `/` opens `/volume`). Set it to a subpath like `projects/my-app` to open straight into a project.
-- Authentication is disabled (`--auth=none`); code-server is meant to sit behind the platform's authenticated proxy, so do not expose port `8080` directly to the internet.
+- Authentication is disabled (`--auth=none`); code-server is meant to sit behind an authenticated reverse proxy, so do not expose port `8080` directly to the internet.
 - The shell is `zsh`, and `python3` and `git` are preinstalled for use from the integrated terminal.

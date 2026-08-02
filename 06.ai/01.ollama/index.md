@@ -94,4 +94,4 @@ app.memory = 8G
 - `STARTUP_MODEL` is pulled on startup and selected in the UI (default `smollm2:135m`, preloaded into the image). Pull more models any time from a terminal with `ollama pull <name>`.
 - The web interface is a React app (served by nginx) that reverse-proxies to the local Ollama server on `11434` — the UI calls it under `/ollama/api/*`, and the standard API is also exposed directly at `/api/*`, so the browser and the API share port `8080`.
 - Small models suit CPU-only runs; for larger models (7B+), attach a GPU and give the step more memory.
-- Authentication is not built in — keep port `8080` private and reach it through the platform's authenticated proxy.
+- Authentication is not built in — keep port `8080` private and reach it through an authenticated reverse proxy you put in front of it.
