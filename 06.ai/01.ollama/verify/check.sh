@@ -3,5 +3,5 @@
 # verify.sh helper: block until the step is up and stays up
 wait_running 10
 
-# verify.sh helper: the web interface answers
-expect_http 8080
+# verify.sh helper: the web interface answers, behind basic auth
+expect_http_auth 8080

@@ -34,6 +34,9 @@ model="${STARTUP_MODEL:-smollm2:135m}"
 log "pulling startup model ${model}"
 ollama pull "${model}" > /var/log/pull.log 2>&1 || log "failed to pull ${model} (continuing)"
 
+# Write the credential nginx checks before it serves the interface or the API
+htpasswd -bc /etc/nginx/.htpasswd dxflow "${PASSWORD:-dxflow}" > /dev/null 2>&1
+
 # Start the web interface
 log "starting web interface on :8080"
 nginx -g 'daemon off;' > /var/log/nginx.log 2>&1 &

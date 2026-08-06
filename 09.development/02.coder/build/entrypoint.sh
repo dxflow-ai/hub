@@ -17,12 +17,16 @@ run_hook() {
 # Run prepare hook
 run_hook prepare
 
+# Hand code-server the sign-in password it reads from the environment
+PASSWORD="${PASSWORD:-dxflow}"
+export PASSWORD
+
 # Start code-server on the working directory under /volume
 workdir="/volume/$(printf '%s' "${WORKING_DIR:-/}" | sed 's|^/||')"
 log "starting code-server on :8080 at ${workdir}"
 /root/.local/bin/code-server \
   --bind-addr=0.0.0.0:8080 \
-  --auth=none \
+  --auth=password \
   --disable-telemetry \
   --disable-update-check \
   --disable-workspace-trust \

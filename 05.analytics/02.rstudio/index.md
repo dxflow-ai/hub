@@ -13,12 +13,16 @@ RStudio Server provides a browser-based development environment for R — with a
 
 ```bash
 dxflow workflow create --identity rstudio hub://rstudio
+
+# Start with defaults, or tune per run with --override
 dxflow workflow start rstudio
+dxflow workflow start rstudio \
+    --override env.app.PASSWORD=my-strong-pass
 ```
 
 ### 2. Open the IDE
 
-Open your browser at `http://localhost:8787`. RStudio opens without a login prompt — keep the port private and reach it through an authenticated reverse proxy you put in front of it.
+Open your browser at `http://localhost:8787` and sign in as `USER` (default `dxflow`) with the password you set in `PASSWORD`.
 
 ### 3. Persist data
 
@@ -43,6 +47,9 @@ steps:
           - name: web
             host: "8787"
             container: "8787"
+      env:
+          - USER=dxflow
+          - PASSWORD=dxflow
       resources:
           cpu: "4"
           memory: 8G
@@ -54,6 +61,10 @@ app.volume = ./volume
 
 [port]
 app.web = 8787
+
+[env]
+app.USER = dxflow
+app.PASSWORD = dxflow
 
 [resource]
 app.cpu = 4
@@ -75,5 +86,5 @@ app.memory = 8G
 
 ## Notes
 
-- Authentication is disabled (`--auth-none=1`); RStudio Server is meant to sit behind an authenticated reverse proxy, so do not expose port `8787` directly to the internet.
-- The home directory is `/volume/$USER` (default user `diphyx`) — install R packages with `install.packages()` and they persist there.
+- Set a strong `PASSWORD`; it defaults to `dxflow`, which every reader of this page knows. RStudio authenticates it through PAM against the `USER` account, so the sign-in page is the only way in.
+- The home directory is `/volume/$USER` (default user `dxflow`) — install R packages with `install.packages()` and they persist there.

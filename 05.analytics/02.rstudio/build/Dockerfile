@@ -26,7 +26,13 @@ RUN xbps-remove -O && \
     rm -rf /tmp/*
 
 # Create the RStudio session user (rsession runs as a real user, not root)
-RUN useradd -d /volume/diphyx -s /bin/bash diphyx
+RUN useradd -d /volume/dxflow -s /bin/bash dxflow
+
+# Give sign-in a PAM profile to authenticate against (the converted deb omits /etc/pam.d)
+RUN mkdir -p /etc/pam.d && \
+    if [ ! -f /etc/pam.d/rstudio ]; then \
+        printf 'auth     required pam_unix.so\naccount  required pam_unix.so\npassword required pam_unix.so\nsession  required pam_unix.so\n' > /etc/pam.d/rstudio; \
+    fi
 
 # Setup scripts
 RUN mkdir -p /opt/dxflow
@@ -35,7 +41,7 @@ COPY postpare.sh /opt/dxflow/postpare.sh
 COPY entrypoint.sh /opt/dxflow/entrypoint.sh
 RUN chmod +x /opt/dxflow/entrypoint.sh
 
-ENV USER="diphyx"
+ENV USER="dxflow"
 
 EXPOSE 8787
 
