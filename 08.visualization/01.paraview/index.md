@@ -55,7 +55,7 @@ steps:
             host: "6100"
             container: "6100"
       env:
-          - VNC_PASSWORD=changeme
+          - VNC_PASSWORD=dxflow
           - WALLPAPER=show
           - PANEL=hide
           - TASKBAR=hide
@@ -78,7 +78,7 @@ app.vnc = 5901
 app.audio = 6100
 
 [env]
-app.VNC_PASSWORD = changeme
+app.VNC_PASSWORD = dxflow
 app.WALLPAPER = show
 app.PANEL = hide
 app.TASKBAR = hide
@@ -107,7 +107,7 @@ app.memory = 8G
 
 ## Notes
 
-- Set a strong `VNC_PASSWORD`; if unset, the desktop falls back to the password `anonymous`.
+- Set a strong `VNC_PASSWORD`; it defaults to `dxflow`, which every reader of this page knows.
 - The panel and taskbar are hidden by default so ParaView fills the screen. Set `PANEL=show` or `TASKBAR=show` to bring back the window decorations and taskbar.
 - Rendering is CPU-based (software OpenGL) unless a GPU is attached; give the step more CPU and memory for large datasets, and attach a GPU for interactive rendering of heavy scenes.
 - Audio: off by default. Set `AUDIO=on` to stream desktop sound; tune with `AUDIO_CHANNELS` (1 or 2) and `AUDIO_RATE` (8000/16000/22050/32000/44100). The audio port is `AUDIO_PORT` (default `6100`) — the client follows it, so to run two sessions on one host give each its own port by setting `AUDIO_PORT` and the matching `audio` port mapping together.
