@@ -36,6 +36,7 @@
 #
 # Usage:
 #   ./verify.sh <workflow>
+#   ./verify.sh                  # pick one from a list
 #
 set -euo pipefail
 
@@ -150,7 +151,32 @@ expect_port() {
 
 # Resolve the workflow.
 
+# Offer the workflows that carry verify fixtures, and print the chosen key
+select_workflow() {
+  local options=() d name choice
+  while IFS= read -r d; do
+    [ -f "$d/verify/check.sh" ] || continue
+    name="$(basename "$d")"
+    options+=("${name#*.}")
+  done < <(find "$HUB_DIR" -mindepth 2 -maxdepth 2 -type d -not -path '*/.*' | sort)
+
+  PS3="verify which workflow? (number, or q to quit) "
+  select choice in "${options[@]}"; do
+    if [ -n "$choice" ]; then
+      printf '%s' "$choice"
+      return 0
+    fi
+    if [ "$REPLY" = "q" ]; then
+      return 1
+    fi
+  done
+  return 1
+}
+
 workflow="${1:-}"
+if [ -z "$workflow" ] && [ -t 0 ]; then
+  workflow="$(select_workflow)" || exit 1
+fi
 [ -n "$workflow" ] || die "usage: $0 <workflow>"
 
 have dxflow || die "dxflow CLI not found on PATH"
