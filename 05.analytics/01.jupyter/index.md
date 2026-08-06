@@ -14,15 +14,16 @@ JupyterLab is a web-based interactive development environment for notebooks, cod
 ```bash
 dxflow workflow create --identity jupyter hub://jupyter
 
-# Start with defaults, or open a specific working directory
+# Start with defaults, or tune per run with --override
 dxflow workflow start jupyter
 dxflow workflow start jupyter \
+    --override env.app.PASSWORD=my-strong-pass \
     --override env.app.WORKING_DIR=projects/analysis
 ```
 
 ### 2. Open the notebook
 
-Open your browser at `http://localhost:8888`. JupyterLab opens on the working directory and needs no token — keep the port private and reach it through the platform's authenticated proxy.
+Open your browser at `http://localhost:8888` and sign in with the password you set in `PASSWORD`. JupyterLab opens on the working directory.
 
 ### 3. Persist data
 
@@ -48,10 +49,12 @@ steps:
             host: "8888"
             container: "8888"
       env:
+          - PASSWORD=dxflow
           - WORKING_DIR=
       resources:
           cpu: "4"
           memory: 8G
+      link: web
 ```
 
 ```ini
@@ -62,6 +65,7 @@ app.volume = ./volume
 app.web = 8888
 
 [env]
+app.PASSWORD = dxflow
 app.WORKING_DIR =
 
 [resource]
@@ -85,5 +89,5 @@ app.memory = 8G
 ## Notes
 
 - `WORKING_DIR` is resolved under `/volume` (empty opens `/volume`). Set it to a subpath like `projects/analysis` to open straight into a project.
-- The token is disabled (`--NotebookApp.token=''`); JupyterLab is meant to sit behind the platform's authenticated proxy, so do not expose port `8888` directly to the internet.
+- Set a strong `PASSWORD`; it defaults to `dxflow`, which every reader of this page knows. JupyterLab asks for it on a sign-in page and the token is disabled, so the password is the only way in.
 - Miniconda is at `/opt/miniconda` and on the `PATH` — use `conda` and `pip` from a notebook terminal to add libraries such as `numpy`, `pandas`, `scikit-learn`, or extensions like `jupyterlab-git`.

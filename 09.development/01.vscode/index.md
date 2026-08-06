@@ -55,7 +55,7 @@ steps:
             host: "6100"
             container: "6100"
       env:
-          - VNC_PASSWORD=changeme
+          - VNC_PASSWORD=dxflow
           - WALLPAPER=show
           - PANEL=hide
           - TASKBAR=hide
@@ -66,6 +66,7 @@ steps:
       resources:
           cpu: "2"
           memory: 4G
+      link: web
 ```
 
 ```ini
@@ -78,7 +79,7 @@ app.vnc = 5901
 app.audio = 6100
 
 [env]
-app.VNC_PASSWORD = changeme
+app.VNC_PASSWORD = dxflow
 app.WALLPAPER = show
 app.PANEL = hide
 app.TASKBAR = hide
@@ -107,7 +108,7 @@ app.memory = 4G
 
 ## Notes
 
-- Set a strong `VNC_PASSWORD`; if unset, the desktop falls back to the password `anonymous`.
+- Set a strong `VNC_PASSWORD`; it defaults to `dxflow`, which every reader of this page knows.
 - VS Code runs with `--no-sandbox` because it runs as root inside the container. Keep the session private and protected by `VNC_PASSWORD`.
 - Miniconda is installed at `/opt/miniconda` and on the `PATH` — use `conda` to manage Python environments from the integrated terminal.
 - GitHub Copilot is installed on first launch into the persisted extensions directory.

@@ -19,6 +19,7 @@
 #   expect_file <path>...        assert each artifact path exists (globs allowed in the name)
 #   expect_output <glob>...      assert each glob appears in the output volume
 #   expect_http <port> [path]    assert the service answers HTTP on a published port
+#   expect_http_auth <port> [path]  assert it answers and asks for a credential
 #   expect_port <port>           assert a TCP port is open (non-HTTP, e.g. VNC)
 #
 # A batch tool checks its outputs; a long-running service (desktop, IDE, notebook)
@@ -35,6 +36,7 @@
 #
 # Usage:
 #   ./verify.sh <workflow>
+#   ./verify.sh                  # pick one from a list
 #
 set -euo pipefail
 
@@ -119,6 +121,25 @@ expect_http() {
   fi
 }
 
+# A guarded endpoint answers a credential-less request with a challenge (401/403)
+# or a redirect to its own sign-in page (302/303).
+_http_guarded() {
+  case "$(curl -s -o /dev/null --max-time 5 -w '%{http_code}' "http://$1:$2$3")" in
+    302 | 303 | 401 | 403) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+# Assert the service answers and refuses to serve without a credential.
+expect_http_auth() {
+  local port="$1" path="${2:-/}" host="${VERIFY_HOST:-localhost}"
+  if _retry 30 _http_guarded "$host" "$port" "$path"; then
+    echo "  ok    http $host:$port$path asks for a credential"
+  else
+    fail "no credential asked for on $host:$port$path"
+  fi
+}
+
 expect_port() {
   local port="$1" host="${VERIFY_HOST:-localhost}"
   if _retry 30 bash -c "exec 3<>/dev/tcp/$host/$port" 2>/dev/null; then
@@ -130,7 +151,32 @@ expect_port() {
 
 # Resolve the workflow.
 
+# Offer the workflows that carry verify fixtures, and print the chosen key
+select_workflow() {
+  local options=() d name choice
+  while IFS= read -r d; do
+    [ -f "$d/verify/check.sh" ] || continue
+    name="$(basename "$d")"
+    options+=("${name#*.}")
+  done < <(find "$HUB_DIR" -mindepth 2 -maxdepth 2 -type d -not -path '*/.*' | sort)
+
+  PS3="verify which workflow? (number, or q to quit) "
+  select choice in "${options[@]}"; do
+    if [ -n "$choice" ]; then
+      printf '%s' "$choice"
+      return 0
+    fi
+    if [ "$REPLY" = "q" ]; then
+      return 1
+    fi
+  done
+  return 1
+}
+
 workflow="${1:-}"
+if [ -z "$workflow" ] && [ -t 0 ]; then
+  workflow="$(select_workflow)" || exit 1
+fi
 [ -n "$workflow" ] || die "usage: $0 <workflow>"
 
 have dxflow || die "dxflow CLI not found on PATH"

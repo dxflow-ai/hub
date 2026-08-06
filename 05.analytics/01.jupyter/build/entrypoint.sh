@@ -17,6 +17,9 @@ run_hook() {
 # Run prepare hook
 run_hook prepare
 
+# Hash the sign-in password JupyterLab asks for
+hash="$(JUPYTER_PASSWORD="${PASSWORD:-dxflow}" python3 -c 'import os; from jupyter_server.auth import passwd; print(passwd(os.environ["JUPYTER_PASSWORD"]))')"
+
 # Start JupyterLab on the working directory under /volume
 workdir="/volume/$(printf '%s' "${WORKING_DIR:-}" | sed 's|^/||')"
 mkdir -p "${workdir}"
@@ -26,7 +29,8 @@ jupyter lab \
   --port=8888 \
   --allow-root \
   --no-browser \
-  --NotebookApp.token='' \
+  --ServerApp.token='' \
+  --ServerApp.password="${hash}" \
   --notebook-dir="${workdir}" > /var/log/jupyterlab.log 2>&1 &
 JUPYTER_PID=$!
 

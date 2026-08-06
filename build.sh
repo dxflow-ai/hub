@@ -7,14 +7,40 @@
 #
 # Usage:
 #   ./build.sh <workflow>    # e.g. ./build.sh fastqc
+#   ./build.sh               # pick one from a list
 #
 set -euo pipefail
 
 # Repo root (this script's directory)
 HUB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Workflow key (the <key> in folder NN.<key>)
+# Offer the workflows that carry a Dockerfile, and print the chosen key
+select_workflow() {
+  local options=() d name choice
+  while IFS= read -r d; do
+    [ -f "$d/build/Dockerfile" ] || [ -f "$d/Dockerfile" ] || continue
+    name="$(basename "$d")"
+    options+=("${name#*.}")
+  done < <(find "$HUB_DIR" -mindepth 2 -maxdepth 2 -type d -not -path '*/.*' | sort)
+
+  PS3="build which workflow? (number, or q to quit) "
+  select choice in "${options[@]}"; do
+    if [ -n "$choice" ]; then
+      printf '%s' "$choice"
+      return 0
+    fi
+    if [ "$REPLY" = "q" ]; then
+      return 1
+    fi
+  done
+  return 1
+}
+
+# Workflow key (the <key> in folder NN.<key>), asked for when none is given
 workflow="${1:-}"
+if [ -z "$workflow" ] && [ -t 0 ]; then
+  workflow="$(select_workflow)" || exit 1
+fi
 [ -n "$workflow" ] || { echo "usage: $0 <workflow>" >&2; exit 1; }
 
 # Find the workflow folder by matching the part after the NN. prefix

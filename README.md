@@ -42,7 +42,10 @@ When adding a tool, copy an existing published workflow (one that already has `b
 ./build.sh <key>                # build this arch and load it into local docker (for verify)
 ./verify.sh <key>               # end-to-end test the loaded image through a live dxflow engine
 ./publish.sh <key>              # build all arches (from json "arch") and push a multi-arch image
+./run.sh <key>                  # deploy and leave running, to drive it by hand
 ```
+
+Omit `<key>` on a terminal and the script lists the workflows it can act on and asks for a number — `build`/`publish` offer the ones with a Dockerfile, `verify` the ones with `verify/check.sh`, `run` the ones with a `## Configuration` yaml block, so a draft never shows up. Without a terminal (a pipe, CI) the key stays required.
 
 Run `build` before `verify` — verify uses the locally-loaded image (the engine's `pull: missing` finds it, no registry pull). `publish` builds and pushes both arches as one `:latest` + `:<version>` manifest, and needs `docker login` to the registry first.
 

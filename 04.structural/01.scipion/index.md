@@ -54,7 +54,7 @@ steps:
             host: "6100"
             container: "6100"
       env:
-          - VNC_PASSWORD=changeme
+          - VNC_PASSWORD=dxflow
           - WALLPAPER=show
           - PANEL=show
           - TASKBAR=hide
@@ -66,6 +66,7 @@ steps:
           cpu: "4"
           memory: 64G
           gpu: nvidia
+      link: web
 ```
 
 ```ini
@@ -78,7 +79,7 @@ app.vnc = 5901
 app.audio = 6100
 
 [env]
-app.VNC_PASSWORD = changeme
+app.VNC_PASSWORD = dxflow
 app.WALLPAPER = show
 app.PANEL = show
 app.TASKBAR = hide
@@ -108,7 +109,7 @@ app.gpu = nvidia
 
 ## Notes
 
-- Set a strong `VNC_PASSWORD`; if unset, the desktop falls back to the password `anonymous`.
+- Set a strong `VNC_PASSWORD`; it defaults to `dxflow`, which every reader of this page knows.
 - Scipion is GPU- and compute-heavy: attach an NVIDIA GPU and give the step ample CPU, memory, and fast storage. The typical pipeline runs import → motion correction → CTF estimation → particle picking → 2D/3D classification → refinement → post-processing.
 - The image installs the Scipion core; some plugins (e.g. Xmipp, RELION, MotionCor2) are installed on demand from the plugin manager and may need additional download and build time.
 - The panel is kept and the taskbar hidden by default so Scipion's multiple windows are easy to manage. Set `TASKBAR=show` or `PANEL=hide` to change that.

@@ -22,7 +22,7 @@ ENV DEBIAN_FRONTEND="noninteractive"
 
 # Install the web server for the interface (retry flaky mirrors, esp. arm64 ports)
 RUN apt-get -o Acquire::Retries=5 -o Acquire::http::Timeout=30 update -q && \
-    apt-get install -y -q --no-install-recommends nginx curl && \
+    apt-get install -y -q --no-install-recommends nginx apache2-utils curl && \
     rm -rf /var/lib/apt/lists/*
 
 # Preload the default model into the image

@@ -18,18 +18,20 @@ run_hook() {
 run_hook prepare
 
 # Give the RStudio user a home under /volume so sessions persist
-USER="${USER:-diphyx}"
+USER="${USER:-dxflow}"
 export USER
 export HOME="/volume/${USER}"
 mkdir -p "${HOME}"
 chown -R "${USER}:${USER}" "${HOME}" 2>/dev/null || true
+
+# Give that user the sign-in password RStudio authenticates against
+printf '%s:%s\n' "${USER}" "${PASSWORD:-dxflow}" | chpasswd
 
 # Start RStudio Server
 log "starting rstudio-server on :8787"
 /usr/lib/rstudio-server/bin/rserver \
   --server-user=root \
   --server-daemonize=0 \
-  --auth-none=1 \
   --www-address=0.0.0.0 \
   --www-port=8787 \
   --www-verify-user-agent=0 \

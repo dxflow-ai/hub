@@ -19,7 +19,7 @@ run_hook prepare
 
 # Set VNC password once
 if [ ! -f /tmp/.password_created ]; then
-  printf '%s' "${VNC_PASSWORD:-anonymous}" | vncpasswd -f > /root/.vnc/passwd
+  printf '%s' "${VNC_PASSWORD:-dxflow}" | vncpasswd -f > /root/.vnc/passwd
   chmod 600 /root/.vnc/passwd
   touch /tmp/.password_created
 fi

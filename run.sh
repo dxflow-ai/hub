@@ -10,6 +10,7 @@
 #   ./run.sh <workflow>          # (re)deploy and start; print the published endpoints
 #   ./run.sh <workflow> logs     # follow the running workflow's logs
 #   ./run.sh <workflow> down     # stop and remove the workflow
+#   ./run.sh                     # pick one from a list, then deploy and start
 #
 set -euo pipefail
 
@@ -19,8 +20,34 @@ have() { command -v "$1" >/dev/null 2>&1; }
 log() { echo "==> $*"; }
 die() { echo "$*" >&2; exit 1; }
 
+# Offer the deployable workflows, and print the chosen key
+select_workflow() {
+  local options=() d name choice
+  while IFS= read -r d; do
+    [ -f "$d/index.md" ] || continue
+    grep -q '^```yaml' "$d/index.md" || continue
+    name="$(basename "$d")"
+    options+=("${name#*.}")
+  done < <(find "$HUB_DIR" -mindepth 2 -maxdepth 2 -type d -not -path '*/.*' | sort)
+
+  PS3="run which workflow? (number, or q to quit) "
+  select choice in "${options[@]}"; do
+    if [ -n "$choice" ]; then
+      printf '%s' "$choice"
+      return 0
+    fi
+    if [ "$REPLY" = "q" ]; then
+      return 1
+    fi
+  done
+  return 1
+}
+
 workflow="${1:-}"
 action="${2:-up}"
+if [ -z "$workflow" ] && [ -t 0 ]; then
+  workflow="$(select_workflow)" || exit 1
+fi
 [ -n "$workflow" ] || die "usage: $0 <workflow> [up|logs|down]"
 
 have dxflow || die "dxflow CLI not found on PATH"

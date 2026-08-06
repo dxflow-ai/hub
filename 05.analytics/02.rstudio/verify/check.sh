@@ -3,5 +3,5 @@
 # verify.sh helper: block until the step is up and stays up
 wait_running 10
 
-# verify.sh helper: the rstudio-server web endpoint answers
-expect_http 8787
+# verify.sh helper: the rstudio-server web endpoint answers, behind its sign-in
+expect_http_auth 8787
