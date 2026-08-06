@@ -4,11 +4,10 @@ LABEL org.opencontainers.image.title="GIMP"
 LABEL org.opencontainers.image.description="GNU Image Manipulation Program for photo editing and graphics"
 LABEL org.opencontainers.image.source="https://github.com/dxflow-ai/hub"
 
-# Update xbps itself before installing (the base image lags the rolling repo)
-RUN xbps-install -Suy xbps
-
-# Install gimp
-RUN xbps-install -Sy gimp && \
+# Install gimp on a base brought in step with the rolling repo
+RUN xbps-install -Suy xbps && \
+    xbps-install -Suy && \
+    xbps-install -Sy gimp && \
     xbps-remove -O && \
     rm -rf /var/cache/xbps/*
 

@@ -4,11 +4,10 @@ LABEL org.opencontainers.image.title="Vivaldi"
 LABEL org.opencontainers.image.description="Feature-rich Vivaldi web browser in a remote desktop session"
 LABEL org.opencontainers.image.source="https://github.com/dxflow-ai/hub"
 
-# Update xbps itself before installing (the base image lags the rolling repo)
-RUN xbps-install -Suy xbps
-
-# Install vivaldi from the nonfree repo
-RUN xbps-install -Sy void-repo-nonfree && \
+# Install vivaldi from the nonfree repo on a base brought in step with the rolling repo
+RUN xbps-install -Suy xbps && \
+    xbps-install -Suy && \
+    xbps-install -Sy void-repo-nonfree && \
     xbps-install -Sy vivaldi && \
     xbps-remove -O && \
     rm -rf /var/cache/xbps/*
