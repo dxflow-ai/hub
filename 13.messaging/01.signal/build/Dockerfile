@@ -4,11 +4,10 @@ LABEL org.opencontainers.image.title="Signal"
 LABEL org.opencontainers.image.description="Private, encrypted messaging in a remote desktop session"
 LABEL org.opencontainers.image.source="https://github.com/dxflow-ai/hub"
 
-# Update xbps itself before installing (the base image lags the rolling repo)
-RUN xbps-install -Suy xbps
-
-# Install signal
-RUN xbps-install -Sy Signal-Desktop && \
+# Install signal on a base brought in step with the rolling repo
+RUN xbps-install -Suy xbps && \
+    xbps-install -Suy && \
+    xbps-install -Sy Signal-Desktop && \
     xbps-remove -O && \
     rm -rf /var/cache/xbps/*
 

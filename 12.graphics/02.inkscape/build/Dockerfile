@@ -4,11 +4,10 @@ LABEL org.opencontainers.image.title="Inkscape"
 LABEL org.opencontainers.image.description="Vector graphics editor for illustrations and diagrams"
 LABEL org.opencontainers.image.source="https://github.com/dxflow-ai/hub"
 
-# Update xbps itself before installing (the base image lags the rolling repo)
-RUN xbps-install -Suy xbps
-
-# Install inkscape
-RUN xbps-install -Sy inkscape && \
+# Install inkscape on a base brought in step with the rolling repo
+RUN xbps-install -Suy xbps && \
+    xbps-install -Suy && \
+    xbps-install -Sy inkscape && \
     xbps-remove -O && \
     rm -rf /var/cache/xbps/*
 

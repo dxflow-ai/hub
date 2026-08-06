@@ -4,11 +4,10 @@ LABEL org.opencontainers.image.title="Firefox"
 LABEL org.opencontainers.image.description="Mozilla Firefox web browser in a remote desktop session"
 LABEL org.opencontainers.image.source="https://github.com/dxflow-ai/hub"
 
-# Update xbps itself before installing (the base image lags the rolling repo)
-RUN xbps-install -Suy xbps
-
-# Install firefox
-RUN xbps-install -Sy firefox && \
+# Install firefox on a base brought in step with the rolling repo
+RUN xbps-install -Suy xbps && \
+    xbps-install -Suy && \
+    xbps-install -Sy firefox && \
     xbps-remove -O && \
     rm -rf /var/cache/xbps/*
 
