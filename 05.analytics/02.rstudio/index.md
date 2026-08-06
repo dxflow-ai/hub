@@ -53,6 +53,7 @@ steps:
       resources:
           cpu: "4"
           memory: 8G
+      link: web
 ```
 
 ```ini

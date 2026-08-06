@@ -54,6 +54,7 @@ steps:
       resources:
           cpu: "2"
           memory: 4G
+      link: web
 ```
 
 ```ini

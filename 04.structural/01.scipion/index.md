@@ -66,6 +66,7 @@ steps:
           cpu: "4"
           memory: 64G
           gpu: nvidia
+      link: web
 ```
 
 ```ini
