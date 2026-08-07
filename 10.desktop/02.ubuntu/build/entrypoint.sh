@@ -52,15 +52,19 @@ NOVNC_PID=$!
 # Start the browser audio proxy and point the client at it
 if [ "$audio" = "on" ]; then
   log "starting audio proxy on :${AUDIO_PORT:-6100}"
-  sed -i \
-    -e 's/const ENABLE = false;/const ENABLE = true;/' \
-    -e "s/const CHANNELS = 1;/const CHANNELS = ${AUDIO_CHANNELS:-1};/" \
-    -e "s/const RATE = 22050;/const RATE = ${AUDIO_RATE:-22050};/" \
-    /opt/novnc/app/audio.js 2>/dev/null || true
-  sed -i "s|-6100/|-${AUDIO_PORT:-6100}/|" /opt/novnc/app/ui.js 2>/dev/null || true
+  cat > /opt/novnc/audio.json <<EOF
+{
+    "enable": true,
+    "url": "${AUDIO_URL:-}",
+    "port": ${AUDIO_PORT:-6100},
+    "channels": ${AUDIO_CHANNELS:-1},
+    "rate": ${AUDIO_RATE:-22050}
+}
+EOF
   python3 /opt/dxflow/audio.py > /var/log/audio.log 2>&1 &
 else
   log "audio disabled"
+  echo '{ "enable": false }' > /opt/novnc/audio.json
 fi
 
 # Run postpare hook

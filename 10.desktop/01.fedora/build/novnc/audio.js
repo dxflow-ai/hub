@@ -1,17 +1,13 @@
-const ENABLE = false;
-const CHANNELS = 1;
-const RATE = 22050;
-
 class PCMPlayer {
-    constructor() {
-        this.init();
+    constructor(channels, rate) {
+        this.init(channels, rate);
     }
 
-    init() {
+    init(channels, rate) {
         this.option = {
             inputCodec: "Int16",
-            channels: CHANNELS,
-            rate: RATE,
+            channels: channels,
+            rate: rate,
             flushTime: 500,
             fftSize: 2048,
         };
@@ -255,57 +251,106 @@ class AudioWebSocket {
 }
 
 class AudioPlayer {
-    constructor(url) {
-        this.init(url);
+    constructor(url, channels, rate) {
+        this.init(url, channels, rate);
     }
 
-    init(url) {
-        if (!ENABLE) {
-            return;
-        }
-
-        this.player = new PCMPlayer();
+    init(url, channels, rate) {
+        this.player = new PCMPlayer(channels, rate);
 
         this.connection = new AudioWebSocket(url, {
             onOpen: () => {
-                if (this.player) {
-                    this.player.continue();
-                }
+                this.start();
             },
             onMessage: (data) => {
-                if (this.player) {
-                    this.player.feed(data);
-                }
+                this.player.feed(data);
             },
             onClose: () => {
-                if (this.player) {
-                    this.player.pause();
-                }
+                this.player.pause();
             },
         });
     }
 
     start() {
-        if (this.connection) {
-            this.connection.send("start");
-        }
+        this.connection.send("start");
+        this.player.continue();
     }
 
     stop() {
-        if (this.connection) {
-            this.connection.send("stop");
-        }
+        this.connection.send("stop");
+        this.player.pause();
     }
 
     end() {
-        if (this.connection) {
-            this.connection.close();
-        }
-
-        if (this.player) {
-            this.player.destroy();
-        }
+        this.connection.close();
+        this.player.destroy();
     }
 }
 
-export default AudioPlayer;
+async function settings() {
+    try {
+        const response = await fetch("./audio.json");
+        if (!response.ok) {
+            throw Error("" + response.status + " " + response.statusText);
+        }
+
+        return await response.json();
+    } catch (err) {
+        console.error("Couldn't fetch audio.json: " + err);
+
+        return { enable: false };
+    }
+}
+
+// AUDIO_URL names the address the proxy answers on, hostname plus AUDIO_PORT stands in when it is unset
+function endpoint(url, port) {
+    const target = new URL(
+        url || "//" + location.hostname + ":" + port + "/",
+        location.href,
+    );
+
+    const secure = target.protocol === "https:" || target.protocol === "wss:";
+    target.protocol = secure ? "wss:" : "ws:";
+
+    return target.href;
+}
+
+const config = await settings();
+
+if (config.enable) {
+    const player = new AudioPlayer(
+        endpoint(config.url, config.port),
+        config.channels,
+        config.rate,
+    );
+
+    // Browsers hold the audio context suspended until the page has seen a gesture
+    const unlock = () => {
+        player.start();
+    };
+
+    const follow = () => {
+        if (document.hidden) {
+            player.stop();
+        } else {
+            player.start();
+        }
+    };
+
+    const end = () => {
+        player.end();
+    };
+
+    window.addEventListener("pointerdown", unlock, {
+        capture: true,
+        once: true,
+    });
+
+    window.addEventListener("keydown", unlock, {
+        capture: true,
+        once: true,
+    });
+
+    document.addEventListener("visibilitychange", follow);
+    window.addEventListener("pagehide", end);
+}
