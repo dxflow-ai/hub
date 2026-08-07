@@ -20,16 +20,16 @@ RUN if [ -d /opt/TurboVNC/bin ]; then \
     fi
 
 # Install noVNC
-RUN wget -q --tries=5 --waitretry=5 --retry-connrefused --no-check-certificate "https://github.com/novnc/noVNC/archive/refs/tags/v1.5.0.tar.gz" -O /tmp/novnc.tar.gz && \
+RUN wget -q --tries=5 --waitretry=5 --retry-connrefused --no-check-certificate "https://github.com/novnc/noVNC/archive/refs/tags/v1.7.0.tar.gz" -O /tmp/novnc.tar.gz && \
     tar -zxf /tmp/novnc.tar.gz -C /opt && \
-    mv /opt/noVNC-1.5.0 /opt/novnc && \
+    mv /opt/noVNC-1.7.0 /opt/novnc && \
     rm -rf /tmp/novnc.tar.gz
 
 # Install websockify
-RUN wget -q --tries=5 --waitretry=5 --retry-connrefused --no-check-certificate "https://github.com/novnc/websockify/archive/refs/tags/v0.12.0.tar.gz" -O /tmp/websockify.tar.gz && \
+RUN wget -q --tries=5 --waitretry=5 --retry-connrefused --no-check-certificate "https://github.com/novnc/websockify/archive/refs/tags/v0.13.0.tar.gz" -O /tmp/websockify.tar.gz && \
     tar -zxf /tmp/websockify.tar.gz -C /opt && \
     mkdir -p /opt/novnc/utils && \
-    mv /opt/websockify-0.12.0 /opt/novnc/utils/websockify && \
+    mv /opt/websockify-0.13.0 /opt/novnc/utils/websockify && \
     rm -rf /tmp/websockify.tar.gz
 
 # Setup user
@@ -63,10 +63,12 @@ COPY pulseaudio/client.conf /root/.config/pulse/client.conf
 COPY pulseaudio/daemon.conf /root/.config/pulse/daemon.conf
 
 # Setup novnc
-COPY novnc/index.html /opt/novnc/index.html
 RUN mkdir -p /opt/novnc/app
+COPY novnc/index.html /opt/novnc/index.html
+COPY novnc/defaults.json /opt/novnc/defaults.json
+COPY novnc/mandatory.json /opt/novnc/mandatory.json
 COPY novnc/audio.js /opt/novnc/app/audio.js
-COPY novnc/ui.js /opt/novnc/app/ui.js
+RUN sed -i 's|</head>|<script type="module" crossorigin="anonymous" src="app/audio.js"></script></head>|' /opt/novnc/vnc.html
 
 # Setup qterminal
 RUN mkdir -p /root/.config/qterminal.org
