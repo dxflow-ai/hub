@@ -19,11 +19,14 @@ dxflow workflow start jupyter
 dxflow workflow start jupyter \
     --override env.app.PASSWORD=my-strong-pass \
     --override env.app.WORKING_DIR=projects/analysis
+
+# Publish the web port on an HTTPS link
+dxflow workflow start jupyter --link
 ```
 
 ### 2. Open the notebook
 
-Open your browser at `http://localhost:8888` and sign in with the password you set in `PASSWORD`. JupyterLab opens on the working directory.
+Open your browser at `http://localhost:8888` and sign in with the password you set in `PASSWORD`. JupyterLab opens on the working directory. A start given `--link` publishes port `8888` at an HTTPS URL printed on the start line, opening JupyterLab from anywhere.
 
 ### 3. Persist data
 

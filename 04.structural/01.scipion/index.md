@@ -18,11 +18,14 @@ dxflow workflow create --identity scipion hub://scipion
 dxflow workflow start scipion
 dxflow workflow start scipion \
     --override env.app.VNC_PASSWORD=my-strong-pass
+
+# Publish the web port on an HTTPS link
+dxflow workflow start scipion --link
 ```
 
 ### 2. Open the app
 
-Open your browser at `http://localhost:6082/vnc.html` and enter the password you set in `VNC_PASSWORD`. The Scipion project manager opens on the desktop. Port `5901` is also exposed for connecting a native VNC client.
+Open your browser at `http://localhost:6082/vnc.html` and enter the password you set in `VNC_PASSWORD`. The Scipion project manager opens on the desktop. Port `5901` is also exposed for connecting a native VNC client. A start given `--link` publishes port `6082` at an HTTPS URL printed on the start line — open it at `/vnc.html` to reach Scipion from anywhere.
 
 ### 3. Persist data
 

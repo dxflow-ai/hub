@@ -18,11 +18,14 @@ dxflow workflow create --identity rstudio hub://rstudio
 dxflow workflow start rstudio
 dxflow workflow start rstudio \
     --override env.app.PASSWORD=my-strong-pass
+
+# Publish the web port on an HTTPS link
+dxflow workflow start rstudio --link
 ```
 
 ### 2. Open the IDE
 
-Open your browser at `http://localhost:8787` and sign in as `USER` (default `dxflow`) with the password you set in `PASSWORD`.
+Open your browser at `http://localhost:8787` and sign in as `USER` (default `dxflow`) with the password you set in `PASSWORD`. A start given `--link` publishes port `8787` at an HTTPS URL printed on the start line, opening the IDE from anywhere.
 
 ### 3. Persist data
 
