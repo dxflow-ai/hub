@@ -111,7 +111,7 @@ dxflow workflow create --identity "$identity" "$yaml"
 # Seed the input volume with the tool's verify fixtures when present — handy for
 # exercising a batch tool by hand.
 if [ -d "$dir/verify/input" ]; then
-  log "upload verify/input -> input/"
+  log "upload verify/input → input/"
   for f in "$dir/verify/input"/*; do
     [ -e "$f" ] || continue
     dxflow artifact upload "$f" "input/"

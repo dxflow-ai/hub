@@ -21,11 +21,14 @@ dxflow workflow start ubuntu
 dxflow workflow start ubuntu \
     --override env.app.VNC_PASSWORD=my-strong-pass \
     --override env.app.TASKBAR=hide
+
+# Publish the web port on an HTTPS link
+dxflow workflow start ubuntu --link
 ```
 
 ### 2. Open the desktop
 
-Open your browser at `http://localhost:6082/vnc.html` and enter the password you set in `VNC_PASSWORD`. Port `5901` is also exposed for connecting a native VNC client.
+Open your browser at `http://localhost:6082/vnc.html` and enter the password you set in `VNC_PASSWORD`. Port `5901` is also exposed for connecting a native VNC client. A start given `--link` publishes port `6082` at an HTTPS URL printed on the start line — open it at `/vnc.html` to reach the desktop from anywhere.
 
 ### 3. Persist data
 

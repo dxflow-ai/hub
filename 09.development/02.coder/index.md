@@ -19,11 +19,14 @@ dxflow workflow start coder
 dxflow workflow start coder \
     --override env.app.PASSWORD=my-strong-pass \
     --override env.app.WORKING_DIR=projects/my-app
+
+# Publish the web port on an HTTPS link
+dxflow workflow start coder --link
 ```
 
 ### 2. Open the editor
 
-Open your browser at `http://localhost:8080` and sign in with the password you set in `PASSWORD`. code-server opens on the working directory.
+Open your browser at `http://localhost:8080` and sign in with the password you set in `PASSWORD`. code-server opens on the working directory. A start given `--link` publishes port `8080` at an HTTPS URL printed on the start line, opening code-server from anywhere.
 
 ### 3. Persist data
 

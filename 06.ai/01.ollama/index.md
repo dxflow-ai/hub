@@ -19,11 +19,14 @@ dxflow workflow start ollama
 dxflow workflow start ollama \
     --override env.app.PASSWORD=my-strong-pass \
     --override env.app.STARTUP_MODEL=qwen2.5:1.5b
+
+# Publish the web port on an HTTPS link
+dxflow workflow start ollama --link
 ```
 
 ### 2. Open the interface
 
-Open your browser at `http://localhost:8080` and sign in as `dxflow` with the password you set in `PASSWORD`. The chat UI lists the installed models — pick one and start a conversation. The streaming response renders as it is generated.
+Open your browser at `http://localhost:8080` and sign in as `dxflow` with the password you set in `PASSWORD`. The chat UI lists the installed models — pick one and start a conversation. The streaming response renders as it is generated. A start given `--link` publishes port `8080` at an HTTPS URL printed on the start line, serving the chat UI and the API from anywhere.
 
 ### 3. Use the API
 

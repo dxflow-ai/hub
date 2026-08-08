@@ -19,11 +19,14 @@ dxflow workflow start telegram
 dxflow workflow start telegram \
     --override env.app.VNC_PASSWORD=my-strong-pass \
     --override env.app.TASKBAR=show
+
+# Publish the web port on an HTTPS link
+dxflow workflow start telegram --link
 ```
 
 ### 2. Open the app
 
-Open your browser at `http://localhost:6082/vnc.html` and enter the password you set in `VNC_PASSWORD`. Telegram is already running and maximized — sign in to start. Port `5901` is also exposed for connecting a native VNC client.
+Open your browser at `http://localhost:6082/vnc.html` and enter the password you set in `VNC_PASSWORD`. Telegram is already running and maximized — sign in to start. Port `5901` is also exposed for connecting a native VNC client. A start given `--link` publishes port `6082` at an HTTPS URL printed on the start line — open it at `/vnc.html` to reach Telegram from anywhere.
 
 ### 3. Persist data
 

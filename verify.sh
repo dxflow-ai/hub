@@ -261,7 +261,7 @@ until dxflow workflow create --identity "$identity" "$yaml"; do
 done
 
 if [ -d "$verify/input" ]; then
-  log "upload input -> $input_dir/"
+  log "upload input → $input_dir/"
   for f in "$verify/input"/*; do
     [ -e "$f" ] || continue
     dxflow artifact upload "$f" "$input_dir/"

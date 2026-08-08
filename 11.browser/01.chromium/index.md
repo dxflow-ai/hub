@@ -19,11 +19,14 @@ dxflow workflow start chromium
 dxflow workflow start chromium \
     --override env.app.VNC_PASSWORD=my-strong-pass \
     --override env.app.TASKBAR=show
+
+# Publish the web port on an HTTPS link
+dxflow workflow start chromium --link
 ```
 
 ### 2. Open the browser
 
-Open your browser at `http://localhost:6082/vnc.html` and enter the password you set in `VNC_PASSWORD`. Chromium is already running and maximized. Port `5901` is also exposed for connecting a native VNC client.
+Open your browser at `http://localhost:6082/vnc.html` and enter the password you set in `VNC_PASSWORD`. Chromium is already running and maximized. Port `5901` is also exposed for connecting a native VNC client. A start given `--link` publishes port `6082` at an HTTPS URL printed on the start line — open it at `/vnc.html` to reach Chromium from anywhere.
 
 ### 3. Persist data
 

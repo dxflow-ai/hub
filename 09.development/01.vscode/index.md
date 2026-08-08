@@ -19,11 +19,14 @@ dxflow workflow start vscode
 dxflow workflow start vscode \
     --override env.app.VNC_PASSWORD=my-strong-pass \
     --override env.app.TASKBAR=show
+
+# Publish the web port on an HTTPS link
+dxflow workflow start vscode --link
 ```
 
 ### 2. Open the editor
 
-Open your browser at `http://localhost:6082/vnc.html` and enter the password you set in `VNC_PASSWORD`. VS Code is already running and maximized. Port `5901` is also exposed for connecting a native VNC client.
+Open your browser at `http://localhost:6082/vnc.html` and enter the password you set in `VNC_PASSWORD`. VS Code is already running and maximized. Port `5901` is also exposed for connecting a native VNC client. A start given `--link` publishes port `6082` at an HTTPS URL printed on the start line — open it at `/vnc.html` to reach VS Code from anywhere.
 
 ### 3. Persist data
 
