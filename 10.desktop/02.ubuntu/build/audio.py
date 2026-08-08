@@ -145,8 +145,8 @@ def broadcaster() -> None:
             "--device=@DEFAULT_MONITOR@",
             "--latency=1024",
             "--process-time=1024",
-            "--channels=%d" % CHANNELS,
-            "--rate=%d" % RATE,
+            f"--channels={CHANNELS}",
+            f"--rate={RATE}",
         ],
         stdout=subprocess.PIPE,
     )
