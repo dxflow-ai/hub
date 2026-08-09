@@ -28,6 +28,7 @@ set -euo pipefail
 #   service  →  wait_running 10; expect_http <web-port>; expect_port <tcp-port>
 #
 # Endpoint checks assume the engine is on this host (override with $VERIFY_HOST).
+# A gpu resource is dropped before the run — no runner has a card to give.
 # shellcheck disable=SC1091
 . "$(dirname "$0")/resolve.sh"
 
@@ -170,8 +171,13 @@ fi
 # Keep the .yml name — the CLI keys off the extension to treat it as a workflow file
 workdir="$(mktemp -d)"
 yaml="$workdir/workflow.yml"
-block yaml > "$yaml"
-[[ -s "$yaml" ]] || fail "no yaml config block in $dir/index.md"
+config="$(block yaml)"
+[[ -n "$config" ]] || fail "no yaml config block in $dir/index.md"
+
+# No runner carries an NVIDIA card, and the engine hands a gpu resource on to
+# `docker run --gpus`, which the daemon turns down for want of a device driver. The
+# image is what is under test here, not the hardware, so deploy it without the line.
+grep -vE '^[[:space:]]*gpu:' <<< "$config" > "$yaml"
 
 # The engine runs every step image via pull: missing. This entry's own image comes
 # from ./build.sh; one it reuses from another tool has to be fetched here.
