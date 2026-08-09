@@ -55,8 +55,6 @@ jobs:
             wave1_workflows: ${{ steps.select.outputs.wave1_workflows }}
             wave2_builds: ${{ steps.select.outputs.wave2_builds }}
             wave2_workflows: ${{ steps.select.outputs.wave2_workflows }}
-            wave3_builds: ${{ steps.select.outputs.wave3_builds }}
-            wave3_workflows: ${{ steps.select.outputs.wave3_workflows }}
         steps:
             - uses: actions/checkout@v5
 
@@ -68,8 +66,9 @@ jobs:
               run: ./.github/scripts/select.sh
 
     # A wave publishes only once the wave it builds on has, so a rebuilt base is on
-    # the registry before its dependents pull it. Empty waves are skipped, and a
-    # deeper chain than these three is refused up front by select.sh.
+    # the registry before its dependents pull it. Wave 2 is skipped for an entry
+    # nothing is built on, and a chain deeper than these two is refused up front by
+    # select.sh — a third level means a wave3 job here and WAVES=3 in select.sh.
     wave1:
         needs: select
         if: needs.select.outputs.wave1_builds != ''
@@ -91,14 +90,3 @@ jobs:
         with:
             builds: ${{ needs.select.outputs.wave2_builds }}
             workflows: ${{ needs.select.outputs.wave2_workflows }}
-
-    wave3:
-        needs: [select, wave2]
-        if: needs.select.outputs.wave3_builds != ''
-        uses: ./.github/workflows/image.yml
-        permissions:
-            contents: read
-            packages: write
-        with:
-            builds: ${{ needs.select.outputs.wave3_builds }}
-            workflows: ${{ needs.select.outputs.wave3_workflows }}
