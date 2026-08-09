@@ -1,0 +1,92 @@
+name: image
+
+# One wave of the publish run: build and verify every requested workflow and arch on
+# its own native runner, then join each workflow's arches into a tagged manifest.
+# Called once per wave by publish.yml, which chains the waves so a base is on the
+# registry before anything built on it starts.
+on:
+    workflow_call:
+        inputs:
+            builds:
+                description: "Matrix of workflow, arch, and runner to build"
+                required: true
+                type: string
+            workflows:
+                description: "Keys to publish once their arches are pushed"
+                required: true
+                type: string
+
+permissions:
+    contents: read
+    packages: write
+
+jobs:
+    build:
+        runs-on: ${{ matrix.runner }}
+        # A hung engine or a stalled pull would otherwise sit on the runner for hours
+        timeout-minutes: 120
+        strategy:
+            fail-fast: false
+            matrix: ${{ fromJSON(inputs.builds) }}
+        env:
+            WORKFLOW: ${{ matrix.workflow }}
+            ARCH: ${{ matrix.arch }}
+        steps:
+            - uses: actions/checkout@v5
+
+            - name: Prepare
+              run: ./.github/scripts/prepare.sh
+
+            - uses: docker/login-action@v3
+              with:
+                  registry: ghcr.io
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Build
+              run: ./.github/scripts/build.sh
+
+            - name: Start engine
+              run: ./.github/scripts/boot.sh
+
+            - name: Verify
+              run: ./.github/scripts/verify.sh
+
+            - name: Push
+              run: ./.github/scripts/push.sh
+
+            - uses: actions/upload-artifact@v4
+              with:
+                  name: digest_${{ matrix.workflow }}_${{ matrix.arch }}
+                  path: ${{ runner.temp }}/digests/*
+                  if-no-files-found: error
+                  retention-days: 1
+
+    publish:
+        needs: build
+        runs-on: ubuntu-latest
+        timeout-minutes: 20
+        strategy:
+            fail-fast: false
+            matrix:
+                workflow: ${{ fromJSON(inputs.workflows) }}
+        env:
+            WORKFLOW: ${{ matrix.workflow }}
+            DIGESTS: ${{ github.workspace }}/digests
+        steps:
+            - uses: actions/checkout@v5
+
+            - uses: actions/download-artifact@v4
+              with:
+                  pattern: digest_${{ matrix.workflow }}_*
+                  merge-multiple: true
+                  path: digests
+
+            - uses: docker/login-action@v3
+              with:
+                  registry: ghcr.io
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Publish
+              run: ./.github/scripts/publish.sh

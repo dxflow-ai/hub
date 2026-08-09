@@ -19,7 +19,7 @@ NN.<category>/          # a numbered category folder
       entrypoint.sh     #   required: the configurable, env-driven entrypoint
     verify/             # required to publish — end-to-end test fixtures:
       input/            #   optional: files uploaded to the input volume before start
-      check.sh          #   required: the success check (see verify.sh for its helpers)
+      check.sh          #   required: the success check (see scripts/verify.sh for its helpers)
       config.sh         #   optional: sourced settings — input/output dirs, timeout
 ```
 
@@ -33,23 +33,37 @@ A published entry lays its sections out as: intro → `## Usage` → `## Configu
 
 When adding a tool, copy an existing published workflow (one that already has `build/` and `verify/`) as a reference.
 
-## Scripts
+## Publishing
 
-`<key>` is the folder name after the `NN.` prefix. Runs on a Linux host, not macOS.
+Publishing runs on GitHub Actions. Dispatch it from a workstation with `make publish`, which picks an entry, shows what a rebuild of it reaches, and hands it to Actions:
 
 ```bash
-./prepare.sh                    # one-time host setup: docker+buildx, builder, QEMU, dxflow CLI
-./build.sh <key>                # build this arch and load it into local docker (for verify)
-./verify.sh <key>               # end-to-end test the loaded image through a live dxflow engine
-./publish.sh <key>              # build all arches (from json "arch") and push a multi-arch image
-./run.sh <key>                  # deploy and leave running, to drive it by hand
+make publish                    # pick a workflow from the list, then dispatch
+make publish ARGS=fastqc        # dispatch that one
 ```
 
-Omit `<key>` on a terminal and the script lists the workflows it can act on and asks for a number — `build`/`publish` offer the ones with a Dockerfile, `verify` the ones with `verify/check.sh`, `run` the ones with a `## Configuration` yaml block, so a draft never shows up. Without a terminal (a pipe, CI) the key stays required.
+It needs `gh` signed in, and it dispatches the branch you are on — so push before you publish; the runners check out the pushed ref, not your working copy. The same run starts from the Actions tab by picking a workflow from the dropdown. It fans out one runner per key and target arch — `ubuntu-latest` for amd64, `ubuntu-24.04-arm` for arm64 — so each image is built and verified on the hardware it ships for, then joins the arches into one `:latest` + `:<version>` manifest on `ghcr.io/dxflow-ai`. An arch only reaches the registry untagged until every arch has passed, so a failed check leaves the published tags as they were. A draft is rejected up front, before a runner starts.
 
-Run `build` before `verify` — verify uses the locally-loaded image (the engine's `pull: missing` finds it, no registry pull). `publish` builds and pushes both arches as one `:latest` + `:<version>` manifest, and needs `docker login` to the registry first.
+Some entries are the base of others — a Dockerfile that starts `FROM ghcr.io/dxflow-ai/<key>`. Publishing one of those rebuilds everything standing on it: the run is split into waves, and a wave starts only once the wave it builds on has published, so a dependent always pulls the base that was just tagged. Picking `ubuntu` therefore publishes ubuntu, then pymol, scipion, paraview, visit, and vscode; picking a leaf is a single wave. Untick **dependents** to publish the base alone. The chain may be three waves deep, and `select.sh` refuses a deeper one rather than half-publishing it.
 
-`verify.sh` needs the `dxflow` CLI, `docker`, and a reachable engine. It builds the image, deploys and starts the real workflow, uploads `verify/input/`, then runs the tool's `verify/check.sh` — which asserts success using helpers verify.sh provides: `wait_exit` + `expect_output`/`expect_file` for a batch tool that produces files, or `wait_running` + `expect_http`/`expect_port` for a long-running service (desktop, IDE, notebook). The engine must be started with its **working directory set to its volume dir** (it passes relative volume paths straight to `docker run -v`), and needs Docker ≥ 23.
+The steps a run performs are the scripts in `.github/scripts/`, each taking `<key>` as `$WORKFLOW` or as its first argument. They run on a Linux host with Docker ≥ 23, in or out of Actions, and the Makefile wraps the ones worth driving by hand (`make build ARGS=fastqc`):
+
+```bash
+./.github/scripts/prepare.sh          # buildx builder + the dxflow CLI
+./.github/scripts/build.sh <key>      # build this arch and load it into local docker
+./.github/scripts/boot.sh             # boot an engine rooted in its volume dir
+./.github/scripts/verify.sh <key>     # end-to-end test the loaded image through that engine
+./.github/scripts/push.sh <key>       # push this arch untagged and record its digest
+./.github/scripts/publish.sh <key>    # join the digests into the tagged manifest
+./.github/scripts/run.sh <key>        # deploy and leave running, to drive it by hand
+./.github/scripts/options.sh          # refresh the dropdown after adding an entry
+```
+
+A `workflow_dispatch` choice has to be a literal list, so the dropdown is generated: run `make options` whenever an entry gains its `build/` and `verify/` folders, and commit the result alongside.
+
+Run `build` before `verify` — verify uses the locally-loaded image (the engine's `pull: missing` finds it, no registry pull) and fetches any step image belonging to another tool. `push` and `publish` need `docker login` to the registry first.
+
+`verify.sh` deploys and starts the real workflow, uploads `verify/input/`, then runs the tool's `verify/check.sh` — which asserts success using the helpers verify provides: `wait_exit` + `expect_output`/`expect_file` for a batch tool that produces files, or `wait_running` + `expect_http`/`expect_port` for a long-running service (desktop, IDE, notebook). The engine it drives has to run with its **working directory set to its volume dir**, since it passes relative volume paths straight to `docker run -v` — which is what `boot.sh` sets up.
 
 ## Contributing
 
