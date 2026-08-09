@@ -1,91 +1,95 @@
 #!/usr/bin/env bash
-#
-# Build a Hub workflow's image for all its target arches and push it to the
-# registry as one multi-arch manifest (:latest and :<version>). Set up the host
-# once with ./prepare.sh, then log in to the registry:
-#   echo "$GHCR_TOKEN" | docker login ghcr.io -u <user> --password-stdin
-#
-# Usage:
-#   ./publish.sh <workflow>    # e.g. ./publish.sh fastqc
-#   ./publish.sh               # pick one from a list
-#
 set -euo pipefail
 
-# Repo root (this script's directory)
-HUB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Hand a workflow to GitHub Actions from a workstation: pick an entry, see what a
+# rebuild of it drags along, and dispatch the publish workflow — the build, the
+# end-to-end verify, and the registry push all happen on runners, on the arch each
+# image ships for. See .github/workflows/publish.yml.
+#
+# Usage: ./publish.sh           # interactive: pick a workflow, then dispatch
+#        ./publish.sh <key>     # dispatch that workflow, e.g. ./publish.sh fastqc
 
-# Offer the workflows that carry a Dockerfile, and print the chosen key
-select_workflow() {
-  local options=() d name choice
-  while IFS= read -r d; do
-    [ -f "$d/build/Dockerfile" ] || [ -f "$d/Dockerfile" ] || continue
-    name="$(basename "$d")"
-    options+=("${name#*.}")
-  done < <(find "$HUB_DIR" -mindepth 2 -maxdepth 2 -type d -not -path '*/.*' | sort)
+REMOTE="origin"
+WORKFLOW_FILE="publish.yml"
 
-  PS3="publish which workflow? (number, or q to quit) "
-  select choice in "${options[@]}"; do
-    if [ -n "$choice" ]; then
-      printf '%s' "$choice"
-      return 0
-    fi
-    if [ "$REPLY" = "q" ]; then
-      return 1
-    fi
-  done
-  return 1
-}
+die() { echo "Error: $*" >&2; exit 1; }
+confirm() { read -rp "$1 [y/N]: " reply; [[ "$reply" == [yY] ]] || { echo "Aborted."; exit 0; }; }
 
-# Workflow key (the <key> in folder NN.<key>), asked for when none is given
+# Preflight: tooling present, run from the hub repo root, GitHub reachable.
+command -v git >/dev/null 2>&1                 || die "git is required"
+command -v gh >/dev/null 2>&1                  || die "gh (GitHub CLI) is required"
+[[ -f index.md && -d .github/workflows ]]      || die "run from the hub repo root"
+gh auth status >/dev/null 2>&1                 || die "not signed in — run: gh auth login"
+gh workflow view "$WORKFLOW_FILE" >/dev/null 2>&1 \
+    || die "$WORKFLOW_FILE is not dispatchable — it has to be on the repository's default branch"
+
+# The lookups the runner scripts use, so the preview here matches what they plan.
+# shellcheck disable=SC1091
+. .github/scripts/resolve.sh
+
+# Report like the rest of this script, not as an Actions annotation
+fail() { die "$*"; }
+
+# The runner checks out a ref, not this working copy, so anything uncommitted or
+# unpushed is invisible to the build about to run.
+branch="$(git branch --show-current)"
+[[ -n "$branch" ]] || die "detached HEAD — check out a branch first"
+
+git fetch --quiet "$REMOTE" "$branch" 2>/dev/null || die "no ${branch} on ${REMOTE} — push it first"
+[[ -z "$(git status --porcelain)" ]] || echo "Note: working tree is not clean — the run builds ${REMOTE}/${branch}, not these edits"
+[[ "$(git rev-parse @)" == "$(git rev-parse "${REMOTE}/${branch}")" ]] \
+    || echo "Note: ${branch} differs from ${REMOTE}/${branch} — the run builds what is pushed"
+
+# Pick the entry.
 workflow="${1:-}"
-if [ -z "$workflow" ] && [ -t 0 ]; then
-  workflow="$(select_workflow)" || exit 1
-fi
-[ -n "$workflow" ] || { echo "usage: $0 <workflow>" >&2; exit 1; }
+if [[ -z "$workflow" ]]; then
+    options=()
+    while IFS= read -r key; do
+        options+=("$key")
+    done < <(publishable)
 
-# Find the workflow folder by matching the part after the NN. prefix
-dir=""
-while IFS= read -r d; do
-  name="$(basename "$d")"
-  if [ "${name#*.}" = "$workflow" ]; then dir="$d"; break; fi
-done < <(find "$HUB_DIR" -mindepth 2 -maxdepth 2 -type d -not -path '*/.*' | sort)
-
-[ -n "$dir" ] || { echo "unknown workflow: $workflow" >&2; exit 1; }
-[ -f "$dir/index.md" ] || { echo "no index.md in ${dir#"$HUB_DIR"/}" >&2; exit 1; }
-
-# Build context is the Dockerfile's directory: prefer build/, fall back to the root
-if [ -f "$dir/build/Dockerfile" ]; then
-  context="$dir/build"
-elif [ -f "$dir/Dockerfile" ]; then
-  context="$dir"
-else
-  echo "no Dockerfile in ${dir#"$HUB_DIR"/}" >&2; exit 1
+    PS3="publish which workflow? (number, or q to quit) "
+    select choice in "${options[@]}"; do
+        if [[ -n "$choice" ]]; then
+            workflow="$choice"
+            break
+        fi
+        [[ "$REPLY" == "q" ]] && { echo "Cancelled."; exit 0; }
+    done
 fi
 
-# Target image this folder publishes, from the json "image" field
-json="$(awk '/^```json/{flag=1; next} /^```/{if (flag) exit} flag' "$dir/index.md")"
-re='"image"[[:space:]]*:[[:space:]]*"([^"]+)"'
-[[ "$json" =~ $re ]] || { echo "no \"image\" in ${dir#"$HUB_DIR"/}/index.md json" >&2; exit 1; }
-image="${BASH_REMATCH[1]}"
+[[ -n "$workflow" ]] || { echo "Cancelled."; exit 0; }
+grep -qx "$workflow" <<< "$(publishable)" || die "unknown or unpublishable workflow: $workflow"
 
-# Target platforms from the json "arch" array
-archs="$(printf '%s' "$json" | grep -oE 'amd64|arm64' || true)"
-[ -n "$archs" ] || { echo "no arch in ${dir#"$HUB_DIR"/}/index.md json" >&2; exit 1; }
-platform=""
-for a in $archs; do platform="${platform:+$platform,}linux/$a"; done
+# Show what a rebuild reaches: an entry built FROM this one is stale the moment this
+# one is republished, so the run rebuilds it too, in a later wave.
+plan "$workflow"
+deepest="$(deepest_wave)"
 
-# Version from the json — adds the :<version> tag and the OCI version label
-re='"version"[[:space:]]*:[[:space:]]*"([^"]+)"'
-version=""
-[[ "$json" =~ $re ]] && version="${BASH_REMATCH[1]}"
-args=(--tag "$image")
-if [ -n "$version" ]; then
-  args+=(--tag "${image%:*}:$version" --label "org.opencontainers.image.version=$version")
+echo
+echo "Publishing from ${REMOTE}/${branch}:"
+for wave in $(seq 0 "$deepest"); do
+    echo "  wave $((wave + 1))  $(wave_keys "$wave" | paste -sd' ' -)"
+done
+
+dependents="true"
+if [[ "$deepest" -gt 0 ]]; then
+    echo
+    read -rp "Rebuild the workflows built on ${workflow} too? [Y/n]: " reply
+    [[ "$reply" == [nN] ]] && dependents="false"
 fi
 
-# Build all arches and push as one multi-arch manifest
-echo "==> publish $image  [$platform]${version:+  (+ :$version)}"
-docker buildx build --pull --push --platform "$platform" \
-  --provenance=false --sbom=false \
-  "${args[@]}" \
-  --file "$context/Dockerfile" "$context"
+summary="$workflow"
+if [[ "$dependents" == "false" ]]; then
+    summary="$workflow alone"
+fi
+
+echo
+confirm "Dispatch publish for ${summary} on ${REMOTE}/${branch}?"
+
+# --raw-field, not --field: gh workflow run reads @ syntax out of --field values
+gh workflow run "$WORKFLOW_FILE" --ref "$branch" \
+    --raw-field workflow="$workflow" \
+    --raw-field dependents="$dependents"
+
+echo "Dispatched — track it with: gh run watch \$(gh run list --workflow=${WORKFLOW_FILE} --limit 1 --json databaseId --jq '.[0].databaseId')"
