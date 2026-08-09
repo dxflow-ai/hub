@@ -1,0 +1,721 @@
+/* dxflow theme for noVNC — compact chrome built on the console UI tokens */
+
+:root {
+    color-scheme: dark;
+
+    --dx-font: "Sofia Sans", ui-sans-serif, system-ui, sans-serif;
+    --dx-mono: "Inconsolata", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+    --dx-radius: 0.25rem;
+    --dx-radius-lg: 0.375rem;
+
+    --dx-canvas: #09090b;
+    --dx-default: #18181b;
+    --dx-elevated: #27272a;
+    --dx-accented: #3f3f46;
+    --dx-border: #3f3f46;
+
+    --dx-text: #fafafa;
+    --dx-muted: #a1a1aa;
+    --dx-dimmed: #71717a;
+
+    --dx-primary: #9281cb;
+    --dx-primary-strong: #b8abe0;
+    --dx-on-primary: #1e1840;
+
+    --dx-red: #dc2626;
+    --dx-red-soft: #f87171;
+    --dx-yellow: #d97706;
+
+    --dx-shadow: 0 8px 24px rgb(0 0 0 / 40%);
+
+    /* The rail is one button wide, and panels dock a gap away from it */
+    --dx-rail: 40px;
+    --dx-dock: 48px;
+
+    /* One column width for every field, wide enough for the range track */
+    --dx-control: 132px;
+    --dx-panel: min(316px, calc(100vw - 80px));
+
+    /* The chevron noVNC paints on <select>, tinted to the muted token */
+    --dx-arrow: url('data:image/svg+xml;utf8,<svg width="11" height="6" version="1.1" viewBox="0 0 11 6" xmlns="http://www.w3.org/2000/svg"><path d="m10.5.5-5 5-5-5" fill="none" stroke="%23a1a1aa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+
+    /* noVNC's own palette, remapped onto the tokens above */
+    --novnc-grey: var(--dx-dimmed);
+    --novnc-lightgrey: var(--dx-border);
+    --novnc-darkgrey: var(--dx-elevated);
+    --novnc-buttongrey: var(--dx-accented);
+    --novnc-blue: var(--dx-primary);
+    --novnc-lightblue: var(--dx-primary);
+    --novnc-darkblue: var(--dx-primary-strong);
+
+    font-family: var(--dx-font);
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--dx-text);
+}
+
+body {
+    background-color: var(--dx-canvas);
+}
+
+/* Stock noVNC animates over half a second, which reads as lag */
+#noVNC_control_bar_anchor,
+#noVNC_control_bar,
+#noVNC_control_bar_handle,
+#noVNC_control_bar_handle::after,
+#noVNC_status,
+#noVNC_transition,
+#noVNC_connect_dlg,
+.noVNC_panel {
+    transition-duration: 0.18s;
+    transition-timing-function: ease;
+}
+
+/* ---------- Screen ---------- */
+
+#noVNC_container {
+    background-color: var(--dx-canvas);
+    border-bottom-right-radius: 0;
+}
+
+/* ---------- Control bar ---------- */
+
+#noVNC_control_bar {
+    background-color: var(--dx-default);
+    border: 1px solid var(--dx-border);
+    border-left: none;
+    border-radius: 0 var(--dx-radius-lg) var(--dx-radius-lg) 0;
+}
+
+#noVNC_control_bar.noVNC_open {
+    box-shadow: var(--dx-shadow);
+}
+
+#noVNC_control_bar::before,
+#noVNC_control_bar.noVNC_open::before {
+    box-shadow: none;
+}
+
+.noVNC_right #noVNC_control_bar {
+    border-left: 1px solid var(--dx-border);
+    border-right: none;
+    border-radius: var(--dx-radius-lg) 0 0 var(--dx-radius-lg);
+}
+
+#noVNC_control_bar > .noVNC_scroll {
+    padding: 6px;
+    scrollbar-color: var(--dx-accented) transparent;
+    scrollbar-width: thin;
+}
+
+#noVNC_control_bar > .noVNC_scroll > * {
+    margin: 3px auto;
+}
+
+#noVNC_control_bar_handle {
+    background-color: var(--dx-default);
+    background-image: none;
+    border: 1px solid var(--dx-border);
+    border-radius: 0 var(--dx-radius) var(--dx-radius) 0;
+    box-shadow: var(--dx-shadow);
+}
+
+.noVNC_right #noVNC_control_bar_handle {
+    border-radius: var(--dx-radius) 0 0 var(--dx-radius);
+}
+
+#noVNC_control_bar_hint {
+    border-radius: var(--dx-radius-lg);
+    box-shadow: inset 0 0 12px 12px color-mix(in oklab, var(--dx-primary) 55%, transparent);
+}
+
+/* The rail is chrome over the desktop, so it carries controls only */
+#noVNC_control_bar .noVNC_logo,
+#noVNC_control_bar .noVNC_logo + hr {
+    display: none;
+}
+
+/* Square targets keep the rail on a single vertical rhythm */
+#noVNC_control_bar .noVNC_button {
+    background-color: transparent;
+    background-image: none;
+    border: 1px solid transparent;
+    border-radius: var(--dx-radius);
+    box-sizing: border-box;
+    height: 28px;
+    padding: 5px;
+    transition:
+        background-color 0.15s ease,
+        border-color 0.15s ease;
+    width: 28px;
+}
+
+#noVNC_control_bar .noVNC_button:hover {
+    background-color: var(--dx-elevated);
+}
+
+#noVNC_control_bar .noVNC_button.noVNC_selected {
+    background-color: color-mix(in oklab, var(--dx-primary) 22%, transparent);
+    border-color: var(--dx-primary);
+}
+
+/* ---------- Panel shell ---------- */
+
+.noVNC_panel {
+    background: var(--dx-default);
+    border: 1px solid var(--dx-border);
+    border-radius: var(--dx-radius-lg);
+    box-shadow: var(--dx-shadow);
+    color: var(--dx-text);
+    font-size: 0.75rem;
+    padding: 10px;
+    scrollbar-color: var(--dx-accented) transparent;
+    scrollbar-width: thin;
+}
+
+.noVNC_panel.noVNC_open {
+    transform: translateX(var(--dx-dock));
+}
+
+.noVNC_right .noVNC_panel.noVNC_open {
+    transform: translateX(calc(-1 * var(--dx-dock)));
+}
+
+.noVNC_panel > * {
+    margin: 10px auto;
+}
+
+.noVNC_panel hr {
+    border-top-color: color-mix(in oklab, var(--dx-border) 70%, transparent);
+}
+
+.noVNC_panel .noVNC_heading {
+    align-items: center;
+    background-color: transparent;
+    border-bottom: 1px solid var(--dx-border);
+    border-radius: 0;
+    color: var(--dx-text);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    gap: 6px;
+    line-height: 1.2;
+    padding: 0 0 8px;
+}
+
+.noVNC_panel .noVNC_heading img {
+    flex: 0 0 auto;
+    height: 14px;
+    width: 14px;
+}
+
+.noVNC_panel .noVNC_subheading {
+    color: var(--dx-muted);
+    margin-top: -4px;
+}
+
+/* One button fills the row, two share it */
+.noVNC_panel .button_row {
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.noVNC_panel .button_row > * {
+    flex: 1;
+    margin-left: 0;
+}
+
+/* ---------- Settings form ---------- */
+
+#noVNC_settings {
+    min-width: var(--dx-panel);
+}
+
+#noVNC_settings ul {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 0;
+}
+
+/* Every setting is one row: label on the left, control on the right */
+#noVNC_settings li {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: space-between;
+    margin: 0;
+}
+
+#noVNC_settings label,
+#noVNC_settings .noVNC_version_wrapper {
+    min-height: 22px;
+}
+
+/* A zero basis keeps a long label from breaking the row onto two lines */
+#noVNC_settings label {
+    align-items: center;
+    display: flex;
+    flex: 1 1 0;
+    gap: 10px;
+    justify-content: space-between;
+    margin: 0;
+    min-width: 0;
+    white-space: normal;
+}
+
+/* A control written inside its label still belongs in the right column */
+#noVNC_settings label > * {
+    order: 1;
+}
+
+#noVNC_settings select,
+#noVNC_settings input:not([type="checkbox"]):not([type="radio"]):not([type="range"]) {
+    flex: 0 1 var(--dx-control);
+    margin-left: 0;
+    max-width: var(--dx-control);
+    min-width: 0;
+    width: var(--dx-control);
+}
+
+/* The range track is clipped at a fixed width, so it sizes itself */
+#noVNC_settings input[type="range"] {
+    flex: 0 0 auto;
+    width: 125px;
+}
+
+#noVNC_settings li > hr {
+    flex: 1 1 auto;
+    margin: 4px 0;
+}
+
+/* Repeaters and raw websocket wiring are deployment concerns, not user ones.
+   The separator trailing the group goes too, so dividers never double up. */
+#noVNC_settings li:has(> #noVNC_setting_repeaterID),
+#noVNC_settings li:has(> div > ul > li > #noVNC_setting_host),
+#noVNC_settings li:has(> div > ul > li > #noVNC_setting_host) + li {
+    display: none;
+}
+
+#noVNC_settings .noVNC_version_wrapper {
+    color: var(--dx-dimmed);
+    font-size: 0.6875rem;
+}
+
+#noVNC_settings .noVNC_version {
+    margin-left: 0;
+}
+
+/* Expanders read as group headers over an indented block */
+.noVNC_expander {
+    align-items: center;
+    color: var(--dx-muted);
+    display: flex;
+    font-size: 0.625rem;
+    font-weight: 600;
+    gap: 6px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.noVNC_expander::before {
+    filter: invert(1);
+    margin-right: 0;
+    opacity: 0.6;
+}
+
+.noVNC_expander,
+.noVNC_expander ~ * {
+    flex: 1 0 100%;
+}
+
+.noVNC_expander ~ * {
+    background: none;
+    border-left: 1px solid var(--dx-border);
+    border-radius: 0;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0 0 0 10px;
+}
+
+/* ---------- Fields ---------- */
+
+/* Fields are sized by column, so padding has to sit inside the width */
+input,
+textarea,
+button,
+select,
+input::file-selector-button {
+    border-radius: var(--dx-radius);
+    box-sizing: border-box;
+    font-size: 0.75rem;
+    line-height: 1.4;
+}
+
+input:not([type]),
+input[type="number"],
+input[type="password"],
+input[type="text"],
+textarea {
+    background-color: var(--dx-elevated);
+    border: 1px solid var(--dx-border);
+    color: var(--dx-text);
+    padding: 4px 8px;
+}
+
+input:not([type])::placeholder,
+input[type="text"]::placeholder,
+textarea::placeholder {
+    color: var(--dx-dimmed);
+}
+
+input[type="button"],
+input[type="reset"],
+input[type="submit"],
+button,
+select {
+    align-items: center;
+    background-color: var(--dx-elevated);
+    background-image: none;
+    border: 1px solid var(--dx-border);
+    color: var(--dx-text);
+    display: inline-flex;
+    font-weight: 500;
+    gap: 6px;
+    justify-content: center;
+    min-width: 0;
+    padding: 4px 10px;
+}
+
+input[type="button"]:hover,
+input[type="reset"]:hover,
+input[type="submit"]:hover,
+button:hover,
+select:hover {
+    background-color: var(--dx-accented);
+}
+
+/* A button wide enough for a sentence carries its label alone */
+button img {
+    display: none;
+}
+
+select {
+    background-image: var(--dx-arrow);
+    display: block;
+    padding-right: 22px;
+    text-align: left;
+}
+
+select,
+select:active,
+select:disabled {
+    background-position: calc(100% - 7px) center;
+    background-repeat: no-repeat;
+}
+
+option {
+    background-color: var(--dx-default);
+    color: var(--dx-text);
+}
+
+option:checked {
+    background-color: var(--dx-elevated);
+}
+
+input[type="checkbox"],
+input[type="radio"],
+input[type="range"] {
+    flex: 0 0 auto;
+    margin: 0;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+    background-color: var(--dx-accented);
+    background-image: none;
+}
+
+input[type="checkbox"]:not(.toggle):checked,
+input[type="checkbox"]:not(.toggle):indeterminate,
+input[type="checkbox"].toggle:checked {
+    background-color: var(--dx-primary);
+    background-image: none;
+}
+
+input[type="checkbox"]:not(.toggle):checked::before {
+    border-color: var(--dx-on-primary);
+}
+
+input[type="checkbox"]:not(.toggle):indeterminate::after {
+    background: var(--dx-on-primary);
+}
+
+input[type="checkbox"].toggle {
+    --checkradio-height: 16px;
+    border-radius: 8px;
+    width: 28px;
+}
+
+input[type="checkbox"].toggle::before {
+    --circle-diameter: 10px;
+    --circle-offset: 3px;
+    background: var(--dx-text);
+}
+
+input[type="range"]::-webkit-slider-runnable-track,
+input[type="range"]::-moz-range-track {
+    background-color: var(--dx-accented);
+}
+
+/* The primary action of every dialog */
+#noVNC_connect_button,
+#noVNC_credentials_button,
+#noVNC_approve_server_button {
+    background-color: var(--dx-primary);
+    border-color: var(--dx-primary);
+    color: var(--dx-on-primary);
+    font-weight: 600;
+}
+
+#noVNC_connect_button:hover,
+#noVNC_credentials_button:hover,
+#noVNC_approve_server_button:hover {
+    background-color: var(--dx-primary-strong);
+    border-color: var(--dx-primary-strong);
+}
+
+/* ---------- Clipboard ---------- */
+
+#noVNC_clipboard {
+    min-width: var(--dx-panel);
+}
+
+#noVNC_clipboard_text {
+    font-family: var(--dx-mono);
+    height: 120px;
+    width: 100%;
+}
+
+/* ---------- Power ---------- */
+
+#noVNC_power {
+    min-width: 156px;
+}
+
+#noVNC_power input[type="button"] {
+    display: flex;
+}
+
+#noVNC_shutdown_button {
+    color: var(--dx-red-soft);
+}
+
+#noVNC_shutdown_button:hover {
+    background-color: color-mix(in oklab, var(--dx-red) 22%, transparent);
+    border-color: var(--dx-red);
+}
+
+/* ---------- Extra keys ---------- */
+
+#noVNC_modifiers {
+    background: var(--dx-default);
+    border: 1px solid var(--dx-border);
+    display: grid;
+    gap: 4px;
+    grid-template-columns: repeat(3, 30px);
+    padding: 6px;
+}
+
+#noVNC_modifiers > * {
+    margin: 0;
+}
+
+#noVNC_control_bar #noVNC_modifiers .noVNC_button {
+    height: 30px;
+    width: 30px;
+}
+
+/* ---------- Connect dialog ---------- */
+
+#noVNC_connect_dlg {
+    background-color: var(--dx-default);
+    border: 1px solid var(--dx-border);
+    border-radius: var(--dx-radius-lg);
+    box-shadow: var(--dx-shadow);
+    min-width: 180px;
+    padding: 24px;
+}
+
+#noVNC_connect_dlg .noVNC_logo {
+    margin: 4px auto 24px;
+    padding: 0;
+}
+
+#noVNC_connect_dlg div {
+    background-color: transparent;
+    border-radius: 0;
+    box-shadow: none;
+    font-size: 0.75rem;
+    padding: 0;
+}
+
+#noVNC_connect_button {
+    padding: 6px 20px;
+}
+
+/* ---------- Credentials and server identity ---------- */
+
+#noVNC_credentials_dlg,
+#noVNC_verify_server_dlg {
+    transform: translateY(-12px);
+    width: var(--dx-panel);
+}
+
+#noVNC_credentials_dlg form,
+#noVNC_verify_server_dlg form {
+    gap: 10px;
+}
+
+#noVNC_verify_server_dlg {
+    color: var(--dx-muted);
+}
+
+#noVNC_verify_server_dlg .noVNC_heading {
+    color: var(--dx-text);
+}
+
+#noVNC_credentials_dlg label {
+    color: var(--dx-muted);
+    display: block;
+    font-size: 0.6875rem;
+    margin: 0 0 4px;
+    white-space: normal;
+}
+
+#noVNC_credentials_dlg input:not([type="submit"]) {
+    width: 100%;
+}
+
+#noVNC_fingerprint_block {
+    background: var(--dx-elevated);
+    border: 1px solid var(--dx-border);
+    border-radius: var(--dx-radius);
+    font-size: 0.6875rem;
+    margin: 0;
+    padding: 6px 8px;
+    word-break: break-all;
+}
+
+#noVNC_fingerprint {
+    color: var(--dx-text);
+    font-family: var(--dx-mono);
+}
+
+/* ---------- Status ---------- */
+
+/* A floating toast, the way the console reports state */
+#noVNC_status {
+    align-items: center;
+    border-bottom: none;
+    border-radius: var(--dx-radius-lg);
+    box-shadow: var(--dx-shadow);
+    font-size: 0.75rem;
+    left: 50%;
+    max-width: calc(100vw - 24px);
+    padding: 6px 12px;
+    transform: translate(-50%, -200%);
+    width: auto;
+}
+
+#noVNC_status.noVNC_open {
+    transform: translate(-50%, 12px);
+}
+
+/* The fill already carries the severity, so the badge goes — stock CSS sets
+   this content per state class, so dropping it takes the same reach */
+#noVNC_status::before,
+#noVNC_status.noVNC_status_normal::before,
+#noVNC_status.noVNC_status_error::before,
+#noVNC_status.noVNC_status_warn::before {
+    content: none;
+}
+
+#noVNC_status.noVNC_status_normal {
+    background: var(--dx-elevated);
+}
+
+#noVNC_status.noVNC_status_error {
+    background: var(--dx-red);
+}
+
+#noVNC_status.noVNC_status_warn {
+    background: var(--dx-yellow);
+}
+
+/* ---------- Transition ---------- */
+
+#noVNC_transition {
+    background: color-mix(in oklab, var(--dx-canvas) 85%, transparent);
+    color: var(--dx-text);
+    gap: 12px;
+}
+
+#noVNC_transition_text {
+    color: var(--dx-muted);
+    font-size: 0.8125rem;
+}
+
+.noVNC_spinner {
+    animation: dx_spinner 0.7s linear infinite;
+    border: 2px solid var(--dx-accented);
+    border-radius: 50%;
+    border-top-color: var(--dx-primary);
+    box-shadow: none;
+    height: 18px;
+    order: -1;
+    width: 18px;
+}
+
+.noVNC_spinner::before,
+.noVNC_spinner::after {
+    content: none;
+}
+
+@keyframes dx_spinner {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ---------- Fallback error ---------- */
+
+#noVNC_fallback_error > div {
+    background: var(--dx-red);
+    border-radius: var(--dx-radius-lg);
+    box-shadow: var(--dx-shadow);
+    font-size: 0.75rem;
+}
+
+/* ---------- Brand mark ---------- */
+
+.noVNC_logo {
+    font-size: 0 !important;
+    line-height: 0;
+    text-shadow: none;
+}
+
+.noVNC_logo::before {
+    background-color: var(--dx-primary);
+    content: "";
+    display: block;
+    margin: 0 auto;
+    -webkit-mask: url("../images/brand.svg") center / contain no-repeat;
+    mask: url("../images/brand.svg") center / contain no-repeat;
+}
+
+#noVNC_connect_dlg .noVNC_logo::before {
+    height: 40px;
+    width: 62px;
+}
