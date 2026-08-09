@@ -10,8 +10,10 @@ set -euo pipefail
 # shellcheck disable=SC1091
 . "$(dirname "$0")/resolve.sh"
 
-# How many wave jobs publish.yml chains together
-WAVES=3
+# How many wave jobs publish.yml chains together — as deep as the hub goes today,
+# an entry built on a base. A chain past this is refused rather than half-published,
+# so a new level means adding a wave job and raising this.
+WAVES=2
 
 # The runner an arch builds on without emulation
 runner_for() {
