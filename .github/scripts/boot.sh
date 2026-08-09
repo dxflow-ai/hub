@@ -13,8 +13,11 @@ fi
 volume="$HOME/.dxflow/volume"
 mkdir -p "$volume"
 
+# No --http: the CLI reaches the engine over its unix socket, and the HTTP server
+# would want port 80, which an unprivileged runner cannot bind. A workflow's own
+# ports are published by docker, so the endpoint checks are unaffected.
 log="${RUNNER_TEMP:-/tmp}/engine.log"
-(cd "$volume" && nohup dxflow boot up --http > "$log" 2>&1 &)
+(cd "$volume" && nohup dxflow boot up > "$log" 2>&1 &)
 
 # Hand over only once it answers on its socket
 for _ in $(seq 30); do
