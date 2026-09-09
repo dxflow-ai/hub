@@ -31,6 +31,8 @@ A published entry lays its sections out as: intro → `## Usage` → `## Configu
 
 `index.md` holds a `## Configuration` section with three fenced blocks: **`yaml`** (the workflow definition `dxflow workflow create` and `verify.sh` run), **`ini`** (override defaults), and **`json`** (metadata: `arch` list, the `image` this folder builds/publishes, image `version`, `minimum` resources). The yaml may reference more images than `json.image` — the extras are reused from other tools; build/publish only handle this folder's own `image`, while verify checks every step image is present.
 
+A step's relative `host` path is resolved by the engine against its own directory (`~/.dxflow`), so every entry mounts `./volume` — the engine volume, the root of what `dxflow artifact` and the console's **Artifacts** show — or a directory inside it (`./volume/input`). A host path that does not start with `./volume` lands outside the volume, where an upload cannot reach it.
+
 When adding a tool, copy an existing published workflow (one that already has `build/` and `verify/`) as a reference.
 
 ## Publishing
