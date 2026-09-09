@@ -2,14 +2,18 @@
 set -euo pipefail
 
 # Hand a workflow to GitHub Actions from a workstation: pick an entry, see what a
-# rebuild of it drags along, and dispatch the publish workflow — the build, the
-# end-to-end verify, and the registry push all happen on runners, on the arch each
-# image ships for. See .github/workflows/publish.yml.
+# rebuild of it drags along, merge the work to main, and dispatch the publish
+# workflow there — the build, the end-to-end verify, and the registry push all happen
+# on runners, on the arch each image ships for. See .github/workflows/publish.yml.
+#
+# What reaches the registry is what is on main, so the merge comes first and the run
+# is dispatched against main rather than whatever branch the work was done on.
 #
 # Usage: ./publish.sh           # interactive: pick a workflow, then dispatch
 #        ./publish.sh <key>     # dispatch that workflow, e.g. ./publish.sh fastqc
 
 REMOTE="origin"
+RELEASE_BRANCH="main"
 WORKFLOW_FILE="publish.yml"
 
 die() { echo "Error: $*" >&2; exit 1; }
@@ -31,14 +35,18 @@ gh workflow view "$WORKFLOW_FILE" >/dev/null 2>&1 \
 fail() { die "$*"; }
 
 # The runner checks out a ref, not this working copy, so anything uncommitted or
-# unpushed is invisible to the build about to run.
+# unpushed is invisible to the build about to run. Both are refused rather than
+# noted: the merge below checks out main and back, which a dirty tree does not
+# survive, and an unpushed commit would reach main without ever reaching its own
+# branch on the remote.
 branch="$(git branch --show-current)"
 [[ -n "$branch" ]] || die "detached HEAD — check out a branch first"
 
 git fetch --quiet "$REMOTE" "$branch" 2>/dev/null || die "no ${branch} on ${REMOTE} — push it first"
-[[ -z "$(git status --porcelain)" ]] || echo "Note: working tree is not clean — the run builds ${REMOTE}/${branch}, not these edits"
+git fetch --quiet "$REMOTE" "$RELEASE_BRANCH"
+[[ -z "$(git status --porcelain)" ]] || die "working tree is not clean — commit or stash first"
 [[ "$(git rev-parse @)" == "$(git rev-parse "${REMOTE}/${branch}")" ]] \
-    || echo "Note: ${branch} differs from ${REMOTE}/${branch} — the run builds what is pushed"
+    || die "${branch} differs from ${REMOTE}/${branch} — push it first"
 
 # Pick the entry.
 workflow="${1:-}"
@@ -67,7 +75,7 @@ plan "$workflow"
 deepest="$(deepest_wave)"
 
 echo
-echo "Publishing from ${REMOTE}/${branch}:"
+echo "Publishing from ${REMOTE}/${RELEASE_BRANCH}:"
 for wave in $(seq 0 "$deepest"); do
     echo "  wave $((wave + 1))  $(wave_keys "$wave" | paste -sd' ' -)"
 done
@@ -85,10 +93,29 @@ if [[ "$dependents" == "false" ]]; then
 fi
 
 echo
-confirm "Dispatch publish for ${summary} on ${REMOTE}/${branch}?"
+if [[ "$branch" == "$RELEASE_BRANCH" ]]; then
+    confirm "Dispatch publish for ${summary} on ${REMOTE}/${RELEASE_BRANCH}?"
+else
+    confirm "Merge '${branch}' into ${RELEASE_BRANCH} and dispatch publish for ${summary}?"
+fi
+
+# Bring the work onto main before the run reads it. The working branch is the source
+# of truth, so -X theirs settles any drift in its favour rather than stopping the
+# publish on a conflict — the same merge platform/publish.sh makes for a release.
+if [[ "$branch" != "$RELEASE_BRANCH" ]]; then
+    git checkout "$RELEASE_BRANCH"
+    git merge --ff-only "${REMOTE}/${RELEASE_BRANCH}" || die "${RELEASE_BRANCH} diverged from ${REMOTE} — reconcile first"
+    git merge --no-ff -X theirs "$branch" -m "Merge ${branch} into ${RELEASE_BRANCH} to publish ${workflow}" \
+        || die "merge failed — resolve conflicts and retry"
+    git push "$REMOTE" "$RELEASE_BRANCH"
+
+    # Leave the tree on the branch it started on rather than parked on main.
+    git checkout "$branch"
+    echo
+fi
 
 # --raw-field, not --field: gh workflow run reads @ syntax out of --field values
-gh workflow run "$WORKFLOW_FILE" --ref "$branch" \
+gh workflow run "$WORKFLOW_FILE" --ref "$RELEASE_BRANCH" \
     --raw-field workflow="$workflow" \
     --raw-field dependents="$dependents"
 
