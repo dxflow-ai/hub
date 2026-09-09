@@ -22,6 +22,13 @@ fail() {
     exit 1
 }
 
+# The image's own command, so a step can reach a running container: stay up and
+# leave the transfer to the invocation the step's command makes.
+if [ "${1:-}" = "idle" ]; then
+    echo "[s3] ready — the transfer runs as the step's command"
+    exec tail -f /dev/null
+fi
+
 [ -n "$SOURCE" ] || fail "SOURCE is empty — set it to an s3:// uri or a local path"
 [ -n "$TARGET" ] || fail "TARGET is empty — set it to an s3:// uri or a local path"
 
