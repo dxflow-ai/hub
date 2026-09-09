@@ -70,9 +70,10 @@ COPY novnc/mandatory.json /opt/novnc/mandatory.json
 COPY novnc/audio.js /opt/novnc/app/audio.js
 COPY novnc/theme.css /opt/novnc/app/styles/theme.css
 COPY novnc/brand.svg /opt/novnc/app/images/brand.svg
+COPY novnc/brand.ico /opt/novnc/app/images/brand.ico
 RUN sed -i 's|<title>noVNC</title>|<title>dxflow</title>|' /opt/novnc/vnc.html && \
     sed -i 's|content="#313131"|content="#18181b"|' /opt/novnc/vnc.html && \
-    sed -i 's|<link rel="icon"[^>]*>|<link rel="icon" type="image/svg+xml" href="app/images/brand.svg">|' /opt/novnc/vnc.html && \
+    sed -i 's|<link rel="icon"[^>]*>|<link rel="icon" type="image/x-icon" href="app/images/brand.ico">|' /opt/novnc/vnc.html && \
     sed -i 's|</head>|<link rel="stylesheet" href="app/styles/theme.css"></head>|' /opt/novnc/vnc.html && \
     sed -i 's|</head>|<script type="module" crossorigin="anonymous" src="app/audio.js"></script></head>|' /opt/novnc/vnc.html
 
