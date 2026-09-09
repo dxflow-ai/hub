@@ -80,11 +80,11 @@ steps:
       image: ghcr.io/dxflow-ai/fastqc:latest
       volumes:
           - name: input
-            host: ./input
+            host: ./volume/input
             container: /data/input
             mode: ro
           - name: output
-            host: ./output
+            host: ./volume/output
             container: /data/output
       env:
           - INPUT=/data/input/*.fastq.gz
@@ -97,8 +97,8 @@ steps:
 
 ```ini
 [volume]
-job.input = ./input
-job.output = ./output
+job.input = ./volume/input
+job.output = ./volume/output
 
 [env]
 job.INPUT = /data/input/*.fastq.gz
