@@ -34,6 +34,7 @@ on:
                     - inkscape
                     - signal
                     - telegram
+                    - s3
             dependents:
                 description: "Also rebuild the workflows built on top of it"
                 required: false
