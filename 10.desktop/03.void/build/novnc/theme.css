@@ -633,6 +633,17 @@ input[type="range"]::-moz-range-track {
     transform: translate(-50%, 12px);
 }
 
+/* Two states where the toast only adds noise, so it slides back out:
+   a pending reconnect already shows the transition spinner, and an error
+   status never auto-hides (stock showStatus only arms the timer for
+   non-errors), so a failed first autoconnect would otherwise sit there
+   through the whole reconnect delay; and the credentials dialog says it
+   needs a password itself, without a warning toast over it */
+html.noVNC_reconnecting #noVNC_status.noVNC_open,
+html:has(#noVNC_credentials_dlg.noVNC_open) #noVNC_status.noVNC_open {
+    transform: translate(-50%, -200%);
+}
+
 /* The fill already carries the severity, so the badge goes — stock CSS sets
    this content per state class, so dropping it takes the same reach */
 #noVNC_status::before,
