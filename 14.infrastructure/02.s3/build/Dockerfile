@@ -8,11 +8,12 @@ LABEL org.opencontainers.image.source="https://github.com/dxflow-ai/hub"
 COPY entrypoint.sh /opt/dxflow/entrypoint.sh
 RUN chmod +x /opt/dxflow/entrypoint.sh
 
-WORKDIR /data
-VOLUME [ "/data" ]
+WORKDIR /volume
+VOLUME [ "/volume" ]
 
-# The base image runs `aws` as its entrypoint. Reset it and hand the transfer to a
-# command instead, so a pipeline step can name the script and still run to
-# completion under `mode: sequential`, which has no step without a command.
-ENTRYPOINT [ ]
-CMD [ "/opt/dxflow/entrypoint.sh" ]
+# `idle` is what the container starts on: a step that carries a command is started
+# detached and the command is executed inside it, so the container has to be up
+# before the transfer arrives. The step's command runs this same entrypoint with
+# no argument, and that invocation is the one that transfers.
+ENTRYPOINT [ "/opt/dxflow/entrypoint.sh" ]
+CMD [ "idle" ]
