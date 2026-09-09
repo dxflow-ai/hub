@@ -2,7 +2,7 @@
 title: S3 Sync
 description: Sync data between S3-compatible object storage and a workflow volume
 navigation:
-    icon: i-hugeicons:cloud-sync
+    icon: i-diphyx:s3
 ---
 
 S3 Sync moves a dataset between object storage and a dxflow volume, in either direction: point it at a bucket to pull inputs in before a run, or at a volume to push results out after one. It wraps the AWS CLI v2, so it talks to Amazon S3 and to anything that speaks the same API — MinIO, Ceph RadosGW, Cloudflare R2, Wasabi, Backblaze B2 — by setting an endpoint.
