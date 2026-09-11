@@ -1,5 +1,5 @@
 # Version pins — refresh them with .github/scripts/version.sh
-ARG VERSION=3.4.2
+ARG VERSION=3.5.0
 
 FROM ghcr.io/dxflow-ai/ubuntu:latest
 
