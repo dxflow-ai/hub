@@ -1,5 +1,5 @@
 # Version pins — refresh them with .github/scripts/version.sh
-ARG VERSION=8.0.1
+ARG VERSION=8.5.0
 
 FROM ubuntu:22.04
 

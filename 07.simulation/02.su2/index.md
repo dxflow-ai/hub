@@ -75,7 +75,7 @@ app.memory = 32G
 {
     "arch": ["amd64"],
     "image": "ghcr.io/dxflow-ai/su2:latest",
-    "version": "8.0.1",
+    "version": "8.5.0",
     "minimum": {
         "cpu": 2,
         "memory": "16G",
