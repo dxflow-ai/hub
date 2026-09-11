@@ -1,6 +1,6 @@
 # Version pins — refresh them with .github/scripts/version.sh
 ARG VERSION=4.6.3
-ARG VOID_VERSION=20250112R1
+ARG VOID_VERSION=20260901R1
 
 FROM ghcr.io/void-linux/void-glibc:${VOID_VERSION}
 
