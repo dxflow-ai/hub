@@ -38,6 +38,16 @@ if [ ! -f "${config_dir}/example.conf.sample" ]; then
   cp /opt/dxflow/sample.conf "${config_dir}/example.conf.sample"
 fi
 
+# This container is root and the engine is not, so a directory created here is one
+# an upload cannot write into — which is the whole point of putting the
+# configuration on the volume. Hand what was just created to whoever owns the
+# volume, which is whoever the engine writes as.
+volume_owner="$(stat -c '%u:%g' /volume 2>/dev/null || true)"
+if [ -n "${volume_owner}" ]; then
+  chown -R "${volume_owner}" "${config_dir}" 2> /dev/null || true
+  chown "${volume_owner}" "${site_dir}" 2> /dev/null || true
+fi
+
 status_log="${config_dir}/state/status.log"
 effective="${config_dir}/state/effective.conf"
 
@@ -90,11 +100,13 @@ if [ "${workers}" = "auto" ]; then
   workers="$(cpu_quota)"
 fi
 
-# The credential guarding the site, as a snippet the rendered config includes. An
-# empty PASSWORD removes the guard rather than setting a blank one — which is what
-# a genuinely public web resource wants.
-if [ -n "${PASSWORD:-}" ]; then
-  htpasswd -bc /etc/nginx/.htpasswd dxflow "${PASSWORD}" > /dev/null 2>&1
+# The credential guarding the site, as a snippet the rendered config includes.
+# Unset means the default; set-but-empty means open, which is what a genuinely
+# public dataset wants. The default lives here rather than in an ENV, so the image
+# carries no credential and a build log has none to warn about.
+password="${PASSWORD-dxflow}"
+if [ -n "${password}" ]; then
+  htpasswd -bc /etc/nginx/.htpasswd dxflow "${password}" > /dev/null 2>&1
   {
     echo 'auth_basic "dxflow";'
     echo 'auth_basic_user_file /etc/nginx/.htpasswd;'

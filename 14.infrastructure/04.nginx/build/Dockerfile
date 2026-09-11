@@ -30,7 +30,6 @@ RUN chmod +x /opt/dxflow/entrypoint.sh
 
 ENV SITE_DIR=""
 ENV CONFIG_DIR="nginx"
-ENV PASSWORD="dxflow"
 ENV AUTOINDEX="on"
 ENV CORS="off"
 ENV GZIP="on"
