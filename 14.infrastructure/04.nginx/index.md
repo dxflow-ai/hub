@@ -19,7 +19,7 @@ Nginx here does two jobs, and both come from the same fact: it is pointed at the
 - Configuration on the volume, reloaded within seconds — no restart, no redeploy
 - A rejected configuration is reported and dropped; the running server keeps serving
 - `state/status.log` and `state/effective.conf` report back where the editing happens
-- Two spare published ports, for the server blocks a session goes on to write
+- Name-based virtual hosts, rate limits, proxies — anything nginx does, by config
 
 ## Usage
 
@@ -121,12 +121,6 @@ steps:
           - name: web
             host: "8080"
             container: "8080"
-          - name: alt
-            host: "8081"
-            container: "8081"
-          - name: spare
-            host: "8082"
-            container: "8082"
       env:
           - SITE_DIR=
           - CONFIG_DIR=nginx
@@ -149,8 +143,6 @@ app.volume = ./volume
 
 [port]
 app.web = 8080
-app.alt = 8081
-app.spare = 8082
 
 [env]
 app.SITE_DIR =
@@ -201,13 +193,15 @@ Everything else is a directive, not a variable: `client_max_body_size`, `expires
 
 ### Ports
 
-| Port   | Serves                                                                   |
-| ------ | ------------------------------------------------------------------------ |
-| `8080` | the artifact site this entry renders — the port `--link` publishes       |
-| `8081` | nothing, until a `server { listen 8081; ... }` in `conf.d/` claims it     |
-| `8082` | the same, for the next one                                               |
+One port is published, `8080`, and it is the one `--link` puts on an HTTPS URL. A `server` block in `conf.d/` shares it: give it `listen 8080;` and a `server_name` of its own, and it is reached by Host header rather than by port — which is how nginx expects several sites to sit behind one address anyway.
 
-A published port cannot be added to a running workflow, only repointed — so the spares are there for the server blocks a configuration session goes on to write.
+A block that insists on a port of its own needs that port published at create time, since an override repoints a declared port and cannot add one. Take the definition local for that:
+
+```bash
+dxflow workflow hub inspect nginx --yaml > nginx.yml
+# ... add the port to steps[0].ports, then
+dxflow workflow create --identity web nginx.yml
+```
 
 ## Notes
 
