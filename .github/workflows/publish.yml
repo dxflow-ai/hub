@@ -40,6 +40,7 @@ on:
                     - signal
                     - telegram
                     - s3
+                    - filegator
             dependents:
                 description: "Also rebuild the workflows built on top of it"
                 required: false
