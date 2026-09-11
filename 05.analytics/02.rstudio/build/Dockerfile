@@ -1,5 +1,5 @@
 # Version pins — refresh them with .github/scripts/version.sh
-ARG VERSION=2026.07.0-139
+ARG VERSION=2026.09.0-174
 
 FROM ghcr.io/void-linux/void-glibc:latest
 
