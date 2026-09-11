@@ -1,8 +1,23 @@
-FROM fedora:41
+# Version pins — refresh them with .github/scripts/version.sh
+ARG VERSION=46
+ARG TINT2_VERSION=17.0.2
+ARG AUTOCUTSEL_VERSION=0.10.1
+ARG QTFM_VERSION=6.2.1
+ARG NOVNC_VERSION=1.7.0
+ARG WEBSOCKIFY_VERSION=0.13.0
+
+FROM fedora:${VERSION}
 
 LABEL org.opencontainers.image.title="Fedora Desktop"
 LABEL org.opencontainers.image.description="Full Fedora Linux desktop accessible from your browser"
 LABEL org.opencontainers.image.source="https://github.com/dxflow-ai/hub"
+
+# Bring the pins into the stage (a pin declared above FROM only reaches FROM)
+ARG TINT2_VERSION
+ARG AUTOCUTSEL_VERSION
+ARG QTFM_VERSION
+ARG NOVNC_VERSION
+ARG WEBSOCKIFY_VERSION
 
 ENV LANG="C.UTF-8"
 
@@ -23,39 +38,39 @@ RUN wget -q -O /etc/yum.repos.d/TurboVNC.repo https://raw.githubusercontent.com/
 
 # Install tint2
 RUN dnf install -y --setopt=install_weak_deps=False --allowerasing make cmake gcc-c++ cairo pango glib2 imlib2-devel gtk3-devel libXinerama-devel libXrender-devel libXcomposite-devel libXdamage-devel libX11-devel libXrandr-devel librsvg2-devel && \
-    wget https://gitlab.com/o9000/tint2/-/archive/v17.0.2/tint2-v17.0.2.tar.gz -O /tmp/tint2.tar.gz && \
+    wget https://gitlab.com/o9000/tint2/-/archive/v${TINT2_VERSION}/tint2-v${TINT2_VERSION}.tar.gz -O /tmp/tint2.tar.gz && \
     tar -zxf /tmp/tint2.tar.gz -C /tmp && \
-    cd /tmp/tint2-v17.0.2/ && cmake -D ENABLE_BATTERY=OFF -D ENABLE_TINT2CONF=OFF -D ENABLE_SN=OFF -B build && make -C build && make -C build install && \
+    cd /tmp/tint2-v${TINT2_VERSION}/ && cmake -D ENABLE_BATTERY=OFF -D ENABLE_TINT2CONF=OFF -D ENABLE_SN=OFF -B build && make -C build && make -C build install && \
     rm -rf /tmp/* && \
     rm -rf /var/cache/dnf/*
 
 # Install autocutsel
 RUN dnf install -y --setopt=install_weak_deps=False --allowerasing make libX11-devel libXtst-devel libXaw-devel && \
-    wget https://github.com/sigmike/autocutsel/releases/download/0.10.1/autocutsel-0.10.1.tar.gz -O /tmp/autocutsel.tar.gz && \
+    wget https://github.com/sigmike/autocutsel/releases/download/${AUTOCUTSEL_VERSION}/autocutsel-${AUTOCUTSEL_VERSION}.tar.gz -O /tmp/autocutsel.tar.gz && \
     tar -zxf /tmp/autocutsel.tar.gz -C /tmp && \
-    cd /tmp/autocutsel-0.10.1/ && sh configure && make && make install && \
+    cd /tmp/autocutsel-${AUTOCUTSEL_VERSION}/ && sh configure && make && make install && \
     rm -rf /tmp/* && \
     rm -rf /var/cache/dnf/*
 
 # Install qtfm
 RUN dnf install -y --setopt=install_weak_deps=False --allowerasing make cmake gcc-c++ qt5-qtbase-devel && \
-    wget https://github.com/rodlie/qtfm/archive/refs/tags/6.2.1.tar.gz -O /tmp/qtfm.tar.gz && \
+    wget https://github.com/rodlie/qtfm/archive/refs/tags/${QTFM_VERSION}.tar.gz -O /tmp/qtfm.tar.gz && \
     tar -zxf /tmp/qtfm.tar.gz -C /tmp && \
-    cd /tmp/qtfm-6.2.1/ && qmake-qt5 && make && make install && \
+    cd /tmp/qtfm-${QTFM_VERSION}/ && qmake-qt5 && make && make install && \
     rm -rf /tmp/* && \
     rm -rf /var/cache/dnf/*
 
 # Install noVNC
-RUN wget -q --no-check-certificate "https://github.com/novnc/noVNC/archive/refs/tags/v1.7.0.tar.gz" -O /tmp/novnc.tar.gz && \
+RUN wget -q --no-check-certificate "https://github.com/novnc/noVNC/archive/refs/tags/v${NOVNC_VERSION}.tar.gz" -O /tmp/novnc.tar.gz && \
     tar -zxf /tmp/novnc.tar.gz -C /opt && \
-    mv /opt/noVNC-1.7.0 /opt/novnc && \
+    mv /opt/noVNC-${NOVNC_VERSION} /opt/novnc && \
     rm -rf /tmp/novnc.tar.gz
 
 # Install websockify
-RUN wget -q --no-check-certificate "https://github.com/novnc/websockify/archive/refs/tags/v0.13.0.tar.gz" -O /tmp/websockify.tar.gz && \
+RUN wget -q --no-check-certificate "https://github.com/novnc/websockify/archive/refs/tags/v${WEBSOCKIFY_VERSION}.tar.gz" -O /tmp/websockify.tar.gz && \
     tar -zxf /tmp/websockify.tar.gz -C /opt && \
     mkdir -p /opt/novnc/utils && \
-    mv /opt/websockify-0.13.0 /opt/novnc/utils/websockify && \
+    mv /opt/websockify-${WEBSOCKIFY_VERSION} /opt/novnc/utils/websockify && \
     rm -rf /tmp/websockify.tar.gz
 
 # Setup user

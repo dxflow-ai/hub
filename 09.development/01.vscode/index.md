@@ -100,7 +100,7 @@ app.memory = 4G
 {
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/vscode:latest",
-    "version": "1.91",
+    "version": "1.137.0",
     "minimum": {
         "cpu": 2,
         "memory": "2G",

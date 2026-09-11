@@ -87,7 +87,7 @@ app.memory = 8G
 {
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/ollama:latest",
-    "version": "0.5",
+    "version": "0.34.0",
     "minimum": {
         "cpu": 4,
         "memory": "8G",

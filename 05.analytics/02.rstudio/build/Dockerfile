@@ -1,8 +1,14 @@
+# Version pins — refresh them with .github/scripts/version.sh
+ARG VERSION=2026.09.0-174
+
 FROM ghcr.io/void-linux/void-glibc:latest
 
 LABEL org.opencontainers.image.title="RStudio Server"
 LABEL org.opencontainers.image.description="Browser-based IDE for R statistical computing and graphics"
 LABEL org.opencontainers.image.source="https://github.com/dxflow-ai/hub"
+
+# Bring the pins into the stage (a pin declared above FROM only reaches FROM)
+ARG VERSION
 
 # Install packages (R is required by rstudio-server to run sessions)
 RUN xbps-install -Sy bash shadow binutils findutils tar gzip curl xbps xz openssl R && \
@@ -14,7 +20,7 @@ RUN curl -L -o /tmp/xdeb https://github.com/xdeb-org/xdeb/releases/latest/downlo
     chmod +x /tmp/xdeb
 
 # Install rstudio-server (current build, compatible with modern R)
-RUN curl -L -o /tmp/rstudio-server.deb https://download2.rstudio.org/server/jammy/amd64/rstudio-server-2026.07.0-139-amd64.deb && \
+RUN curl -L -o /tmp/rstudio-server.deb https://download2.rstudio.org/server/jammy/amd64/rstudio-server-${VERSION}-amd64.deb && \
     cd /tmp && \
     /tmp/xdeb -Sd --not-deps="musl1.1" /tmp/rstudio-server.deb && \
     xbps-install -y -R /tmp/binpkgs rstudio-server && \

@@ -100,7 +100,7 @@ app.memory = 4G
 {
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/firefox:latest",
-    "version": "135.0",
+    "version": "155.0",
     "minimum": {
         "cpu": 2,
         "memory": "2G",

@@ -137,7 +137,7 @@ job.memory = 2G
 {
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/s3:latest",
-    "version": "2.36.41",
+    "version": "2.36.43",
     "minimum": {
         "cpu": 1,
         "memory": "1G",

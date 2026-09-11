@@ -98,7 +98,7 @@ job.memory = 4G
 {
     "arch": ["amd64"],
     "image": "ghcr.io/dxflow-ai/samtools:latest",
-    "version": "1.19",
+    "version": "1.24",
     "minimum": {
         "cpu": 2,
         "memory": "2G",

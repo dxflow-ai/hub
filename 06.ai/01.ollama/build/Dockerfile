@@ -1,5 +1,9 @@
+# Version pins — refresh them with .github/scripts/version.sh
+ARG VERSION=0.34.0
+ARG NODE_VERSION=26
+
 # Build the web interface
-FROM node:22-alpine AS ui
+FROM node:${NODE_VERSION}-alpine AS ui
 
 WORKDIR /app
 
@@ -12,7 +16,7 @@ COPY app/ ./
 RUN pnpm exec vite build
 
 # Final image
-FROM ollama/ollama:0.5.11
+FROM ollama/ollama:${VERSION}
 
 LABEL org.opencontainers.image.title="Ollama"
 LABEL org.opencontainers.image.description="Run open large language models locally with a web interface"

@@ -100,7 +100,7 @@ app.memory = 4G
 {
     "arch": ["amd64"],
     "image": "ghcr.io/dxflow-ai/vivaldi:latest",
-    "version": "7.1",
+    "version": "8.1.4087.75",
     "minimum": {
         "cpu": 2,
         "memory": "2G",

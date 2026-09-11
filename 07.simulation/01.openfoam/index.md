@@ -82,7 +82,7 @@ app.memory = 32G
 {
     "arch": ["amd64"],
     "image": "ghcr.io/dxflow-ai/openfoam:latest",
-    "version": "10",
+    "version": "11",
     "minimum": {
         "cpu": 2,
         "memory": "16G",

@@ -1,13 +1,21 @@
+# Version pins — refresh them with .github/scripts/version.sh
+ARG PACKAGE_VERSION=3.2.4_2
+
 FROM ghcr.io/dxflow-ai/void:latest
 
 LABEL org.opencontainers.image.title="GIMP"
 LABEL org.opencontainers.image.description="GNU Image Manipulation Program for photo editing and graphics"
 LABEL org.opencontainers.image.source="https://github.com/dxflow-ai/hub"
 
+# Bring the pins into the stage (a pin declared above FROM only reaches FROM)
+ARG PACKAGE_VERSION
+
 # Install gimp on a base brought in step with the rolling repo
+# The exact version is named on purpose: a repository that has moved on fails the
+# build rather than quietly shipping something other than what this entry claims.
 RUN xbps-install -Suy xbps && \
     xbps-install -Suy && \
-    xbps-install -Sy gimp && \
+    xbps-install -Sy "gimp-${PACKAGE_VERSION}" && \
     xbps-remove -O && \
     rm -rf /var/cache/xbps/*
 
