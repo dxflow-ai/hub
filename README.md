@@ -42,6 +42,7 @@ When adding a tool, copy an existing published workflow (one that already has `b
 An entry carries its version twice: as the pin its `build/Dockerfile` builds from, and as the `version` in its `index.md` json block — the tag it publishes as. `version.sh` keeps both in step with what upstream ships today:
 
 ```bash
+make version                            # pick an entry from the list, or all of them
 make version ARGS=fastqc                # what one entry is behind on
 make version ARGS=--all                 # ... every entry
 make version ARGS="fastqc --apply"      # write the updates
