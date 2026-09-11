@@ -1,5 +1,10 @@
 name: publish
 
+# Every run publishes one entry, so the run says which — the runs list is a
+# column of "publish" otherwise, with nothing to tell one from another until
+# you open it.
+run-name: publish ${{ inputs.workflow }}${{ inputs.dependents && ' and what builds on it' || ' alone' }}
+
 on:
     workflow_dispatch:
         inputs:

@@ -46,6 +46,17 @@ publishable() {
     done
 }
 
+# Print every entry that can resolve its own version, in the order the hub lists
+# them — the domain ./version.sh works over.
+resolvable() {
+    local candidate name
+    for candidate in */*/; do
+        [[ -f "$candidate/version/resolve.sh" ]] || continue
+        name="$(basename "$candidate")"
+        echo "${name#*.}"
+    done
+}
+
 # Print the entries whose Dockerfile builds directly on this one.
 children_of() {
     local candidate name

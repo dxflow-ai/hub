@@ -1,5 +1,5 @@
 # Version pins — refresh them with .github/scripts/version.sh
-ARG VERSION=46
+ARG VERSION=44
 ARG TINT2_VERSION=17.0.2
 ARG AUTOCUTSEL_VERSION=0.10.1
 ARG QTFM_VERSION=6.2.1
@@ -36,11 +36,12 @@ RUN wget -q -O /etc/yum.repos.d/TurboVNC.repo https://raw.githubusercontent.com/
     ln -s /opt/TurboVNC/bin/webserver /usr/bin/webserver && \
     rm -rf /var/cache/dnf/*
 
-# Install tint2
+# Install tint2. Its CMakeLists asks for a compatibility CMake 4 dropped, so the
+# policy minimum is handed back to it — 17.0.2 is the last release upstream cut.
 RUN dnf install -y --setopt=install_weak_deps=False --allowerasing make cmake gcc-c++ cairo pango glib2 imlib2-devel gtk3-devel libXinerama-devel libXrender-devel libXcomposite-devel libXdamage-devel libX11-devel libXrandr-devel librsvg2-devel && \
     wget https://gitlab.com/o9000/tint2/-/archive/v${TINT2_VERSION}/tint2-v${TINT2_VERSION}.tar.gz -O /tmp/tint2.tar.gz && \
     tar -zxf /tmp/tint2.tar.gz -C /tmp && \
-    cd /tmp/tint2-v${TINT2_VERSION}/ && cmake -D ENABLE_BATTERY=OFF -D ENABLE_TINT2CONF=OFF -D ENABLE_SN=OFF -B build && make -C build && make -C build install && \
+    cd /tmp/tint2-v${TINT2_VERSION}/ && cmake -D CMAKE_POLICY_VERSION_MINIMUM=3.5 -D ENABLE_BATTERY=OFF -D ENABLE_TINT2CONF=OFF -D ENABLE_SN=OFF -B build && make -C build && make -C build install && \
     rm -rf /tmp/* && \
     rm -rf /var/cache/dnf/*
 

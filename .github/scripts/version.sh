@@ -21,7 +21,8 @@ set -euo pipefail
 # and anonymous is 60 an hour for the whole host — enough for a sweep or two, not
 # for a loop. A signed-in gh is borrowed when $GITHUB_TOKEN is not already set.
 #
-# Usage: version.sh <key> [--apply]     # one entry
+# Usage: version.sh                     # ask which, from the entries that resolve
+#        version.sh <key> [--apply]     # one entry
 #        version.sh --all [--apply]     # every entry that has a version/resolve.sh
 # shellcheck disable=SC1090,SC1091
 . "$(dirname "$0")/resolve.sh"
@@ -46,7 +47,42 @@ for argument in "$@"; do
     esac
 done
 target="${target:-${WORKFLOW:-}}"
-[[ -n "$target" ]] || fail "no workflow given — pass a key or --all"
+
+# Ask which entry, the way ./publish.sh asks which to publish. Prints the choice,
+# or nothing at all if the reader quits.
+choose() {
+    local options=("all") key choice
+    while IFS= read -r key; do
+        options+=("$key")
+    done < <(resolvable)
+
+    PS3="check which workflow? (number, or q to quit) "
+    select choice in "${options[@]}"; do
+        if [[ -n "$choice" ]]; then
+            printf '%s' "$choice"
+            return 0
+        fi
+        if [[ "$REPLY" == "q" ]]; then
+            return 0
+        fi
+    done
+}
+
+if [[ -z "$target" ]]; then
+    # A run with nowhere to ask — a hook, a pipe, Actions — is told rather than hung
+    if [[ ! -t 0 ]]; then
+        fail "no workflow given — pass a key or --all"
+    fi
+
+    target="$(choose)"
+    if [[ -z "$target" ]]; then
+        echo "Cancelled."
+        exit 0
+    fi
+    if [[ "$target" == "all" ]]; then
+        target="*"
+    fi
+fi
 
 # The ARG a pin maps to. The entry's own version is the plain one, so a Dockerfile
 # reads `ARG VERSION=0.12.1` for the tool and `ARG NOVNC_VERSION=1.7.0` for what it
@@ -112,7 +148,7 @@ keys=()
 if [[ "$target" == "*" ]]; then
     while IFS= read -r key; do
         keys+=("$key")
-    done < <(publishable)
+    done < <(resolvable)
 else
     keys=("$target")
 fi

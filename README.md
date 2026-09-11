@@ -42,6 +42,7 @@ When adding a tool, copy an existing published workflow (one that already has `b
 An entry carries its version twice: as the pin its `build/Dockerfile` builds from, and as the `version` in its `index.md` json block — the tag it publishes as. `version.sh` keeps both in step with what upstream ships today:
 
 ```bash
+make version                            # pick an entry from the list, or all of them
 make version ARGS=fastqc                # what one entry is behind on
 make version ARGS=--all                 # ... every entry
 make version ARGS="fastqc --apply"      # write the updates
@@ -74,6 +75,8 @@ The pattern a check passes to a lookup is the entry's pinning policy, so a base 
 An entry that installs from a package repository asks for a version there too, rather than taking whatever the repository is serving that day: `xbps-install -Sy "firefox-${PACKAGE_VERSION}"`, `code=${PACKAGE_VERSION}`, `jupyterlab=${VERSION}`, `install.sh --version="${VERSION}"`. So `PACKAGE_VERSION` is the version as a repository spells it, which is not always what the entry publishes as — xbps carries a packaging revision (`155.0_1`), the Microsoft apt index a build timestamp (`1.137.0-1788902055`). The check prints both, and the clean one is what reaches the json.
 
 A rolling repository keeps only what it serves now, so a pinned `xbps-install` stops building the day upstream moves on. That is the point: the build fails rather than publishing a `firefox:155.0` that holds 156.0, and the fix is `make version ARGS="firefox --apply"` and a rebuild.
+
+A rolling repository does not always hold the same version on every arch — Void's arm64 Chromium sits releases behind its amd64 one, and has no Signal at all — so an entry that builds for both pins each arch to what its own repository holds (`PACKAGE_AMD64_VERSION`, `PACKAGE_ARM64_VERSION`) and records the lower of the two. One manifest cannot claim two versions, and understating is the safer way to be wrong.
 
 A pin with no matching `ARG` is reported but not written — the xbps entries pin through `PACKAGE_VERSION` and keep no `ARG VERSION` for the clean one, and Scipion's installer takes the current release with nothing to pin at all.
 
