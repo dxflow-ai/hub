@@ -1,5 +1,5 @@
 # Version pins — refresh them with .github/scripts/version.sh
-ARG VERSION=2.36.41
+ARG VERSION=2.36.43
 
 FROM amazon/aws-cli:${VERSION}
 
