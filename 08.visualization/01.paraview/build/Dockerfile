@@ -1,6 +1,6 @@
 # Version pins — refresh them with .github/scripts/version.sh
-ARG VERSION=5.13.2
-ARG PYTHON_VERSION=3.10
+ARG VERSION=6.1.1
+ARG PYTHON_VERSION=3.12
 
 FROM ghcr.io/dxflow-ai/ubuntu:latest
 
