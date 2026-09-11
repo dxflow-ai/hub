@@ -1,6 +1,6 @@
 # Version pins — refresh them with .github/scripts/version.sh
-ARG VERSION=0.5.11
-ARG NODE_VERSION=22
+ARG VERSION=0.34.0
+ARG NODE_VERSION=26
 
 # Build the web interface
 FROM node:${NODE_VERSION}-alpine AS ui
