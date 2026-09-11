@@ -83,7 +83,7 @@ The dxflow Hub is a curated catalog of production-ready workflows. Each is a dxf
   ::card{title="Infrastructure" to="/hub/infrastructure" icon="i-hugeicons:server-stack-01"}
   **Cluster & scheduling** — orchestrate and scale compute workloads.
 
-  Examples: Slurm, S3 Sync
+  Examples: Slurm, S3 Sync, FileGator
   ::
 ::
 
