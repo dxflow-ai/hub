@@ -100,7 +100,7 @@ app.memory = 4G
 {
     "arch": ["amd64"],
     "image": "ghcr.io/dxflow-ai/pymol:latest",
-    "version": "3.1",
+    "version": "3.1.8",
     "minimum": {
         "cpu": 2,
         "memory": "2G",

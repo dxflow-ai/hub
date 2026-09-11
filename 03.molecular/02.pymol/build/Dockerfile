@@ -1,6 +1,6 @@
 # Version pins — refresh them with .github/scripts/version.sh
-ARG VERSION=3.1.3.1
-ARG BUILD_VERSION=appveyor1974
+ARG VERSION=3.1.8
+ARG BUILD_VERSION=0
 ARG PYTHON_VERSION=3.10
 
 FROM ghcr.io/dxflow-ai/ubuntu:latest
