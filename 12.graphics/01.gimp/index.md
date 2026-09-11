@@ -100,7 +100,7 @@ app.memory = 4G
 {
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/gimp:latest",
-    "version": "2.10",
+    "version": "3.2.4",
     "minimum": {
         "cpu": 2,
         "memory": "2G",

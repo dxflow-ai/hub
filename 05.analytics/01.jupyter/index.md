@@ -80,7 +80,7 @@ app.memory = 8G
 {
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/jupyter:latest",
-    "version": "4.2",
+    "version": "4.6.3",
     "minimum": {
         "cpu": 4,
         "memory": "8G",

@@ -100,7 +100,7 @@ app.memory = 4G
 {
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/telegram:latest",
-    "version": "5.10",
+    "version": "7.0.4",
     "minimum": {
         "cpu": 2,
         "memory": "2G",
