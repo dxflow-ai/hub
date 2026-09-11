@@ -1,5 +1,6 @@
 # Version pins — refresh them with .github/scripts/version.sh
-ARG PACKAGE_VERSION=7.0.4_2
+ARG PACKAGE_AMD64_VERSION=7.0.4_2
+ARG PACKAGE_ARM64_VERSION=7.0.4_2
 
 FROM ghcr.io/dxflow-ai/void:latest
 
@@ -8,14 +9,21 @@ LABEL org.opencontainers.image.description="Telegram messaging client in a remot
 LABEL org.opencontainers.image.source="https://github.com/dxflow-ai/hub"
 
 # Bring the pins into the stage (a pin declared above FROM only reaches FROM)
-ARG PACKAGE_VERSION
+ARG PACKAGE_AMD64_VERSION
+ARG PACKAGE_ARM64_VERSION
 
 # Install telegram on a base brought in step with the rolling repo
 # The exact version is named on purpose: a repository that has moved on fails the
 # build rather than quietly shipping something other than what this entry claims.
-RUN xbps-install -Suy xbps && \
+# Void does not hold the same version for both arches, so each takes its own pin
+RUN case "$(uname -m)" in \
+        x86_64) PACKAGE="telegram-desktop-${PACKAGE_AMD64_VERSION}" ;; \
+        aarch64) PACKAGE="telegram-desktop-${PACKAGE_ARM64_VERSION}" ;; \
+        *) echo "no telegram-desktop pin for $(uname -m)" >&2 && exit 1 ;; \
+    esac && \
+    xbps-install -Suy xbps && \
     xbps-install -Suy && \
-    xbps-install -Sy "telegram-desktop-${PACKAGE_VERSION}" && \
+    xbps-install -Sy "$PACKAGE" && \
     xbps-remove -O && \
     rm -rf /var/cache/xbps/*
 

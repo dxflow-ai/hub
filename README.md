@@ -75,6 +75,8 @@ An entry that installs from a package repository asks for a version there too, r
 
 A rolling repository keeps only what it serves now, so a pinned `xbps-install` stops building the day upstream moves on. That is the point: the build fails rather than publishing a `firefox:155.0` that holds 156.0, and the fix is `make version ARGS="firefox --apply"` and a rebuild.
 
+A rolling repository does not always hold the same version on every arch — Void's arm64 Chromium sits releases behind its amd64 one, and has no Signal at all — so an entry that builds for both pins each arch to what its own repository holds (`PACKAGE_AMD64_VERSION`, `PACKAGE_ARM64_VERSION`) and records the lower of the two. One manifest cannot claim two versions, and understating is the safer way to be wrong.
+
 A pin with no matching `ARG` is reported but not written — the xbps entries pin through `PACKAGE_VERSION` and keep no `ARG VERSION` for the clean one, and Scipion's installer takes the current release with nothing to pin at all.
 
 ## Publishing

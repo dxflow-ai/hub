@@ -127,23 +127,31 @@ gitlab_tag() {
 }
 
 # What the rolling Void repository holds for a package today, as the one line of
-# json its record occupies.
+# json its record occupies. Each arch has a repository of its own and they do not
+# hold the same versions, so the arch is part of the question — `x86_64` unless
+# asked otherwise, `aarch64` for the other one the hub builds.
 xbps_record() {
-    fetch "https://xq-api.voidlinux.org/v1/query/x86_64?q=$1" |
+    fetch "https://xq-api.voidlinux.org/v1/query/${2:-x86_64}?q=$1" |
         tr '}' '\n' | grep -E "\"name\"[[:space:]]*:[[:space:]]*\"$1\"," | head -1
 }
 
 # The version it serves, cleaned up to be a tag: a `+N` upstream suffix goes, since
 # a registry would refuse it.
 xbps_version() {
-    xbps_record "$1" | json_value version | sed 's/+[0-9]*$//'
+    xbps_record "$1" "${2:-}" | json_value version | sed 's/+[0-9]*$//'
 }
 
 # The exact package an `xbps-install` has to name to get that version and nothing
 # else — `<version>_<revision>`, which is how xbps spells a pinned package.
 xbps_package() {
-    xbps_record "$1" |
+    xbps_record "$1" "${2:-}" |
         sed -n 's/.*"version"[^"]*"\([^"]*\)".*"revision"[[:space:]]*:[[:space:]]*\([0-9]*\).*/\1_\2/p'
+}
+
+# The lowest of the versions given, which is what a multi-arch entry can honestly
+# claim when its arches are not on the same one.
+lowest() {
+    printf '%s\n' "$@" | sed 's/+[0-9]*$//' | grep -v '^$' | sort -V | head -1
 }
 
 # The version a conda channel serves for a package, conda-forge unless told otherwise.
