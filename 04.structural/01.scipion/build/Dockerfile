@@ -4,9 +4,11 @@ LABEL org.opencontainers.image.title="Scipion"
 LABEL org.opencontainers.image.description="Integrated image processing framework for cryo-electron microscopy"
 LABEL org.opencontainers.image.source="https://github.com/dxflow-ai/hub"
 
-# Install build dependencies
+# Install build dependencies. The compiler is the release's own: the installer
+# runs -noXmipp, so nothing here needs the gcc-10 an older Ubuntu carried, and
+# a base that moves on drops it.
 RUN apt-get update -q && \
-    apt-get install -y -q --no-install-recommends --reinstall --fix-missing gcc-10 g++-10 libopenmpi-dev python3-pip && \
+    apt-get install -y -q --no-install-recommends --reinstall --fix-missing gcc g++ libopenmpi-dev python3-pip && \
     rm -rf /var/lib/apt/lists/*
 
 # Install Miniconda
