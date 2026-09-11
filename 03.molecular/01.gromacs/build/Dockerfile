@@ -1,6 +1,6 @@
 # Version pins — refresh them with .github/scripts/version.sh
-ARG VERSION=2025.2
-ARG CUDA_VERSION=12.4.1
+ARG VERSION=2026.3
+ARG CUDA_VERSION=12.9.2
 
 FROM nvidia/cuda:${CUDA_VERSION}-devel-ubuntu22.04
 
