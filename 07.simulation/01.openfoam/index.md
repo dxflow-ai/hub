@@ -5,7 +5,7 @@ navigation:
     icon: i-diphyx:openfoam
 ---
 
-OpenFOAM (Open Field Operation and Manipulation) is a free, open-source CFD package with solvers and utilities for fluid flow, turbulence, heat transfer, and reacting flows, backed by remote compute. This image bundles OpenFOAM 10 (with ParaView); the container stays up so you can run mesh, solver, and post-processing commands against cases mounted at `/data`.
+OpenFOAM (Open Field Operation and Manipulation) is a free, open-source CFD package with solvers and utilities for fluid flow, turbulence, heat transfer, and reacting flows, backed by remote compute. This image bundles OpenFOAM 11 (with ParaView); the container stays up so you can run mesh, solver, and post-processing commands against cases mounted at `/data`.
 
 ## Usage
 
@@ -118,5 +118,5 @@ myCase/
 ## References
 
 - **Website**: [OpenFOAM.org](https://openfoam.org/)
-- **Documentation**: [User Guide](https://doc.cfd.direct/openfoam/user-guide-v10/index)
+- **Documentation**: [User Guide](https://doc.cfd.direct/openfoam/user-guide-v11/index)
 - **Tutorials**: [OpenFOAM Tutorials](https://openfoam.org/tutorials/)
