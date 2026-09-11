@@ -1,6 +1,6 @@
 # Version pins — refresh them with .github/scripts/version.sh
-ARG VERSION=4.3.1
-ARG PDATA_VERSION=1.25.1
+ARG VERSION=4.3.4
+ARG PDATA_VERSION=1.37
 
 FROM staphb/pangolin:${VERSION}-pdata-${PDATA_VERSION}
 
