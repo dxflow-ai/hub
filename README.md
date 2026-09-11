@@ -21,6 +21,8 @@ NN.<category>/          # a numbered category folder
       input/            #   optional: files uploaded to the input volume before start
       check.sh          #   required: the success check (see scripts/verify.sh for its helpers)
       config.sh         #   optional: sourced settings — input/output dirs, timeout
+    version/            # where its version comes from:
+      resolve.sh        #   the upstream lookup (see scripts/version.sh for its helpers)
 ```
 
 A workflow is published/released only once it has both `build/` and `verify/` (its image is built and end-to-end tested first). Every workflow ships its own image built from `build/` — even one that just re-publishes an upstream image — so it lands in our registry (`ghcr.io/dxflow-ai`) with a configurable, env-driven `entrypoint.sh`. The recipe is a `Dockerfile` for docker/podman, or the equivalent definition for singularity/apptainer. Entries with just an `index.md` are drafts — not built, verified, or published yet.
@@ -34,6 +36,46 @@ A published entry lays its sections out as: intro → `## Usage` → `## Configu
 A step's relative `host` path is resolved by the engine against its own directory (`~/.dxflow`), so every entry mounts `./volume` — the engine volume, the root of what `dxflow artifact` and the console's **Artifacts** show — or a directory inside it (`./volume/input`). A host path that does not start with `./volume` lands outside the volume, where an upload cannot reach it.
 
 When adding a tool, copy an existing published workflow (one that already has `build/` and `verify/`) as a reference.
+
+## Versions
+
+An entry carries its version twice: as the pin its `build/Dockerfile` builds from, and as the `version` in its `index.md` json block — the tag it publishes as. `version.sh` keeps both in step with what upstream ships today:
+
+```bash
+make version ARGS=fastqc                # what one entry is behind on
+make version ARGS=--all                 # ... every entry
+make version ARGS="fastqc --apply"      # write the updates
+```
+
+The GitHub lookups go out anonymously unless the environment carries a token, and anonymous is 60 an hour for the whole host — enough for a sweep or two, and a 403 once it runs out. A signed-in `gh` is borrowed automatically; otherwise set `GITHUB_TOKEN` yourself, as Actions does.
+
+It reports by default and writes only with `--apply`, which leaves a diff to read and an entry ready to `make build`, `make verify`, and `make publish`. It publishes nothing itself: a bump is a rebuild, and a rebuild is verified first.
+
+Where a version comes from is the entry's own business, so each entry answers for itself in `version/resolve.sh` — sourced with the lookups in `.github/scripts/upstream.sh` in scope (`docker_tag`, `github_release`, `gitlab_tag`, `xbps_version`, `conda_version`, `pypi_version`, `apt_version`, `listing`, …), printing one `NAME=VERSION` line per pin it tracks:
+
+```sh
+echo "VERSION=$(docker_tag staphb/fastqc '^[0-9]+\.[0-9]+\.[0-9]+$')"
+echo "NOVNC=$(github_release novnc/noVNC)"
+```
+
+`VERSION` is always the entry's own version — the one the json records and the image publishes as — and it lands in `ARG VERSION`. Every other pin lands in `ARG <NAME>_VERSION`, named for what it pins rather than the part it plays: `NOVNC_VERSION`, `CUDA_VERSION`, `VOID_VERSION`, never a `BASE_VERSION`. An entry that is little more than the thing it builds on records that as its own: the Void desktop's version is the dated snapshot it starts from. A Dockerfile keeps its pins in one block at the top, and a stage that uses one re-declares it bare — an `ARG` above `FROM` only reaches the `FROM` lines:
+
+```dockerfile
+# Version pins — refresh them with .github/scripts/version.sh
+ARG VERSION=3.4.2
+
+FROM ghcr.io/dxflow-ai/ubuntu:latest
+...
+ARG VERSION
+```
+
+The pattern a check passes to a lookup is the entry's pinning policy, so a base can follow its patches without being dragged onto a new major (`'^12\.[0-9]+\.[0-9]+-devel-ubuntu22\.04$'` keeps GROMACS on CUDA 12 and jammy).
+
+An entry that installs from a package repository asks for a version there too, rather than taking whatever the repository is serving that day: `xbps-install -Sy "firefox-${PACKAGE_VERSION}"`, `code=${PACKAGE_VERSION}`, `jupyterlab=${VERSION}`, `install.sh --version="${VERSION}"`. So `PACKAGE_VERSION` is the version as a repository spells it, which is not always what the entry publishes as — xbps carries a packaging revision (`155.0_1`), the Microsoft apt index a build timestamp (`1.137.0-1788902055`). The check prints both, and the clean one is what reaches the json.
+
+A rolling repository keeps only what it serves now, so a pinned `xbps-install` stops building the day upstream moves on. That is the point: the build fails rather than publishing a `firefox:155.0` that holds 156.0, and the fix is `make version ARGS="firefox --apply"` and a rebuild.
+
+A pin with no matching `ARG` is reported but not written — the xbps entries pin through `PACKAGE_VERSION` and keep no `ARG VERSION` for the clean one, and Scipion's installer takes the current release with nothing to pin at all.
 
 ## Publishing
 
@@ -51,6 +93,7 @@ Some entries are the base of others — a Dockerfile that starts `FROM ghcr.io/d
 The steps a run performs are the scripts in `.github/scripts/`, each taking `<key>` as `$WORKFLOW` or as its first argument. They run on a Linux host with Docker ≥ 23, in or out of Actions, and the Makefile wraps the ones worth driving by hand (`make build ARGS=fastqc`):
 
 ```bash
+./.github/scripts/version.sh <key>    # report what upstream ships (--apply to write)
 ./.github/scripts/prepare.sh          # buildx builder + the dxflow CLI
 ./.github/scripts/build.sh <key>      # build this arch and load it into local docker
 ./.github/scripts/boot.sh             # boot an engine rooted in its volume dir

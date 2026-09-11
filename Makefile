@@ -18,6 +18,10 @@ prepare:
 boot:
 	bash ./.github/scripts/boot.sh
 
+.PHONY: version
+version:
+	bash ./.github/scripts/version.sh $(ARGS)
+
 .PHONY: build
 build:
 	bash ./.github/scripts/build.sh $(ARGS)
