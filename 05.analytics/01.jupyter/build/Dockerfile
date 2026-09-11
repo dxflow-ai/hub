@@ -1,8 +1,15 @@
-FROM ghcr.io/void-linux/void-glibc:20250112R1
+# Version pins — refresh them with .github/scripts/version.sh
+ARG VERSION=4.6.3
+ARG VOID_VERSION=20250112R1
+
+FROM ghcr.io/void-linux/void-glibc:${VOID_VERSION}
 
 LABEL org.opencontainers.image.title="Jupyter Lab"
 LABEL org.opencontainers.image.description="Interactive development environment for notebooks, code, and data"
 LABEL org.opencontainers.image.source="https://github.com/dxflow-ai/hub"
+
+# Bring the pins into the stage (a pin declared above FROM only reaches FROM)
+ARG VERSION
 
 # Update xbps itself before installing (the pinned base lags the rolling repo)
 RUN xbps-install -Suy xbps
@@ -30,10 +37,12 @@ RUN ARCH=$(uname -m) && \
 ENV PATH="/opt/miniconda/bin:$PATH"
 
 # Install JupyterLab from conda-forge (the Anaconda default channels now require ToS)
+# The exact version is named on purpose: a repository that has moved on fails the
+# build rather than quietly shipping something other than what this entry claims.
 RUN conda config --system --remove channels defaults 2>/dev/null || true && \
     conda config --system --add channels conda-forge && \
     conda config --system --set channel_priority strict && \
-    conda install -y --override-channels -c conda-forge jupyterlab && \
+    conda install -y --override-channels -c conda-forge "jupyterlab=${VERSION}" && \
     conda clean -afy
 
 # Setup scripts

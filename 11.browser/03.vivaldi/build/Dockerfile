@@ -1,14 +1,22 @@
+# Version pins — refresh them with .github/scripts/version.sh
+ARG PACKAGE_VERSION=8.1.4087.75+1_1
+
 FROM ghcr.io/dxflow-ai/void:latest
 
 LABEL org.opencontainers.image.title="Vivaldi"
 LABEL org.opencontainers.image.description="Feature-rich Vivaldi web browser in a remote desktop session"
 LABEL org.opencontainers.image.source="https://github.com/dxflow-ai/hub"
 
+# Bring the pins into the stage (a pin declared above FROM only reaches FROM)
+ARG PACKAGE_VERSION
+
 # Install vivaldi from the nonfree repo on a base brought in step with the rolling repo
+# The exact version is named on purpose: a repository that has moved on fails the
+# build rather than quietly shipping something other than what this entry claims.
 RUN xbps-install -Suy xbps && \
     xbps-install -Suy && \
     xbps-install -Sy void-repo-nonfree && \
-    xbps-install -Sy vivaldi && \
+    xbps-install -Sy "vivaldi-${PACKAGE_VERSION}" && \
     xbps-remove -O && \
     rm -rf /var/cache/xbps/*
 

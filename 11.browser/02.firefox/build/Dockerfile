@@ -1,13 +1,21 @@
+# Version pins — refresh them with .github/scripts/version.sh
+ARG PACKAGE_VERSION=155.0_1
+
 FROM ghcr.io/dxflow-ai/void:latest
 
 LABEL org.opencontainers.image.title="Firefox"
 LABEL org.opencontainers.image.description="Mozilla Firefox web browser in a remote desktop session"
 LABEL org.opencontainers.image.source="https://github.com/dxflow-ai/hub"
 
+# Bring the pins into the stage (a pin declared above FROM only reaches FROM)
+ARG PACKAGE_VERSION
+
 # Install firefox on a base brought in step with the rolling repo
+# The exact version is named on purpose: a repository that has moved on fails the
+# build rather than quietly shipping something other than what this entry claims.
 RUN xbps-install -Suy xbps && \
     xbps-install -Suy && \
-    xbps-install -Sy firefox && \
+    xbps-install -Sy "firefox-${PACKAGE_VERSION}" && \
     xbps-remove -O && \
     rm -rf /var/cache/xbps/*
 
