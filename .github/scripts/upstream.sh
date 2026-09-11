@@ -66,6 +66,25 @@ docker_tag() {
     done | newest "$select"
 }
 
+# The tag `latest` resolves to, for an upstream that numbers a release before it
+# ships one: Fedora tags its branched release and its rawhide, so the highest
+# number is two releases ahead of what `latest` — the current one — points at. The
+# pattern picks among the tags sharing that digest, since `latest` usually has
+# aliases (ubuntu's is `rolling`, `resolute`, and `26.04` at once).
+docker_latest() {
+    local repo="$1" select="${2:-^[0-9]+([._][0-9]+)*$}" pairs target page
+    pairs="$(for page in 1 2; do
+        fetch "https://hub.docker.com/v2/repositories/${repo}/tags?page_size=100&page=${page}" 2>/dev/null |
+            awk '{ gsub(/\{"creator"/, "\n{\"creator\""); print }' |
+            sed -n 's/.*"name":"\([^"]*\)".*"digest":"\([^"]*\)".*/\2 \1/p'
+    done)"
+
+    target="$(awk '$2 == "latest" { print $1 }' <<< "$pairs" | head -1)"
+    [[ -n "$target" ]] || return 1
+
+    awk -v want="$target" '$1 == want { print $2 }' <<< "$pairs" | newest "$select"
+}
+
 # The highest-named repository of a Docker Hub namespace, for an upstream that
 # publishes one repository per release rather than one tag per release.
 docker_repo() {

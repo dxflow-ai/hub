@@ -100,7 +100,7 @@ app.memory = 4G
 {
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/fedora:latest",
-    "version": "46",
+    "version": "44",
     "minimum": {
         "cpu": 2,
         "memory": "2G",

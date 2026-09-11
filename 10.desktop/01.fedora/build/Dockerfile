@@ -1,5 +1,5 @@
 # Version pins — refresh them with .github/scripts/version.sh
-ARG VERSION=46
+ARG VERSION=44
 ARG TINT2_VERSION=17.0.2
 ARG AUTOCUTSEL_VERSION=0.10.1
 ARG QTFM_VERSION=6.2.1
