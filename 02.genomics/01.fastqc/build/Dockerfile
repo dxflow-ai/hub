@@ -1,4 +1,7 @@
-FROM staphb/fastqc:0.12.1
+# Version pins — refresh them with .github/scripts/version.sh
+ARG VERSION=0.12.1
+
+FROM staphb/fastqc:${VERSION}
 
 LABEL org.opencontainers.image.title="FastQC"
 LABEL org.opencontainers.image.description="Quality control tool for high throughput sequencing data"

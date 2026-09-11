@@ -1,8 +1,17 @@
-FROM ghcr.io/void-linux/void-glibc:20250112R1
+# Version pins — refresh them with .github/scripts/version.sh
+ARG VERSION=20250112R1
+ARG NOVNC_VERSION=1.7.0
+ARG WEBSOCKIFY_VERSION=0.13.0
+
+FROM ghcr.io/void-linux/void-glibc:${VERSION}
 
 LABEL org.opencontainers.image.title="Void Desktop"
 LABEL org.opencontainers.image.description="Full Void Linux desktop accessible from your browser"
 LABEL org.opencontainers.image.source="https://github.com/dxflow-ai/hub"
+
+# Bring the pins into the stage (a pin declared above FROM only reaches FROM)
+ARG NOVNC_VERSION
+ARG WEBSOCKIFY_VERSION
 
 # Install packages on a base brought in step with the rolling repo
 RUN xbps-install -Suy xbps && \
@@ -20,16 +29,16 @@ RUN if [ -d /opt/TurboVNC/bin ]; then \
     fi
 
 # Install noVNC
-RUN wget -q --tries=5 --waitretry=5 --retry-connrefused --no-check-certificate "https://github.com/novnc/noVNC/archive/refs/tags/v1.7.0.tar.gz" -O /tmp/novnc.tar.gz && \
+RUN wget -q --tries=5 --waitretry=5 --retry-connrefused --no-check-certificate "https://github.com/novnc/noVNC/archive/refs/tags/v${NOVNC_VERSION}.tar.gz" -O /tmp/novnc.tar.gz && \
     tar -zxf /tmp/novnc.tar.gz -C /opt && \
-    mv /opt/noVNC-1.7.0 /opt/novnc && \
+    mv /opt/noVNC-${NOVNC_VERSION} /opt/novnc && \
     rm -rf /tmp/novnc.tar.gz
 
 # Install websockify
-RUN wget -q --tries=5 --waitretry=5 --retry-connrefused --no-check-certificate "https://github.com/novnc/websockify/archive/refs/tags/v0.13.0.tar.gz" -O /tmp/websockify.tar.gz && \
+RUN wget -q --tries=5 --waitretry=5 --retry-connrefused --no-check-certificate "https://github.com/novnc/websockify/archive/refs/tags/v${WEBSOCKIFY_VERSION}.tar.gz" -O /tmp/websockify.tar.gz && \
     tar -zxf /tmp/websockify.tar.gz -C /opt && \
     mkdir -p /opt/novnc/utils && \
-    mv /opt/websockify-0.13.0 /opt/novnc/utils/websockify && \
+    mv /opt/websockify-${WEBSOCKIFY_VERSION} /opt/novnc/utils/websockify && \
     rm -rf /tmp/websockify.tar.gz
 
 # Setup user

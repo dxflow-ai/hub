@@ -1,4 +1,7 @@
-FROM amazon/aws-cli:2.36.41
+# Version pins — refresh them with .github/scripts/version.sh
+ARG VERSION=2.36.41
+
+FROM amazon/aws-cli:${VERSION}
 
 LABEL org.opencontainers.image.title="S3 Sync"
 LABEL org.opencontainers.image.description="Sync data between S3-compatible object storage and a workflow volume"

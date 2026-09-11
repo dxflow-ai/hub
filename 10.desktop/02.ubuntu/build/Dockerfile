@@ -1,8 +1,19 @@
-FROM ubuntu:22.04
+# Version pins — refresh them with .github/scripts/version.sh
+ARG VERSION=22.04
+ARG QTFM_VERSION=6.2.1
+ARG NOVNC_VERSION=1.7.0
+ARG WEBSOCKIFY_VERSION=0.13.0
+
+FROM ubuntu:${VERSION}
 
 LABEL org.opencontainers.image.title="Ubuntu Desktop"
 LABEL org.opencontainers.image.description="Full Ubuntu Linux desktop accessible from your browser"
 LABEL org.opencontainers.image.source="https://github.com/dxflow-ai/hub"
+
+# Bring the pins into the stage (a pin declared above FROM only reaches FROM)
+ARG QTFM_VERSION
+ARG NOVNC_VERSION
+ARG WEBSOCKIFY_VERSION
 
 ENV LANG="en_US.utf8"
 ENV DEBIAN_FRONTEND="noninteractive"
@@ -30,22 +41,22 @@ RUN wget -q --tries=5 --waitretry=5 --retry-connrefused -O- https://packagecloud
 # Install qtfm
 RUN apt-get update -q && \
     apt-get install -y -q --no-install-recommends --reinstall --fix-missing make qt5-qmake g++ qtbase5-dev qtbase5-dev-tools && \
-    wget -q --tries=5 --waitretry=5 --retry-connrefused https://github.com/rodlie/qtfm/archive/refs/tags/6.2.1.tar.gz -O /tmp/qtfm.tar.gz && \
+    wget -q --tries=5 --waitretry=5 --retry-connrefused https://github.com/rodlie/qtfm/archive/refs/tags/${QTFM_VERSION}.tar.gz -O /tmp/qtfm.tar.gz && \
     tar -zxf /tmp/qtfm.tar.gz -C /tmp && \
-    cd /tmp/qtfm-6.2.1/ && qmake && make && make install && rm -rf /tmp/* && \
+    cd /tmp/qtfm-${QTFM_VERSION}/ && qmake && make && make install && rm -rf /tmp/* && \
     rm -rf /var/lib/apt/lists/*
 
 # Install noVNC
-RUN wget -q --tries=5 --waitretry=5 --retry-connrefused --no-check-certificate "https://github.com/novnc/noVNC/archive/refs/tags/v1.7.0.tar.gz" -O /tmp/novnc.tar.gz && \
+RUN wget -q --tries=5 --waitretry=5 --retry-connrefused --no-check-certificate "https://github.com/novnc/noVNC/archive/refs/tags/v${NOVNC_VERSION}.tar.gz" -O /tmp/novnc.tar.gz && \
     tar -zxf /tmp/novnc.tar.gz -C /opt && \
-    mv /opt/noVNC-1.7.0 /opt/novnc && \
+    mv /opt/noVNC-${NOVNC_VERSION} /opt/novnc && \
     rm -rf /tmp/novnc.tar.gz
 
 # Install websockify
-RUN wget -q --tries=5 --waitretry=5 --retry-connrefused --no-check-certificate "https://github.com/novnc/websockify/archive/refs/tags/v0.13.0.tar.gz" -O /tmp/websockify.tar.gz && \
+RUN wget -q --tries=5 --waitretry=5 --retry-connrefused --no-check-certificate "https://github.com/novnc/websockify/archive/refs/tags/v${WEBSOCKIFY_VERSION}.tar.gz" -O /tmp/websockify.tar.gz && \
     tar -zxf /tmp/websockify.tar.gz -C /opt && \
     mkdir -p /opt/novnc/utils && \
-    mv /opt/websockify-0.13.0 /opt/novnc/utils/websockify && \
+    mv /opt/websockify-${WEBSOCKIFY_VERSION} /opt/novnc/utils/websockify && \
     rm -rf /tmp/websockify.tar.gz
 
 # Setup user

@@ -1,4 +1,8 @@
-FROM staphb/pangolin:4.3.1-pdata-1.25.1
+# Version pins — refresh them with .github/scripts/version.sh
+ARG VERSION=4.3.1
+ARG PDATA_VERSION=1.25.1
+
+FROM staphb/pangolin:${VERSION}-pdata-${PDATA_VERSION}
 
 LABEL org.opencontainers.image.title="Pangolin"
 LABEL org.opencontainers.image.description="Phylogenetic assignment of SARS-CoV-2 lineages"

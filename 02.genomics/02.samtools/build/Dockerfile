@@ -1,4 +1,7 @@
-FROM staphb/samtools:1.19
+# Version pins — refresh them with .github/scripts/version.sh
+ARG VERSION=1.19
+
+FROM staphb/samtools:${VERSION}
 
 LABEL org.opencontainers.image.title="Samtools"
 LABEL org.opencontainers.image.description="Tools for manipulating SAM, BAM, and CRAM sequence alignments"

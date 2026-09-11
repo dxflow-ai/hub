@@ -1,10 +1,15 @@
-FROM nvidia/cuda:12.4.1-devel-ubuntu22.04
+# Version pins — refresh them with .github/scripts/version.sh
+ARG VERSION=2025.2
+ARG CUDA_VERSION=12.4.1
 
-ARG GMX_VERSION=2025.2
+FROM nvidia/cuda:${CUDA_VERSION}-devel-ubuntu22.04
 
 LABEL org.opencontainers.image.title="GROMACS"
 LABEL org.opencontainers.image.description="Molecular dynamics simulation package for biomolecular systems"
 LABEL org.opencontainers.image.source="https://github.com/dxflow-ai/hub"
+
+# Bring the pins into the stage (a pin declared above FROM only reaches FROM)
+ARG VERSION
 
 ENV DEBIAN_FRONTEND=noninteractive \
     CUDA_HOME=/usr/local/cuda \
@@ -28,12 +33,12 @@ RUN curl -fsSL https://apt.kitware.com/keys/kitware-archive-latest.asc | \
 
 # Download GROMACS
 WORKDIR /opt
-RUN wget -q https://ftp.gromacs.org/gromacs/gromacs-${GMX_VERSION}.tar.gz && \
-    tar -xzf gromacs-${GMX_VERSION}.tar.gz && \
-    rm gromacs-${GMX_VERSION}.tar.gz
+RUN wget -q https://ftp.gromacs.org/gromacs/gromacs-${VERSION}.tar.gz && \
+    tar -xzf gromacs-${VERSION}.tar.gz && \
+    rm gromacs-${VERSION}.tar.gz
 
 # Build with both MPI and CUDA (runs on GPU when attached, CPU otherwise)
-WORKDIR /opt/gromacs-${GMX_VERSION}/build
+WORKDIR /opt/gromacs-${VERSION}/build
 RUN cmake .. \
       -DGMX_MPI=ON \
       -DGMX_GPU=CUDA \
@@ -42,7 +47,7 @@ RUN cmake .. \
       -DGMX_SIMD=AVX2_256 && \
     make -j"$(nproc)" && \
     make install && \
-    rm -rf /opt/gromacs-${GMX_VERSION}
+    rm -rf /opt/gromacs-${VERSION}
 
 ENV GMX_HOME=/usr/local/gromacs \
     PATH="/usr/local/gromacs/bin:${PATH}" \

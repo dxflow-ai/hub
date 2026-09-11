@@ -1,4 +1,8 @@
-FROM openfoam/openfoam10-paraview510:latest
+# Version pins — refresh them with .github/scripts/version.sh
+ARG VERSION=10
+ARG PARAVIEW_VERSION=510
+
+FROM openfoam/openfoam${VERSION}-paraview${PARAVIEW_VERSION}:latest
 
 LABEL org.opencontainers.image.title="OpenFOAM"
 LABEL org.opencontainers.image.description="Open source computational fluid dynamics (CFD) software"
