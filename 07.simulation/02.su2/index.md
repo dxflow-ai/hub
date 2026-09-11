@@ -5,7 +5,7 @@ navigation:
     icon: i-diphyx:su2
 ---
 
-SU2 is an open-source suite for computational fluid dynamics and PDE-constrained optimization, widely used in aerodynamics and aerospace, backed by remote compute. This image bundles SU2 8.0.1 with MPI; the container stays up so you can run solver and optimization commands against cases mounted at `/data`.
+SU2 is an open-source suite for computational fluid dynamics and PDE-constrained optimization, widely used in aerodynamics and aerospace, backed by remote compute. This image bundles SU2 8.5.0 with MPI; the container stays up so you can run solver and optimization commands against cases mounted at `/data`.
 
 ## Usage
 

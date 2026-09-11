@@ -23,11 +23,15 @@ RUN wget -q --no-check-certificate "https://bootstrap.pypa.io/get-pip.py" -O /tm
     pip install numpy && \
     rm -rf /tmp/get-pip.py
 
-# Install SU2
-RUN mkdir -p /models && \
-    wget -q -P /models https://github.com/su2code/SU2/releases/download/v${VERSION}/SU2-v${VERSION}-linux64.zip && \
-    unzip /models/SU2-v${VERSION}-linux64.zip -d /models/SU2-v${VERSION}-linux64 && \
-    rm -rf /models/SU2-v${VERSION}-linux64.zip
+# Install SU2. The release carries an MPI build and an OpenMP one, and this image
+# is the MPI one — it installs openmpi and the page documents `mpirun -np N`. The
+# asset is a zip holding one zip, so it comes out in two goes, and the inner one
+# opens onto the bin/ the environment below points at.
+RUN mkdir -p /models /tmp/su2 && \
+    wget -q -O /tmp/su2.zip https://github.com/su2code/SU2/releases/download/v${VERSION}/SU2-v${VERSION}-linux64-mpi.zip && \
+    unzip -q /tmp/su2.zip -d /tmp/su2 && \
+    unzip -q /tmp/su2/*.zip -d /models/SU2-v${VERSION}-linux64 && \
+    rm -rf /tmp/su2.zip /tmp/su2
 
 # SU2 environment
 ENV SU2_RUN="/models/SU2-v${VERSION}-linux64/bin"
