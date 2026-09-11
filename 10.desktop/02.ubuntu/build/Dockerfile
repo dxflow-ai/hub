@@ -1,5 +1,5 @@
 # Version pins — refresh them with .github/scripts/version.sh
-ARG VERSION=22.04
+ARG VERSION=26.04
 ARG QTFM_VERSION=6.2.1
 ARG NOVNC_VERSION=1.7.0
 ARG WEBSOCKIFY_VERSION=0.13.0
