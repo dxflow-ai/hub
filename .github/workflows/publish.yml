@@ -41,6 +41,7 @@ on:
                     - telegram
                     - s3
                     - filegator
+                    - nginx
             dependents:
                 description: "Also rebuild the workflows built on top of it"
                 required: false
