@@ -1,5 +1,5 @@
 # Version pins — refresh them with .github/scripts/version.sh
-ARG VERSION=1.19
+ARG VERSION=1.24
 
 FROM staphb/samtools:${VERSION}
 
