@@ -1,8 +1,12 @@
-# The Microsoft apt repository indexes each release by its version and the timestamp
-# it was packaged at, so the install names both and the entry records the release.
-# An arch never ships alone, so the amd64 index answers for arm64 too.
+# The Microsoft apt repository indexes each release under the timestamp it was
+# packaged at, and the arches are packaged minutes apart — so each arch is pinned
+# to what its own index carries, and the release they share is what gets recorded.
 
-package="$(apt_version https://packages.microsoft.com/repos/code/dists/stable/main/binary-amd64/Packages code)"
+index="https://packages.microsoft.com/repos/code/dists/stable/main"
 
-echo "VERSION=${package%%-*}"
-echo "PACKAGE=$package"
+amd64="$(apt_version "$index/binary-amd64/Packages" code)"
+arm64="$(apt_version "$index/binary-arm64/Packages" code)"
+
+echo "PACKAGE_AMD64=$amd64"
+echo "PACKAGE_ARM64=$arm64"
+echo "VERSION=$(lowest "${amd64%%-*}" "${arm64%%-*}")"
