@@ -1,5 +1,5 @@
 # Version pins — refresh them with .github/scripts/version.sh
-ARG VERSION=10
+ARG VERSION=11
 ARG PARAVIEW_VERSION=510
 
 FROM openfoam/openfoam${VERSION}-paraview${PARAVIEW_VERSION}:latest
