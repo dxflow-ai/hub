@@ -1,5 +1,5 @@
 # Version pins — refresh them with .github/scripts/version.sh
-ARG VERSION=20250112R1
+ARG VERSION=20260901R1
 ARG NOVNC_VERSION=1.7.0
 ARG WEBSOCKIFY_VERSION=0.13.0
 
