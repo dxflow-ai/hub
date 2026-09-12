@@ -28,7 +28,10 @@ set -euo pipefail
 #   service  →  wait_running 10; expect_http <web-port>; expect_port <tcp-port>
 #
 # Endpoint checks assume the engine is on this host (override with $VERIFY_HOST).
-# A gpu resource is dropped before the run — no runner has a card to give.
+# A gpu resource is dropped before the run — no runner has a card to give — and
+# --fit caps the cpu and memory an entry asks for to what the runner actually has,
+# since a step wanting 8 cores on a 4-core arm runner is docker refusing to start
+# it. What an entry declares is its recommendation, not what a check has to find.
 # shellcheck disable=SC1091
 . "$(dirname "$0")/resolve.sh"
 
@@ -209,9 +212,12 @@ dxflow workflow remove "$identity" > /dev/null 2>&1 || true
 dxflow artifact delete "$input_dir/" > /dev/null 2>&1 || true
 dxflow artifact delete "$output_dir/" > /dev/null 2>&1 || true
 
+# --fit on the create is only read alongside its own --start, which this does not
+# use; the start below is what caps the resources. It is passed here too so the
+# two calls say the same thing about the run they make.
 echo "==> create $identity"
 tries=0
-until dxflow workflow create --identity "$identity" "$yaml"; do
+until dxflow workflow create --fit --identity "$identity" "$yaml"; do
     tries=$((tries + 1))
     [[ "$tries" -ge 15 ]] && fail "could not create $identity — engine still holds the identity after cleanup"
     echo "==> identity busy — retrying cleanup ($tries)"
@@ -228,7 +234,7 @@ if [[ -d "$verify/input" ]]; then
 fi
 
 echo "==> start $identity"
-dxflow workflow start "$identity"
+dxflow workflow start --fit "$identity"
 
 echo "==> check $WORKFLOW"
 IDENTITY="$identity"
