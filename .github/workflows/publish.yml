@@ -17,11 +17,18 @@ on:
                     - fastqc
                     - samtools
                     - pangolin
+                    - igv
                     - gromacs
                     - pymol
+                    - avogadro
+                    - gabedit
                     - scipion
                     - jupyter
                     - rstudio
+                    - octave
+                    - scilab
+                    - labplot
+                    - veusz
                     - ollama
                     - gatehouse
                     - openfoam
@@ -30,19 +37,44 @@ on:
                     - visit
                     - vscode
                     - coder
+                    - geany
+                    - dbeaver
+                    - wireshark
                     - fedora
                     - ubuntu
                     - void
                     - chromium
                     - firefox
                     - vivaldi
+                    - falkon
                     - gimp
                     - inkscape
+                    - krita
+                    - blender
+                    - darktable
+                    - mypaint
+                    - fontforge
                     - signal
                     - telegram
+                    - thunderbird
+                    - element
                     - s3
                     - filegator
                     - nginx
+                    - libreoffice
+                    - lyx
+                    - sigil
+                    - kdenlive
+                    - shotcut
+                    - audacity
+                    - vlc
+                    - freecad
+                    - kicad
+                    - librecad
+                    - qgis
+                    - grass
+                    - stellarium
+                    - filezilla
             dependents:
                 description: "Also rebuild the workflows built on top of it"
                 required: false
