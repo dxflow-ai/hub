@@ -35,7 +35,7 @@ The dxflow Hub is a curated catalog of production-ready workflows. Each is a dxf
   ::card{title="AI" to="/hub/ai" icon="i-hugeicons:ai-brain-01"}
   **Large language models** — run and serve open LLMs with a chat UI and API.
 
-  Examples: Ollama
+  Examples: Ollama, Gatehouse
   ::
 
   ::card{title="Simulation" to="/hub/simulation" icon="i-hugeicons:chart-column"}
