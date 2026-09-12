@@ -5,9 +5,9 @@ navigation:
     icon: i-hugeicons:user-shield-01
 ---
 
-Gatehouse is the door your team reaches the GPU through. It runs [Open WebUI](https://docs.openwebui.com/) over a model server, and everything arrives on one port that asks who is asking: an administrator creates accounts, sorts them into groups, and decides which model each group may call. Everyone else signs in and gets both ways through at once — the chat interface in the browser, and a personal API key for their own tools, answering to the same permissions and recorded in the same audit log.
+Gatehouse is the door your team reaches the GPU through. It runs [Open WebUI](https://docs.openwebui.com/) in front of the model servers on your GPU machines, and everything arrives on one port that asks who is asking: an administrator creates accounts, sorts them into groups, and decides which model each group may call. Everyone else signs in and gets both ways through at once — the chat interface in the browser, and a personal API key for their own tools, answering to the same permissions and recorded in the same audit log.
 
-The model server is bundled, so a single step is a working deployment. Point it at model servers running elsewhere instead and the step becomes the gate alone, in front of as many GPU machines as you have.
+It is the gate and nothing else. No model runs here and no card is needed: `OLLAMA_BASE_URLS` names the servers it fronts — an [Ollama](/hub/ai/ollama) deployment per GPU machine — and this step gives them the accounts, permissions and audit trail that Ollama has none of.
 
 **Key features:**
 
@@ -16,8 +16,8 @@ The model server is bundled, so a single step is a working deployment. Point it 
 - Per-user API keys for an OpenAI- and Anthropic-compatible API, on the same permissions
 - An audit log of who called what, kept on the volume
 - Sign-in with the built-in form, OIDC/OAuth (Keycloak, Entra, Google), or LDAP
-- Models served by the bundled server, GPU-accelerated, or by several GPU machines
-- Concurrency, queue depth and residency tuned for a GPU many people share
+- Several GPU machines behind one address, their models merged into one list
+- Runs on 2 cores and 4G with no GPU of its own — the cards stay with the servers
 
 ## Usage
 
@@ -26,15 +26,16 @@ The model server is bundled, so a single step is a working deployment. Point it 
 ```bash
 dxflow workflow create --identity gatehouse hub://gatehouse
 
-# Start with defaults, or tune per run with --override
-dxflow workflow start gatehouse
+# Name the model servers it fronts — one per GPU machine, ; separated
 dxflow workflow start gatehouse \
-    --override env.app.ADMIN_EMAIL=you@example.com \
-    --override env.app.STARTUP_MODELS=qwen2.5:7b,llama3.1:8b
+    --override 'env.app.OLLAMA_BASE_URLS=http://gpu-01:11434;http://gpu-02:11434' \
+    --override env.app.ADMIN_PASSWORD=my-strong-pass
 
 # Publish the web port on an HTTPS link, for users outside the machine
 dxflow workflow start gatehouse --link
 ```
+
+Those servers can be the hub's own [Ollama](/hub/ai/ollama) entry, deployed on each machine with a card. They must be reachable from this step and from nowhere else — an Ollama server has no authentication of its own, which is the whole reason this entry exists. Started with none named, the interface comes up with an empty model list and says so in the log.
 
 ### 2. Sign in as the administrator
 
@@ -58,16 +59,33 @@ Either way, change it from **Settings → Account** once you are in; later start
 
 Everything below lives in **Admin Panel**, reached from the account menu:
 
-- **Users** — create an account, or approve one waiting in the queue. `DEFAULT_USER_ROLE=pending` is what puts a new account in that queue rather than letting it in.
-- **Groups** — a group carries permissions (chat, file upload, web search, workspace) and is what model access is granted to, so it is worth creating before the accounts that join it.
-- **Models** — each model is public or restricted to groups. Restrict the large ones to the group allowed to occupy the GPU, and leave a small one public.
+- **Users → Overview** — create an account, or approve one waiting in the queue. `DEFAULT_USER_ROLE=pending` is what puts a new account in that queue rather than letting it in.
+- **Users → Groups** — a group carries permissions (chat, file upload, web search, API keys) and is what model access is granted to, so it is worth creating before the accounts that join it.
+- **Settings → Models** — each model is public or restricted to groups. Restrict the large ones to the group allowed to occupy the GPU, and leave a small one public.
 - **Settings** — the deployment-wide toggles, re-read from the workflow definition on every start (see [Notes](#notes)).
 
 Signup is closed by default (`ENABLE_SIGNUP=false`): accounts are created by an administrator, or by an identity provider. Open it, and `DEFAULT_USER_ROLE` decides whether a new account waits for approval or walks in.
 
-### 4. Use the API
+### 4. Pull a model
 
-Each user issues their own key from **Settings → Account → API keys**. The key carries that user's permissions, so a model they cannot see in the browser is not reachable with it either:
+Models live on the servers behind the gate, not here. Pull one from **Admin Panel → Settings → Models**, then the **Actions** dropdown at the top right → **Manage**. That opens the model manager: pick the server, and under **Pull a model from Ollama.com** enter a tag from [the Ollama library](https://ollama.com/library) and press the download button beside it. Progress shows in the modal, and the model lands in that machine's store.
+
+Two things that send people looking in the wrong place: the search box on the Models page filters the models you already have rather than searching Ollama's library, so a tag you have not pulled returns nothing; and **Manage** is an item in the **Actions** dropdown, not a button on the page. If **Manage** opens without an Ollama section, no server is registered — check **Admin Panel → Settings → Connections**, which lists what `OLLAMA_BASE_URLS` named.
+
+`qwen2.5:1.5b` is a good first pull — small enough for CPU, and its template carries tool calling, which Open WebUI uses for chat titles, tags and web search. A model without it answers a plain message and fails those with `does not support tools`; the tiny ones (`smollm2:135m`, `smollm2:360m`, most `:1b` tags) are the usual culprits. The badge on a library page is for the family, not the tag — `smollm2` is badged for tools and only its `1.7b` carries them.
+
+Or pull on the machine itself, which writes the same store:
+
+```bash
+dxflow workflow shell ollama          # on the GPU machine
+ollama pull qwen2.5:1.5b
+```
+
+A model present on two servers is one entry in the list with twice the capacity behind it.
+
+### 5. Use the API
+
+Each user issues their own key from their account menu → **Settings → Account → API keys**, pressing **Show** to reveal the section, then **Create new secret key**. That is their personal settings, not Admin Panel. The key carries that user's permissions, so a model they cannot see in the browser is not reachable with it either:
 
 ```bash
 # What this key may call
@@ -78,14 +96,25 @@ curl http://localhost:8080/api/chat/completions \
     -H "Authorization: Bearer sk-..." \
     -H "Content-Type: application/json" \
     -d '{
-      "model": "smollm2:135m",
+      "model": "qwen2.5:1.5b",
       "messages": [{ "role": "user", "content": "Hello!" }]
     }'
 ```
 
 Point an OpenAI client at `http://localhost:8080/api` as its base url — or at the `--link` url — with the key as its API key. `/api/v1/messages` answers in the Anthropic Messages shape for a client that speaks that instead.
 
-### 5. Watch what goes through
+Check the gate while you are there. The same request without a key has to be refused:
+
+```bash
+curl -s -o /dev/null -w '%{http_code}\n' -X POST http://localhost:8080/api/chat/completions \
+    -H 'Content-Type: application/json' \
+    -d '{"model":"qwen2.5:1.5b","messages":[{"role":"user","content":"hi"}]}'
+# 401 — anything else means the gate is open
+```
+
+Use `POST`, not `GET`: a `GET` on that path returns `200` and the sign-in page's html, because the interface answers unmatched routes with its own app shell. That looks like a bypass and is not one.
+
+### 6. Watch what goes through
 
 ```bash
 # Who called what, as it happens
@@ -97,7 +126,7 @@ dxflow workflow logs --live gatehouse
 
 ## Configuration
 
-The step carries a GPU by default, which is what the larger models need. Drop it with `--override resource.app.gpu=` to run on CPU alone.
+No GPU and no model store: the cards stay with the servers `OLLAMA_BASE_URLS` names, and this step holds the accounts, the chats and the audit log.
 
 ```yaml
 name: gatehouse
@@ -117,26 +146,21 @@ steps:
             host: "8080"
             container: "8080"
       env:
+          - OLLAMA_BASE_URLS=
           - ADMIN_EMAIL=gatehouse@dxflow.ai
           - ADMIN_PASSWORD=dxflow
           - ADMIN_NAME=Admin
           - ENABLE_SIGNUP=false
           - DEFAULT_USER_ROLE=pending
           - ENABLE_API_KEYS=true
+          - USER_PERMISSIONS_FEATURES_API_KEYS=true
           - AUDIT_LOG_LEVEL=METADATA
           - WEBUI_NAME=Gatehouse
           - WEBUI_URL=
           - WEBUI_SECRET_KEY=
-          - STARTUP_MODELS=smollm2:135m
-          - OLLAMA_BASE_URLS=
-          - OLLAMA_NUM_PARALLEL=4
-          - OLLAMA_MAX_LOADED_MODELS=2
-          - OLLAMA_MAX_QUEUE=512
-          - OLLAMA_KEEP_ALIVE=5m
       resources:
-          cpu: "8"
-          memory: 16G
-          gpu: nvidia
+          cpu: "2"
+          memory: 4G
       link: web
 ```
 
@@ -148,27 +172,22 @@ app.volume = ./volume/gatehouse
 app.web = 8080
 
 [env]
+app.OLLAMA_BASE_URLS =
 app.ADMIN_EMAIL = gatehouse@dxflow.ai
 app.ADMIN_PASSWORD = dxflow
 app.ADMIN_NAME = Admin
 app.ENABLE_SIGNUP = false
 app.DEFAULT_USER_ROLE = pending
 app.ENABLE_API_KEYS = true
+app.USER_PERMISSIONS_FEATURES_API_KEYS = true
 app.AUDIT_LOG_LEVEL = METADATA
 app.WEBUI_NAME = Gatehouse
 app.WEBUI_URL =
 app.WEBUI_SECRET_KEY =
-app.STARTUP_MODELS = smollm2:135m
-app.OLLAMA_BASE_URLS =
-app.OLLAMA_NUM_PARALLEL = 4
-app.OLLAMA_MAX_LOADED_MODELS = 2
-app.OLLAMA_MAX_QUEUE = 512
-app.OLLAMA_KEEP_ALIVE = 5m
 
 [resource]
-app.cpu = 8
-app.memory = 16G
-app.gpu = nvidia
+app.cpu = 2
+app.memory = 4G
 ```
 
 ```json
@@ -177,25 +196,23 @@ app.gpu = nvidia
     "image": "ghcr.io/dxflow-ai/gatehouse:latest",
     "version": "0.11.3",
     "minimum": {
-        "cpu": 4,
-        "memory": "8G",
-        "storage": "100G"
+        "cpu": 1,
+        "memory": "2G",
+        "storage": "20G"
     }
 }
 ```
 
-## In front of GPU machines you already have
+## The servers behind it
 
-`OLLAMA_BASE_URLS` takes the model servers to serve from, separated by `;`. Given any, the bundled server does not start and the step becomes the gate alone — it needs no GPU of its own, and each url can be an [Ollama](/hub/ai/ollama) deployment on a machine that does:
+`OLLAMA_BASE_URLS` takes them separated by `;`. Open WebUI spreads requests across them and merges what they hold into one model list, so capacity is added by adding a machine:
 
 ```bash
 dxflow workflow start gatehouse \
-    --override 'env.app.OLLAMA_BASE_URLS=http://gpu-01:11434;http://gpu-02:11434' \
-    --override resource.app.gpu= \
-    --override resource.app.memory=4G
+    --override 'env.app.OLLAMA_BASE_URLS=http://gpu-01:11434;http://gpu-02:11434'
 ```
 
-Open WebUI spreads requests across them and merges what they hold into one model list, so a model present on both is one entry with twice the capacity behind it. Those machines must then be reachable from this step and from nowhere else — an Ollama server has no authentication of its own, which is the whole reason this entry exists.
+How a shared card is divided is set **on those machines**, not here — `OLLAMA_NUM_PARALLEL` for the requests one model answers at once, `OLLAMA_MAX_LOADED_MODELS` for how many stay resident, `OLLAMA_MAX_QUEUE` for the backlog, `OLLAMA_KEEP_ALIVE` for how long an idle one holds VRAM. On the hub's [Ollama](/hub/ai/ollama) entry they are step environment like any other.
 
 Models reached over an OpenAI-compatible API join the same list under the same permissions, so a hosted model, a vLLM server, or a [LiteLLM](https://www.litellm.ai/) proxy with per-key budgets sits beside the local ones:
 
@@ -211,22 +228,18 @@ dxflow workflow start gatehouse \
 
 | Variable                   | Description                                                                  | Default           |
 | -------------------------- | ---------------------------------------------------------------------------- | ----------------- |
+| `OLLAMA_BASE_URLS`         | The model servers to serve from, `;`-separated                                | empty             |
 | `ADMIN_EMAIL`              | The first account, registered on a fresh volume and made an administrator    | `gatehouse@dxflow.ai` |
 | `ADMIN_PASSWORD`           | Its password; empty generates one and prints it to the logs once             | `dxflow`          |
 | `ADMIN_NAME`               | Its display name                                                             | `Admin`           |
 | `ENABLE_SIGNUP`            | Let a visitor register an account; closed, an administrator creates them     | `false`           |
 | `DEFAULT_USER_ROLE`        | What a new account gets — `pending` (waits for approval), `user`, or `admin` | `pending`         |
-| `ENABLE_API_KEYS`          | Let users issue personal API keys for the API                                | `true`            |
+| `ENABLE_API_KEYS`          | Turn personal API keys on for the deployment                                 | `true`            |
+| `USER_PERMISSIONS_FEATURES_API_KEYS` | Whether a non-admin account may issue one — upstream defaults this off | `true` |
 | `AUDIT_LOG_LEVEL`          | `NONE`, `METADATA`, `REQUEST`, or `REQUEST_RESPONSE`                         | `METADATA`        |
 | `WEBUI_NAME`               | The name the interface carries                                               | `Gatehouse`       |
 | `WEBUI_URL`                | Public url, for share links and OAuth redirects — set it for a `--link` start | empty            |
 | `WEBUI_SECRET_KEY`         | Session signing key; empty keeps a generated one on the volume               | empty             |
-| `STARTUP_MODELS`           | Models pulled after startup, comma-separated; empty pulls nothing            | `smollm2:135m`    |
-| `OLLAMA_BASE_URLS`         | Model servers to serve from, `;`-separated; empty starts the bundled one     | empty             |
-| `OLLAMA_NUM_PARALLEL`      | Requests one model answers at once                                           | `4`               |
-| `OLLAMA_MAX_LOADED_MODELS` | Models resident in VRAM together                                             | `2`               |
-| `OLLAMA_MAX_QUEUE`         | Requests queued before further ones are refused                              | `512`             |
-| `OLLAMA_KEEP_ALIVE`        | How long an idle model stays loaded — `-1` never unloads it                  | `5m`              |
 
 ### Further settings
 
@@ -250,7 +263,6 @@ Open WebUI and the model server read many more from the environment — add them
 | `ENABLE_ADMIN_CHAT_ACCESS`               | Whether an administrator can read other users' chats                    |
 | `ENABLE_CODE_EXECUTION`                  | The code interpreter, on by default                                     |
 | `ENABLE_WEB_SEARCH`                      | Web search in a chat, off by default                                    |
-| `OLLAMA_CONTEXT_LENGTH` · `OLLAMA_KV_CACHE_TYPE` · `OLLAMA_FLASH_ATTENTION` | What a model costs in VRAM per request |
 | `DATABASE_URL`                           | A Postgres url, for a deployment outliving the SQLite file on the volume |
 | `UVICORN_WORKERS`                        | Interface workers; above 1 needs Redis for websockets                   |
 | `ENABLE_PERSISTENT_CONFIG`               | `True` keeps settings changed in the interface across a restart          |
@@ -265,19 +277,20 @@ Everything the deployment accumulates lands under `gatehouse/` in **Artifacts**:
 | `gatehouse/data/audit.log` | Who called what, rotated at 10MB                                  |
 | `gatehouse/data/uploads/` | Files users uploaded to a chat                                     |
 | `gatehouse/data/.secret`  | The generated session signing key                                  |
-| `gatehouse/models/`       | The model store — what `STARTUP_MODELS` and the admin page pull    |
 
 ## Notes
 
-- **The model server is not published.** It listens on `127.0.0.1:11434` inside the container and no port reaches it, so every request arrives through port `8080`, which asks who is making it. Publishing `11434` would hand the models to anyone who can reach the host, with no account and no permission check — that is what this entry exists to prevent. The same holds for the machines behind `OLLAMA_BASE_URLS`: reachable from this step, and from nowhere else.
-- **Two ways in, one permission model.** The chat interface and the API key are the same account: a model restricted to a group in **Admin Panel → Models** is absent from that user's model list and refused to their key alike. `BYPASS_MODEL_ACCESS_CONTROL` is off and belongs off — it makes every model reachable by everyone.
+- **The servers behind it must not be reachable except from here.** An Ollama server has no accounts, no keys and no permissions: anything that can open port `11434` gets every model on that machine. Keep them on a private network, and let port `8080` on this step be the only way in — that is the whole of what this entry does.
+- **A key is worth what its account is worth.** An administrator's key reaches every model, so it proves nothing about access control and belongs in no application. Issue keys from the accounts that will use them, and check the restriction from one of those: the model missing from their `/api/models` is the permission working.
+- **Two ways in, one permission model.** The chat interface and the API key are the same account: a model restricted to a group in **Admin Panel → Settings → Models** is absent from that user's model list and refused to their key alike. `BYPASS_MODEL_ACCESS_CONTROL` is off and belongs off — it makes every model reachable by everyone.
 - **Settings come from the workflow definition.** `ENABLE_PERSISTENT_CONFIG` is `False`, so what the environment says wins on every start, and a start is what changes a setting — a toggle flipped in the interface lasts until then. Accounts, groups, keys and chats are not settings: they live in the database on the volume and persist regardless. Set `ENABLE_PERSISTENT_CONFIG=True` to manage the settings from the interface instead, at the price of `--override` quietly doing nothing on a later start.
 - **Set `ADMIN_PASSWORD` on the start that creates the account.** It defaults to `dxflow`, which every reader of this page knows, and a `--link` start puts the sign-in page on the public internet. Left empty it generates one instead, printed once to the logs and stored nowhere.
 - **The first start registers the administrator** against an empty volume. On every later start the same request comes back "already registered" and is ignored, so changing `ADMIN_PASSWORD` afterwards does not change the password — do that from the account page, or start against a fresh volume.
 - **The audit log records metadata** — who, when, which endpoint, which model — and by default excludes the chat paths, so conversation bodies stay out of it. `REQUEST` and `REQUEST_RESPONSE` put the bodies in; consider what that means for the people using it before turning them on.
 - **There are no per-user token budgets.** Open WebUI meters nothing: it decides *whether* a user may call a model, not *how much*. `OLLAMA_MAX_QUEUE` and `OLLAMA_NUM_PARALLEL` bound the load a shared GPU takes, and the audit log says who is generating it, but a spending cap means putting a proxy that keeps one — LiteLLM, say — behind `OPENAI_API_BASE_URLS`.
-- **Sharing one GPU** is what `OLLAMA_NUM_PARALLEL` and `OLLAMA_MAX_LOADED_MODELS` govern: each parallel slot and each resident model costs VRAM, so `4` and `2` suit a 24GB card holding 7B models and want lowering for larger ones. `OLLAMA_KEEP_ALIVE=-1` pins a model in VRAM, which is worth it for the one everybody uses and wasteful for the rest.
-- **Models** are pulled by `STARTUP_MODELS` after the interface is up, so a large one downloads behind a working sign-in page rather than in front of it, and from **Admin Panel → Settings → Models** any time. They land in `gatehouse/models/` on the volume, so a restart does not fetch them again. `smollm2:135m` is preloaded into the image to make the first start immediate; raise the volume's storage to fit what you pull.
+- **No model runs here.** The image is the interface and its database, 1.8GB rather than the 3.5GB a bundled server costs, and the step needs no card and little memory — 2 cores and 4G front as many GPU machines as you point it at. The models, their storage and their VRAM are the business of the servers in `OLLAMA_BASE_URLS`.
+- **A connection added in the interface does not survive a restart** while `ENABLE_PERSISTENT_CONFIG` is off, because a connection is a setting. `OLLAMA_BASE_URLS` in the definition is what makes one permanent.
+- **Tool calling is per tag, not per model.** Open WebUI asks for it when generating a chat title, tagging a conversation, or running a search, so a model whose template lacks it answers messages and fails those with `does not support tools`. `ollama.com/library/<name>` badges the family — check the tag: `smollm2` is badged for tools and only `smollm2:1.7b` carries them.
 - **Change what a `--link` start exposes.** That publishes the sign-in page on the public internet: set `WEBUI_URL` to the link url so share links and OAuth redirects resolve, and leave `ENABLE_SIGNUP=false` unless you mean it.
 - **SQLite on the volume** holds the deployment by default, which suits a team. Point `DATABASE_URL` at Postgres for one that outgrows a single file, and note that `UVICORN_WORKERS` above `1` needs Redis behind `WEBSOCKET_MANAGER` as well.
 
