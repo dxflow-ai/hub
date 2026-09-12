@@ -23,6 +23,7 @@ on:
                     - jupyter
                     - rstudio
                     - ollama
+                    - gatehouse
                     - openfoam
                     - su2
                     - paraview
