@@ -85,6 +85,36 @@ The dxflow Hub is a curated catalog of production-ready workflows. Each is a dxf
 
   Examples: Slurm, S3 Sync, FileGator, Nginx
   ::
+
+  ::card{title="Office" to="/hub/office" icon="i-hugeicons:file-01"}
+  **Documents & publishing** — office suites, structured writing, ebooks.
+
+  Examples: LibreOffice, LyX, Sigil
+  ::
+
+  ::card{title="Media" to="/hub/media" icon="i-hugeicons:video-01"}
+  **Video & audio** — editing, mastering, and playback with sound in the browser.
+
+  Examples: Kdenlive, Shotcut, Audacity, VLC
+  ::
+
+  ::card{title="Engineering" to="/hub/engineering" icon="i-hugeicons:ruler"}
+  **CAD & electronics** — parametric modelling, PCB design, 2D drafting.
+
+  Examples: FreeCAD, KiCad, LibreCAD
+  ::
+
+  ::card{title="Geospatial" to="/hub/geospatial" icon="i-hugeicons:earth"}
+  **GIS & astronomy** — spatial analysis, cartography, and the night sky.
+
+  Examples: QGIS, GRASS GIS, Stellarium
+  ::
+
+  ::card{title="Utilities" to="/hub/utilities" icon="i-hugeicons:tools"}
+  **Desktop tools** — the small utilities a remote session still needs.
+
+  Examples: FileZilla
+  ::
 ::
 
 ## Deploy a workflow

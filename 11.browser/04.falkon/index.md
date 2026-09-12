@@ -1,0 +1,116 @@
+---
+title: Falkon
+description: Lightweight Qt web browser in a remote desktop session
+navigation:
+    icon: i-hugeicons:browser
+---
+
+Falkon is a lightweight web browser built on Qt WebEngine, with a speed dial, bookmarks, and a session manager, streamed here in a remote desktop session and backed by remote compute. It builds on the [Void Desktop](/hub/desktop/void) image — Falkon launches maximized with the window decorations and taskbar hidden, so the browser fills the screen.
+
+## Usage
+
+### 1. Deploy
+
+```bash
+dxflow workflow create --identity falkon hub://falkon
+
+# Start with defaults, or tune per run with --override
+dxflow workflow start falkon
+dxflow workflow start falkon \
+    --override env.app.VNC_PASSWORD=my-strong-pass \
+    --override env.app.TASKBAR=show
+
+# Publish the web port on an HTTPS link
+dxflow workflow start falkon --link
+```
+
+### 2. Open the app
+
+Open your browser at `http://localhost:6082/vnc.html` and enter the password you set in `VNC_PASSWORD`. Falkon is already running and maximized. Port `5901` is also exposed for connecting a native VNC client. A start given `--link` publishes port `6082` at an HTTPS URL printed on the start line — open it at `/vnc.html` to reach Falkon from anywhere.
+
+### 3. Persist data
+
+Anything under `/volume` persists across restarts — save your work there to keep it.
+
+## Configuration
+
+```yaml
+name: falkon
+tags:
+    - desktop
+steps:
+    - name: app
+      runtime: docker
+      mode: parallel
+      image: ghcr.io/dxflow-ai/falkon:latest
+      volumes:
+          - name: volume
+            host: ./volume
+            container: /volume
+      ports:
+          - name: web
+            host: "6082"
+            container: "6082"
+          - name: vnc
+            host: "5901"
+            container: "5901"
+          - name: audio
+            host: "6100"
+            container: "6100"
+      env:
+          - VNC_PASSWORD=dxflow
+          - WALLPAPER=show
+          - PANEL=hide
+          - TASKBAR=hide
+          - AUDIO=off
+          - AUDIO_PORT=6100
+          - AUDIO_CHANNELS=1
+          - AUDIO_RATE=22050
+      resources:
+          cpu: "2"
+          memory: 4G
+      link: web
+```
+
+```ini
+[volume]
+app.volume = ./volume
+
+[port]
+app.web = 6082
+app.vnc = 5901
+app.audio = 6100
+
+[env]
+app.VNC_PASSWORD = dxflow
+app.WALLPAPER = show
+app.PANEL = hide
+app.TASKBAR = hide
+app.AUDIO = off
+app.AUDIO_PORT = 6100
+app.AUDIO_CHANNELS = 1
+app.AUDIO_RATE = 22050
+
+[resource]
+app.cpu = 2
+app.memory = 4G
+```
+
+```json
+{
+    "arch": ["amd64", "arm64"],
+    "image": "ghcr.io/dxflow-ai/falkon:latest",
+    "version": "26.08.0",
+    "minimum": {
+        "cpu": 2,
+        "memory": "2G",
+        "storage": "20G"
+    }
+}
+```
+
+## Notes
+
+- Set a strong `VNC_PASSWORD`; it defaults to `dxflow`, which every reader of this page knows.
+- The panel and taskbar are hidden by default so the browser fills the screen. Set `PANEL=show` or `TASKBAR=show` to bring back the window decorations and taskbar.
+- Audio: off by default. Set `AUDIO=on` to stream desktop sound; tune with `AUDIO_CHANNELS` (1 or 2) and `AUDIO_RATE` (8000/16000/22050/32000/44100). The audio port is `AUDIO_PORT` (default `6100`) — the client follows it, so to run two sessions on one host give each its own port by setting `AUDIO_PORT` and the matching `audio` port mapping together.

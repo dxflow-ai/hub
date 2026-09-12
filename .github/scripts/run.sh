@@ -49,8 +49,10 @@ done < <(images)
 # Redeploy from scratch so edits to index.md take effect on every run
 dxflow workflow remove "$identity" > /dev/null 2>&1 || true
 
+# --fit caps what the entry asks for to what this machine has, so a workstation
+# smaller than the entry's recommendation still gets a run to drive
 echo "==> create $identity"
-dxflow workflow create --identity "$identity" "$yaml"
+dxflow workflow create --fit --identity "$identity" "$yaml"
 
 # Seed the input volume with the tool's fixtures — handy for exercising a batch tool
 if [[ -d "$dir/verify/input" ]]; then
@@ -62,7 +64,7 @@ if [[ -d "$dir/verify/input" ]]; then
 fi
 
 echo "==> start $identity"
-dxflow workflow start "$identity"
+dxflow workflow start --fit "$identity"
 dxflow workflow steps "$identity" || true
 
 # Published host endpoints come from the yaml ports block. Port `host:` values are

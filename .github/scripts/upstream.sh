@@ -170,12 +170,58 @@ npm_version() {
 }
 
 # The highest version of a package in a Debian/Ubuntu apt index, given the url of
-# its Packages file.
+# its Packages file — plain, or gzipped, which is all the Ubuntu archive serves.
 apt_version() {
-    fetch "$1" | awk -v package="$2" '
+    local index="$1"
+    if [[ "$index" == *.gz ]]; then
+        fetch "$index" | gzip -dc
+    else
+        fetch "$index"
+    fi | awk -v package="$2" '
         $1 == "Package:" { match_package = ($2 == package) }
         match_package && $1 == "Version:" { print $2 }
     ' | newest "${3:-}"
+}
+
+# The record mdapi holds for a Fedora package, on the branch the Fedora desktop
+# pins — `f44` unless asked otherwise. mdapi answers from the release, updates, and
+# updates-testing repositories at once and says which it took; the desktop enables
+# the first two, so a testing answer is no answer here and the check reports a
+# missed lookup rather than pinning something the image cannot install.
+dnf_record() {
+    fetch "https://mdapi.fedoraproject.org/${2:-f44}/pkg/$1" |
+        grep -v '"repo"[[:space:]]*:[[:space:]]*"updates-testing"'
+}
+
+# A field of that record. The record carries the package's own fields first and
+# then its requires and provides lists, which repeat `version` and `release` empty
+# — so the first value is the package's, and the last is noise. json_value reads
+# the last, hence json_values and a head.
+dnf_field() {
+    json_values "$1" | head -1
+}
+
+# The version it serves.
+dnf_version() {
+    dnf_record "$1" "${2:-}" | dnf_field version
+}
+
+# The exact package a `dnf install` has to name to get that version and nothing
+# else — `<version>-<release>`, carrying the epoch in front when the package has
+# one, which is how dnf spells a pinned package.
+dnf_package() {
+    local record version release epoch
+    record="$(dnf_record "$1" "${2:-}")"
+    [[ -n "$record" ]] || return 1
+
+    version="$(dnf_field version <<< "$record")"
+    release="$(dnf_field release <<< "$record")"
+    [[ -n "$version" && -n "$release" ]] || return 1
+
+    epoch="$(dnf_field epoch <<< "$record")"
+    [[ -z "$epoch" || "$epoch" == "0" ]] || printf '%s:' "$epoch"
+
+    printf '%s-%s\n' "$version" "$release"
 }
 
 # The hrefs and file names a plain directory listing or download page mentions,
