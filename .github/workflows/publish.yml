@@ -30,7 +30,7 @@ on:
                     - labplot
                     - veusz
                     - ollama
-                    - gatehouse
+                    - open-ui
                     - openfoam
                     - su2
                     - paraview

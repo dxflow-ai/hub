@@ -1,4 +1,4 @@
-# gatehouse is a long-running service: the interface, the API and the model
+# open-ui is a long-running service: the interface, the API and the model
 # server behind them stay up.
 
 # verify.sh helper: block until the step is up and stays up. The window is wide

@@ -6,7 +6,7 @@ ARG VERSION=0.11.3
 # would double the image for a copy most deployments never reach.
 FROM ghcr.io/open-webui/open-webui:v${VERSION}
 
-LABEL org.opencontainers.image.title="Gatehouse"
+LABEL org.opencontainers.image.title="Open UI"
 LABEL org.opencontainers.image.description="Accounts, groups and per-model permissions in front of the model servers on your GPU machines"
 LABEL org.opencontainers.image.source="https://github.com/dxflow-ai/hub"
 
@@ -45,12 +45,12 @@ ENV USER_PERMISSIONS_FEATURES_API_KEYS="True"
 ENV AUDIT_LOG_LEVEL="METADATA"
 ENV BYPASS_MODEL_ACCESS_CONTROL="False"
 ENV ENABLE_EVALUATION_ARENA_MODELS="False"
-ENV WEBUI_NAME="Gatehouse"
+ENV WEBUI_NAME="Open UI"
 
 # The first account, created on a fresh volume. Its password defaults in the
 # entrypoint rather than here, so the image carries no credential and a build log
 # has none to warn about.
-ENV ADMIN_EMAIL="gatehouse@dxflow.ai"
+ENV ADMIN_EMAIL="open-ui@dxflow.ai"
 ENV ADMIN_NAME="Admin"
 
 EXPOSE 8080
