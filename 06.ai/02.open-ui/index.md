@@ -1,11 +1,11 @@
 ---
-title: Gatehouse
+title: Open UI
 description: Accounts, groups and per-model permissions in front of local large language models
 navigation:
     icon: i-hugeicons:user-shield-01
 ---
 
-Gatehouse is the door your team reaches the GPU through. It runs [Open WebUI](https://docs.openwebui.com/) in front of the model servers on your GPU machines, and everything arrives on one port that asks who is asking: an administrator creates accounts, sorts them into groups, and decides which model each group may call. Everyone else signs in and gets both ways through at once — the chat interface in the browser, and a personal API key for their own tools, answering to the same permissions and recorded in the same audit log.
+Open UI is the door your team reaches the GPU through. It runs [Open WebUI](https://docs.openwebui.com/) in front of the model servers on your GPU machines, and everything arrives on one port that asks who is asking: an administrator creates accounts, sorts them into groups, and decides which model each group may call. Everyone else signs in and gets both ways through at once — the chat interface in the browser, and a personal API key for their own tools, answering to the same permissions and recorded in the same audit log.
 
 It is the gate and nothing else. No model runs here and no card is needed: `OLLAMA_BASE_URLS` names the servers it fronts — an [Ollama](/hub/ai/ollama) deployment per GPU machine — and this step gives them the accounts, permissions and audit trail that Ollama has none of.
 
@@ -24,15 +24,15 @@ It is the gate and nothing else. No model runs here and no card is needed: `OLLA
 ### 1. Deploy
 
 ```bash
-dxflow workflow create --identity gatehouse hub://gatehouse
+dxflow workflow create --identity open-ui hub://open-ui
 
 # Name the model servers it fronts — one per GPU machine, ; separated
-dxflow workflow start gatehouse \
+dxflow workflow start open-ui \
     --override 'env.app.OLLAMA_BASE_URLS=http://gpu-01:11434;http://gpu-02:11434' \
     --override env.app.ADMIN_PASSWORD=my-strong-pass
 
 # Publish the web port on an HTTPS link, for users outside the machine
-dxflow workflow start gatehouse --link
+dxflow workflow start open-ui --link
 ```
 
 Those servers can be the hub's own [Ollama](/hub/ai/ollama) entry, deployed on each machine with a card. They must be reachable from this step and from nowhere else — an Ollama server has no authentication of its own, which is the whole reason this entry exists. Started with none named, the interface comes up with an empty model list and says so in the log.
@@ -44,13 +44,13 @@ The first start against an empty volume registers `ADMIN_EMAIL`, and Open WebUI 
 Set a password of your own on the start that creates the account, since the default is on this page:
 
 ```bash
-dxflow workflow start gatehouse --override env.app.ADMIN_PASSWORD=my-strong-pass
+dxflow workflow start open-ui --override env.app.ADMIN_PASSWORD=my-strong-pass
 ```
 
 Left empty, a password is generated instead and the logs print it once:
 
 ```bash
-dxflow workflow logs gatehouse | grep "generated its password"
+dxflow workflow logs open-ui | grep "generated its password"
 ```
 
 Either way, change it from **Settings → Account** once you are in; later starts do not touch an account that already exists.
@@ -118,10 +118,10 @@ Use `POST`, not `GET`: a `GET` on that path returns `200` and the sign-in page's
 
 ```bash
 # Who called what, as it happens
-dxflow artifact download gatehouse/data/audit.log -
+dxflow artifact download open-ui/data/audit.log -
 
 # The startup pulls, the model server, the interface
-dxflow workflow logs --live gatehouse
+dxflow workflow logs --live open-ui
 ```
 
 ## Configuration
@@ -129,17 +129,17 @@ dxflow workflow logs --live gatehouse
 No GPU and no model store: the cards stay with the servers `OLLAMA_BASE_URLS` names, and this step holds the accounts, the chats and the audit log.
 
 ```yaml
-name: gatehouse
+name: open-ui
 tags:
     - ai
 steps:
     - name: app
       runtime: docker
       mode: parallel
-      image: ghcr.io/dxflow-ai/gatehouse:latest
+      image: ghcr.io/dxflow-ai/open-ui:latest
       volumes:
           - name: volume
-            host: ./volume/gatehouse
+            host: ./volume/open-ui
             container: /volume
       ports:
           - name: web
@@ -147,7 +147,7 @@ steps:
             container: "8080"
       env:
           - OLLAMA_BASE_URLS=
-          - ADMIN_EMAIL=gatehouse@dxflow.ai
+          - ADMIN_EMAIL=open-ui@dxflow.ai
           - ADMIN_PASSWORD=dxflow
           - ADMIN_NAME=Admin
           - ENABLE_SIGNUP=false
@@ -155,7 +155,7 @@ steps:
           - ENABLE_API_KEYS=true
           - USER_PERMISSIONS_FEATURES_API_KEYS=true
           - AUDIT_LOG_LEVEL=METADATA
-          - WEBUI_NAME=Gatehouse
+          - WEBUI_NAME=Open UI
           - WEBUI_URL=
           - WEBUI_SECRET_KEY=
       resources:
@@ -166,14 +166,14 @@ steps:
 
 ```ini
 [volume]
-app.volume = ./volume/gatehouse
+app.volume = ./volume/open-ui
 
 [port]
 app.web = 8080
 
 [env]
 app.OLLAMA_BASE_URLS =
-app.ADMIN_EMAIL = gatehouse@dxflow.ai
+app.ADMIN_EMAIL = open-ui@dxflow.ai
 app.ADMIN_PASSWORD = dxflow
 app.ADMIN_NAME = Admin
 app.ENABLE_SIGNUP = false
@@ -181,7 +181,7 @@ app.DEFAULT_USER_ROLE = pending
 app.ENABLE_API_KEYS = true
 app.USER_PERMISSIONS_FEATURES_API_KEYS = true
 app.AUDIT_LOG_LEVEL = METADATA
-app.WEBUI_NAME = Gatehouse
+app.WEBUI_NAME = Open UI
 app.WEBUI_URL =
 app.WEBUI_SECRET_KEY =
 
@@ -193,7 +193,7 @@ app.memory = 4G
 ```json
 {
     "arch": ["amd64", "arm64"],
-    "image": "ghcr.io/dxflow-ai/gatehouse:latest",
+    "image": "ghcr.io/dxflow-ai/open-ui:latest",
     "version": "0.11.3",
     "minimum": {
         "cpu": 1,
@@ -208,7 +208,7 @@ app.memory = 4G
 `OLLAMA_BASE_URLS` takes them separated by `;`. Open WebUI spreads requests across them and merges what they hold into one model list, so capacity is added by adding a machine:
 
 ```bash
-dxflow workflow start gatehouse \
+dxflow workflow start open-ui \
     --override 'env.app.OLLAMA_BASE_URLS=http://gpu-01:11434;http://gpu-02:11434'
 ```
 
@@ -217,7 +217,7 @@ How a shared card is divided is set **on those machines**, not here — `OLLAMA_
 Models reached over an OpenAI-compatible API join the same list under the same permissions, so a hosted model, a vLLM server, or a [LiteLLM](https://www.litellm.ai/) proxy with per-key budgets sits beside the local ones:
 
 ```bash
-dxflow workflow start gatehouse \
+dxflow workflow start open-ui \
     --override env.app.OPENAI_API_BASE_URLS=http://litellm:4000/v1 \
     --override env.app.OPENAI_API_KEYS=sk-...
 ```
@@ -229,7 +229,7 @@ dxflow workflow start gatehouse \
 | Variable                   | Description                                                                  | Default           |
 | -------------------------- | ---------------------------------------------------------------------------- | ----------------- |
 | `OLLAMA_BASE_URLS`         | The model servers to serve from, `;`-separated                                | empty             |
-| `ADMIN_EMAIL`              | The first account, registered on a fresh volume and made an administrator    | `gatehouse@dxflow.ai` |
+| `ADMIN_EMAIL`              | The first account, registered on a fresh volume and made an administrator    | `open-ui@dxflow.ai` |
 | `ADMIN_PASSWORD`           | Its password; empty generates one and prints it to the logs once             | `dxflow`          |
 | `ADMIN_NAME`               | Its display name                                                             | `Admin`           |
 | `ENABLE_SIGNUP`            | Let a visitor register an account; closed, an administrator creates them     | `false`           |
@@ -237,7 +237,7 @@ dxflow workflow start gatehouse \
 | `ENABLE_API_KEYS`          | Turn personal API keys on for the deployment                                 | `true`            |
 | `USER_PERMISSIONS_FEATURES_API_KEYS` | Whether a non-admin account may issue one — upstream defaults this off | `true` |
 | `AUDIT_LOG_LEVEL`          | `NONE`, `METADATA`, `REQUEST`, or `REQUEST_RESPONSE`                         | `METADATA`        |
-| `WEBUI_NAME`               | The name the interface carries                                               | `Gatehouse`       |
+| `WEBUI_NAME`               | The name the interface carries                                               | `Open UI`         |
 | `WEBUI_URL`                | Public url, for share links and OAuth redirects — set it for a `--link` start | empty            |
 | `WEBUI_SECRET_KEY`         | Session signing key; empty keeps a generated one on the volume               | empty             |
 
@@ -269,14 +269,14 @@ Open WebUI and the model server read many more from the environment — add them
 
 ## Output files
 
-Everything the deployment accumulates lands under `gatehouse/` in **Artifacts**:
+Everything the deployment accumulates lands under `open-ui/` in **Artifacts**:
 
 | Path                      | Description                                                        |
 | ------------------------- | ------------------------------------------------------------------ |
-| `gatehouse/data/webui.db` | Accounts, groups, permissions, API keys, chats, prompts, documents |
-| `gatehouse/data/audit.log` | Who called what, rotated at 10MB                                  |
-| `gatehouse/data/uploads/` | Files users uploaded to a chat                                     |
-| `gatehouse/data/.secret`  | The generated session signing key                                  |
+| `open-ui/data/webui.db`   | Accounts, groups, permissions, API keys, chats, prompts, documents |
+| `open-ui/data/audit.log`  | Who called what, rotated at 10MB                                   |
+| `open-ui/data/uploads/`   | Files users uploaded to a chat                                     |
+| `open-ui/data/.secret`    | The generated session signing key                                  |
 
 ## Notes
 
