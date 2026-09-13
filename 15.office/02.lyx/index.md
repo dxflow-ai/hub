@@ -2,7 +2,7 @@
 title: LyX
 description: Structured document editor on a LaTeX backend
 navigation:
-    icon: i-hugeicons:note-01
+    icon: i-diphyx:lyx
 ---
 
 LyX is a structured document editor that writes LaTeX for you — you work on the document's structure and it handles the typesetting, streamed here in a remote desktop session and backed by remote compute. It builds on the [Void Desktop](/hub/desktop/void) image — LyX launches maximized with the window decorations and taskbar hidden, so the editor fills the screen.
@@ -101,6 +101,10 @@ app.memory = 4G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/lyx:latest",
     "version": "2.3.7r1",
+    "size": {
+        "amd64": "2.4G",
+        "arm64": "2.4G"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "2G",

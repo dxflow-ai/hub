@@ -25,17 +25,54 @@ NN.<category>/          # a numbered category folder
       resolve.sh        #   the upstream lookup (see scripts/version.sh for its helpers)
 ```
 
-A workflow is published/released only once it has both `build/` and `verify/` (its image is built and end-to-end tested first). Every workflow ships its own image built from `build/` — even one that just re-publishes an upstream image — so it lands in our registry (`ghcr.io/dxflow-ai`) with a configurable, env-driven `entrypoint.sh`. The recipe is a `Dockerfile` for docker/podman, or the equivalent definition for singularity/apptainer. Entries with just an `index.md` are drafts — not built, verified, or published yet.
+### Drafts and published entries
 
-The engine reads this repository live from GitHub (`main` branch): `dxflow workflow create hub://<key>` locates `NN.<category>/NN.<key>/index.md`, extracts its `## Configuration` yaml block, and deploys it. `dxflow workflow hub search <query>` and `dxflow workflow hub inspect <key>` browse the same content, so a merged entry is deployable by name right away. The `## Configuration` section is what makes an entry deployable — a draft, which has yet to gain one, carries a `## Coming soon` section instead and stays out of hub search results.
+An entry with only an `index.md` is a **draft** — not built, verified, or published. It is released once it has both `build/` and `verify/`, and only after its image is built and end-to-end tested.
 
-A published entry lays its sections out as: intro → `## Usage` → `## Configuration` → any reference sections (output files, notes, references).
+Every workflow ships its own image, built from `build/` — even one that does nothing but re-publish an upstream image. That is what lands it in our registry (`ghcr.io/dxflow-ai`) with a configurable, env-driven `entrypoint.sh`. The recipe is a `Dockerfile` for docker/podman, or the equivalent definition for singularity/apptainer.
 
-`index.md` holds a `## Configuration` section with three fenced blocks: **`yaml`** (the workflow definition `dxflow workflow create` and `verify.sh` run), **`ini`** (override defaults), and **`json`** (metadata: `arch` list, the `image` this folder builds/publishes, image `version`, `minimum` resources). The yaml may reference more images than `json.image` — the extras are reused from other tools; build/publish only handle this folder's own `image`, while verify checks every step image is present.
+### How the engine finds an entry
 
-A step's relative `host` path is resolved by the engine against its own directory (`~/.dxflow`), so every entry mounts `./volume` — the engine volume, the root of what `dxflow artifact` and the console's **Artifacts** show — or a directory inside it (`./volume/input`). A host path that does not start with `./volume` lands outside the volume, where an upload cannot reach it.
+The engine reads this repository live from GitHub (`main` branch), so a merged entry is deployable by name right away:
 
-When adding a tool, copy an existing published workflow (one that already has `build/` and `verify/`) as a reference.
+- `dxflow workflow create hub://<key>` locates `NN.<category>/NN.<key>/index.md`, extracts its `## Configuration` yaml block, and deploys it.
+- `dxflow workflow hub search <query>` and `dxflow workflow hub inspect <key>` browse the same content.
+
+`## Configuration` is what makes an entry deployable. A draft has yet to gain one, so it carries a `## Coming soon` section instead and stays out of hub search results.
+
+### What an index.md holds
+
+A published entry lays its sections out in this order:
+
+> intro → `## Usage` → `## Configuration` → any reference sections (output files, notes, references)
+
+`## Configuration` holds three fenced blocks:
+
+| Block    | What it is                                                                           |
+| -------- | ------------------------------------------------------------------------------------ |
+| **yaml** | The workflow definition — what `dxflow workflow create` deploys and `verify.sh` runs |
+| **ini**  | The defaults a run can override                                                      |
+| **json** | The entry's metadata                                                                 |
+
+The json block carries five fields:
+
+| Field     | What it holds                                                         |
+| --------- | --------------------------------------------------------------------- |
+| `arch`    | The arches this folder builds for                                     |
+| `image`   | The image this folder builds and publishes                            |
+| `version` | The tag it publishes as — see [Versions](#versions)                   |
+| `size`    | That image's compressed download size, per arch — see [Sizes](#sizes) |
+| `minimum` | The least cpu, memory, and storage the workflow needs                 |
+
+The yaml may name more images than `json.image` holds — the extras are reused from other tools. Build and publish only handle this folder's own `image`; verify checks that every step image is present.
+
+### Volume paths
+
+The engine resolves a step's relative `host` path against its own directory (`~/.dxflow`). So every entry mounts `./volume` — the engine volume, the root of what `dxflow artifact` and the console's **Artifacts** show — or a directory inside it, like `./volume/input`. A host path that does not start with `./volume` lands outside the volume, where an upload cannot reach it.
+
+### Adding a tool
+
+Copy an existing published workflow — one that already has both `build/` and `verify/` — as a reference.
 
 ## Versions
 
@@ -80,6 +117,23 @@ A rolling repository does not always hold the same version on every arch — Voi
 
 A pin with no matching `ARG` is reported but not written — the xbps entries pin through `PACKAGE_VERSION` and keep no `ARG VERSION` for the clean one, and Scipion's installer takes the current release with nothing to pin at all.
 
+## Sizes
+
+An entry also records how big its published image is, as the `size` in its `index.md` json block — one reading per arch it declares. Unlike the version, nothing about the entry decides it: a rebuild moves it, and a base image moving underneath the entry moves it without the version changing at all. So it is measured rather than declared, and `size.sh` re-reads the registry:
+
+```bash
+make size                               # pick an entry from the list, or all of them
+make size ARGS=fastqc                   # what one entry weighs now
+make size ARGS=--all                    # ... every entry
+make size ARGS="fastqc --apply"         # write the updates
+```
+
+It reports by default and writes only with `--apply`, the same way `version.sh` does — worth a sweep after a publish, since that is when the numbers move.
+
+The size recorded is what the registry reports: the compressed download, summed over the config blob and every layer, per arch. That is the only size a registry can answer without pulling the image, and it is the number GitHub shows on the package page. Unpacked on disk the image is larger — `minimum.storage` is what covers that.
+
+Reads go out anonymously, since a public package needs no account; a signed-in `gh` is borrowed when `GITHUB_TOKEN` is unset, which also reaches a package that has been pushed but not yet made public. An arch an entry declares but the registry has no manifest for is reported as a miss and left out, rather than written as a guess.
+
 ## Publishing
 
 Publishing runs on GitHub Actions. Dispatch it from a workstation with `make publish`, which picks an entry, shows what a rebuild of it reaches, and hands it to Actions:
@@ -97,6 +151,7 @@ The steps a run performs are the scripts in `.github/scripts/`, each taking `<ke
 
 ```bash
 ./.github/scripts/version.sh <key>    # report what upstream ships (--apply to write)
+./.github/scripts/size.sh <key>       # report what the registry weighs (--apply to write)
 ./.github/scripts/prepare.sh          # buildx builder + the dxflow CLI
 ./.github/scripts/build.sh <key>      # build this arch and load it into local docker
 ./.github/scripts/boot.sh             # boot an engine rooted in its volume dir

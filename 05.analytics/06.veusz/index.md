@@ -2,7 +2,7 @@
 title: Veusz
 description: Publication-quality scientific plotting
 navigation:
-    icon: i-hugeicons:chart-column
+    icon: i-diphyx:veusz
 ---
 
 Veusz is a scientific plotting package for publication-quality figures, driven either through its GUI or as a Python library, streamed here in a remote desktop session and backed by remote compute. It builds on the [Ubuntu Desktop](/hub/desktop/ubuntu) image — Veusz launches maximized with the window decorations and taskbar hidden, so the plot window fills the screen.
@@ -101,6 +101,10 @@ app.memory = 4G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/veusz:latest",
     "version": "4.1",
+    "size": {
+        "amd64": "538M",
+        "arm64": "524M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "2G",

@@ -2,7 +2,7 @@
 title: FileZilla
 description: FTP, FTPS, and SFTP client
 navigation:
-    icon: i-hugeicons:folder-transfer
+    icon: i-diphyx:filezilla
 ---
 
 FileZilla is a file transfer client for FTP, FTPS, and SFTP, with a site manager, transfer queue, and directory comparison, streamed here in a remote desktop session and backed by remote compute. It builds on the [Void Desktop](/hub/desktop/void) image — FileZilla launches maximized with the window decorations and taskbar hidden, so the transfer window fills the screen.
@@ -101,6 +101,10 @@ app.memory = 4G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/filezilla:latest",
     "version": "3.69.3",
+    "size": {
+        "amd64": "406M",
+        "arm64": "401M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "2G",

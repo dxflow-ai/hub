@@ -2,7 +2,7 @@
 title: Shotcut
 description: Video editor with a wide format range
 navigation:
-    icon: i-hugeicons:film-02
+    icon: i-diphyx:shotcut
 ---
 
 Shotcut is a video editor built on MLT and FFmpeg, handling a wide range of formats with filters, keyframes, and a timeline, streamed here in a remote desktop session and backed by remote compute. It builds on the [Void Desktop](/hub/desktop/void) image — Shotcut launches maximized with the window decorations and taskbar hidden, so the timeline fills the screen.
@@ -101,6 +101,10 @@ app.memory = 8G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/shotcut:latest",
     "version": "26.8.1",
+    "size": {
+        "amd64": "475M",
+        "arm64": "468M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "4G",

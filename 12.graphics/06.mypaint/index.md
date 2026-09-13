@@ -2,7 +2,7 @@
 title: MyPaint
 description: Pressure-sensitive painting on an infinite canvas
 navigation:
-    icon: i-hugeicons:paint-board
+    icon: i-diphyx:mypaint
 ---
 
 MyPaint is a painting application built around an expressive brush engine and an infinite canvas, streamed here in a remote desktop session and backed by remote compute. It builds on the [Void Desktop](/hub/desktop/void) image — MyPaint launches maximized with the window decorations and taskbar hidden, so the canvas fills the screen.
@@ -101,6 +101,10 @@ app.memory = 4G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/mypaint:latest",
     "version": "2.0.1",
+    "size": {
+        "amd64": "312M",
+        "arm64": "307M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "2G",

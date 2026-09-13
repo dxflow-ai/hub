@@ -2,7 +2,7 @@
 title: Kdenlive
 description: Non-linear video editor
 navigation:
-    icon: i-hugeicons:film-01
+    icon: i-diphyx:kdenlive
 ---
 
 Kdenlive is a non-linear video editor with multi-track timelines, effects, transitions, and proxy editing, streamed here in a remote desktop session and backed by remote compute. It builds on the [Void Desktop](/hub/desktop/void) image — Kdenlive launches maximized with the window decorations and taskbar hidden, so the timeline fills the screen.
@@ -101,6 +101,10 @@ app.memory = 8G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/kdenlive:latest",
     "version": "26.08.0",
+    "size": {
+        "amd64": "694M",
+        "arm64": "666M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "4G",

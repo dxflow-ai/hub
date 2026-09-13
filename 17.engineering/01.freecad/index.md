@@ -2,7 +2,7 @@
 title: FreeCAD
 description: Parametric 3D CAD modeller
 navigation:
-    icon: i-hugeicons:compass
+    icon: i-diphyx:freecad
 ---
 
 FreeCAD is a parametric 3D CAD modeller with sketching, assemblies, FEM, and a Python console, streamed here in a remote desktop session and backed by remote compute. It builds on the [Void Desktop](/hub/desktop/void) image — FreeCAD launches maximized with the window decorations and taskbar hidden, so the viewport fills the screen.
@@ -101,6 +101,10 @@ app.memory = 8G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/freecad:latest",
     "version": "1.1.3",
+    "size": {
+        "amd64": "685M",
+        "arm64": "674M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "4G",

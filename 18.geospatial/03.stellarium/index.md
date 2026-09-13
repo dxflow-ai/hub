@@ -2,7 +2,7 @@
 title: Stellarium
 description: Planetarium for the night sky
 navigation:
-    icon: i-hugeicons:telescope-01
+    icon: i-diphyx:stellarium
 ---
 
 Stellarium is a planetarium that renders the sky from any point on Earth at any date, with catalogues down to faint magnitudes, streamed here in a remote desktop session and backed by remote compute. It builds on the [Void Desktop](/hub/desktop/void) image — Stellarium launches maximized with the window decorations and taskbar hidden, so the sky view fills the screen.
@@ -101,6 +101,10 @@ app.memory = 4G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/stellarium:latest",
     "version": "26.2",
+    "size": {
+        "amd64": "888M",
+        "arm64": "882M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "2G",

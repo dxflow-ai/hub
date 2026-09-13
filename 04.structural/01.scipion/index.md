@@ -102,6 +102,9 @@ app.gpu = nvidia
     "arch": ["amd64"],
     "image": "ghcr.io/dxflow-ai/scipion:latest",
     "version": "3.8.3",
+    "size": {
+        "amd64": "1.8G"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "32G",

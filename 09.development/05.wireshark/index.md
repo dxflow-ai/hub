@@ -2,7 +2,7 @@
 title: Wireshark
 description: Network protocol analyzer
 navigation:
-    icon: i-hugeicons:network
+    icon: i-diphyx:wireshark
 ---
 
 Wireshark is a network protocol analyzer for reading and dissecting captures, streamed here in a remote desktop session and backed by remote compute. It builds on the [Void Desktop](/hub/desktop/void) image — Wireshark launches maximized with the window decorations and taskbar hidden, so the analyzer fills the screen.
@@ -101,6 +101,10 @@ app.memory = 4G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/wireshark:latest",
     "version": "4.6.8",
+    "size": {
+        "amd64": "318M",
+        "arm64": "316M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "2G",

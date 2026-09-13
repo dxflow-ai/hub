@@ -2,7 +2,7 @@
 title: Audacity
 description: Multi-track audio editor and recorder
 navigation:
-    icon: i-hugeicons:music-note-01
+    icon: i-diphyx:audacity
 ---
 
 Audacity is a multi-track audio editor for recording, cutting, and mastering sound, streamed here in a remote desktop session and backed by remote compute. It builds on the [Void Desktop](/hub/desktop/void) image — Audacity launches maximized with the window decorations and taskbar hidden, so the editor fills the screen.
@@ -101,6 +101,10 @@ app.memory = 4G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/audacity:latest",
     "version": "3.7.8",
+    "size": {
+        "amd64": "420M",
+        "arm64": "415M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "2G",

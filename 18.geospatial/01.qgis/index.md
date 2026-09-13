@@ -2,7 +2,7 @@
 title: QGIS
 description: Desktop GIS for vector, raster, and map layouts
 navigation:
-    icon: i-hugeicons:maps
+    icon: i-diphyx:qgis
 ---
 
 QGIS is a desktop GIS for vector and raster analysis, cartography, and map layouts, with GDAL and GRASS processing behind it, streamed here in a remote desktop session and backed by remote compute. It builds on the [Void Desktop](/hub/desktop/void) image — QGIS launches maximized with the window decorations and taskbar hidden, so the map canvas fills the screen.
@@ -101,6 +101,10 @@ app.memory = 8G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/qgis:latest",
     "version": "4.2.2",
+    "size": {
+        "amd64": "936M",
+        "arm64": "743M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "4G",

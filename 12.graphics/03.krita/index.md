@@ -2,7 +2,7 @@
 title: Krita
 description: Digital painting and illustration studio
 navigation:
-    icon: i-hugeicons:paint-brush-01
+    icon: i-diphyx:krita
 ---
 
 Krita is a professional digital painting application for illustration, concept art, comics, and texture work, streamed here in a remote desktop session and backed by remote compute. It builds on the [Void Desktop](/hub/desktop/void) image — Krita launches maximized with the window decorations and taskbar hidden, so the canvas fills the screen.
@@ -101,6 +101,10 @@ app.memory = 8G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/krita:latest",
     "version": "6.0.3",
+    "size": {
+        "amd64": "555M",
+        "arm64": "543M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "4G",

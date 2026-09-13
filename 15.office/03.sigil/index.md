@@ -2,7 +2,7 @@
 title: Sigil
 description: EPUB ebook editor with a live preview
 navigation:
-    icon: i-hugeicons:book-open-01
+    icon: i-diphyx:sigil
 ---
 
 Sigil is an EPUB editor for building and correcting ebooks, with a code view, a live preview, and validation, streamed here in a remote desktop session and backed by remote compute. It builds on the [Void Desktop](/hub/desktop/void) image — Sigil launches maximized with the window decorations and taskbar hidden, so the editor fills the screen.
@@ -101,6 +101,10 @@ app.memory = 4G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/sigil:latest",
     "version": "2.4.0",
+    "size": {
+        "amd64": "505M",
+        "arm64": "488M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "2G",

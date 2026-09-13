@@ -2,7 +2,7 @@
 title: Element
 description: Matrix collaboration client
 navigation:
-    icon: i-hugeicons:bubble-chat
+    icon: i-diphyx:element
 ---
 
 Element is a Matrix client for encrypted chat, calls, and spaces, streamed here in a remote desktop session and backed by remote compute. It builds on the [Void Desktop](/hub/desktop/void) image — Element launches maximized with the window decorations and taskbar hidden, so the client fills the screen.
@@ -101,6 +101,9 @@ app.memory = 4G
     "arch": ["amd64"],
     "image": "ghcr.io/dxflow-ai/element:latest",
     "version": "1.12.10",
+    "size": {
+        "amd64": "439M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "2G",

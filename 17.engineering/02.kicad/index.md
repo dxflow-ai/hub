@@ -2,7 +2,7 @@
 title: KiCad
 description: Schematic capture and PCB design
 navigation:
-    icon: i-hugeicons:cpu
+    icon: i-diphyx:kicad
 ---
 
 KiCad is an EDA suite for schematic capture, PCB layout, and 3D board review, streamed here in a remote desktop session and backed by remote compute. It builds on the [Void Desktop](/hub/desktop/void) image — KiCad launches maximized with the window decorations and taskbar hidden, so the project window fills the screen.
@@ -101,6 +101,10 @@ app.memory = 8G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/kicad:latest",
     "version": "10.0.5",
+    "size": {
+        "amd64": "733M",
+        "arm64": "723M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "4G",

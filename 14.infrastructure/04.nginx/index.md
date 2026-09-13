@@ -165,6 +165,10 @@ app.memory = 1G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/nginx:latest",
     "version": "1.30.4",
+    "size": {
+        "amd64": "63M",
+        "arm64": "62M"
+    },
     "minimum": {
         "cpu": 1,
         "memory": "1G",

@@ -80,6 +80,9 @@ app.memory = 8G
     "arch": ["amd64"],
     "image": "ghcr.io/dxflow-ai/rstudio:latest",
     "version": "2026.09.0-174",
+    "size": {
+        "amd64": "2.3G"
+    },
     "minimum": {
         "cpu": 4,
         "memory": "8G",

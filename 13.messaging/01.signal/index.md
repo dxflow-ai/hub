@@ -101,6 +101,9 @@ app.memory = 4G
     "arch": ["amd64"],
     "image": "ghcr.io/dxflow-ai/signal:latest",
     "version": "8.26.0",
+    "size": {
+        "amd64": "447M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "2G",

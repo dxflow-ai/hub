@@ -2,7 +2,7 @@
 title: FontForge
 description: Font editor for TrueType, OpenType, and SVG fonts
 navigation:
-    icon: i-hugeicons:text-font
+    icon: i-diphyx:fontforge
 ---
 
 FontForge is a font editor for drawing glyphs, editing metrics and hinting, and generating TrueType, OpenType, PostScript, and SVG fonts, streamed here in a remote desktop session and backed by remote compute. It builds on the [Void Desktop](/hub/desktop/void) image — FontForge launches maximized with the window decorations and taskbar hidden, so the font view fills the screen.
@@ -101,6 +101,10 @@ app.memory = 4G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/fontforge:latest",
     "version": "20251009",
+    "size": {
+        "amd64": "291M",
+        "arm64": "290M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "2G",

@@ -85,6 +85,9 @@ app.gpu = nvidia
     "arch": ["amd64"],
     "image": "ghcr.io/dxflow-ai/gromacs:latest",
     "version": "2026.3",
+    "size": {
+        "amd64": "5.4G"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "16G",

@@ -2,7 +2,7 @@
 title: LabPlot
 description: Interactive plotting and analysis of scientific data
 navigation:
-    icon: i-hugeicons:chart-line-data-02
+    icon: i-diphyx:labplot
 ---
 
 LabPlot is a plotting and data analysis application with worksheets, fitting, and spreadsheet import, streamed here in a remote desktop session and backed by remote compute. It builds on the [Void Desktop](/hub/desktop/void) image — LabPlot launches maximized with the window decorations and taskbar hidden, so the worksheet fills the screen.
@@ -101,6 +101,10 @@ app.memory = 4G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/labplot:latest",
     "version": "2.12.1",
+    "size": {
+        "amd64": "643M",
+        "arm64": "624M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "2G",

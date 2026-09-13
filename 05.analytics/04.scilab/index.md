@@ -2,7 +2,7 @@
 title: Scilab
 description: Numerical computing environment with Xcos modelling
 navigation:
-    icon: i-hugeicons:function
+    icon: i-diphyx:scilab
 ---
 
 Scilab is a numerical computing environment with its own language and the Xcos block-diagram modeller, streamed here in a remote desktop session and backed by remote compute. It builds on the [Ubuntu Desktop](/hub/desktop/ubuntu) image — Scilab launches maximized with the window decorations and taskbar hidden, so the console fills the screen.
@@ -101,6 +101,10 @@ app.memory = 8G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/scilab:latest",
     "version": "2024.1.0",
+    "size": {
+        "amd64": "784M",
+        "arm64": "767M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "4G",
