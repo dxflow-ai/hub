@@ -3,7 +3,7 @@
 
 # verify.sh helper: block until the step is up and stays up. The window is wide
 # because the endpoint checks below retry for 30s of their own, and a first
-# start seeds the model store and boots two servers before it answers.
+# start boots two servers and registers the administrator before it answers.
 wait_running 60
 
 # verify.sh helper: the interface answers
