@@ -18,7 +18,8 @@ run_hook() {
 run_hook prepare
 
 data="${DATA_DIR:-/volume/data}"
-mkdir -p "$data"
+models="${OLLAMA_MODELS:-/volume/models}"
+mkdir -p "$data" "$models"
 
 # Sessions survive a restart only if the key that signs them does, and the
 # container is started with --rm, so keep it on the volume, not in the image
@@ -32,18 +33,31 @@ if [ -z "${WEBUI_SECRET_KEY:-}" ]; then
   export WEBUI_SECRET_KEY
 fi
 
-# The model servers this gate serves from. There is none in the container, and a
+# Serve from the model servers named, or from the one bundled in this image. A
 # connection added in the interface does not outlive a restart while
 # ENABLE_PERSISTENT_CONFIG is off, so the definition is where they belong.
-OLLAMA_BASE_URL=""
-export OLLAMA_BASE_URL
+OLLAMA_PID=""
 if [ -n "${OLLAMA_BASE_URLS:-}" ]; then
   log "serving models from ${OLLAMA_BASE_URLS}"
+  OLLAMA_BASE_URL=""
+  export OLLAMA_BASE_URL OLLAMA_BASE_URLS
 else
-  log "no OLLAMA_BASE_URLS set — the interface will come up with no models behind it"
+  OLLAMA_BASE_URL="http://127.0.0.1:11434"
+  export OLLAMA_BASE_URL
+
+  # Bound to the loopback: the only way in is port 8080, which asks who is asking
+  log "starting the model server on 127.0.0.1:11434"
+  OLLAMA_HOST=127.0.0.1:11434 ollama serve > /var/log/ollama.log 2>&1 &
+  OLLAMA_PID=$!
+
+  i=0
+  while [ "$i" -lt 30 ] && ! curl -sf http://127.0.0.1:11434/api/tags > /dev/null 2>&1; do
+    i=$((i + 1))
+    sleep 1
+  done
 fi
 
-# Start the web interface — upstream's launcher
+# Start the web interface — upstream's launcher, with its own ollama disabled
 log "starting the interface on :8080"
 bash /app/backend/start.sh > /var/log/webui.log 2>&1 &
 WEBUI_PID=$!
@@ -89,11 +103,17 @@ if [ -n "${ADMIN_EMAIL:-}" ]; then
   esac
 fi
 
+# The store starts empty on a fresh volume — models are pulled from the
+# interface, which is the only place that knows which card this is
+if [ -n "$OLLAMA_PID" ] && [ ! -d "$models/manifests" ]; then
+  log "the model store at ${models} is empty — pull one from Admin Panel → Settings → Models"
+fi
+
 # Run postpare hook
 run_hook postpare
 
 log "ready"
 
 # Wait until stopped
-trap 'log "stopping"; kill "$WEBUI_PID" 2>/dev/null; exit 0' TERM INT
+trap 'log "stopping"; kill "$WEBUI_PID" ${OLLAMA_PID:+"$OLLAMA_PID"} 2>/dev/null; exit 0' TERM INT
 wait "$WEBUI_PID"

@@ -41,6 +41,8 @@ curl -u dxflow:my-strong-pass http://localhost:8080/api/chat -d '{
 
 ## Configuration
 
+Attach a GPU with `resources.gpu: nvidia` so Ollama offloads the model to it, or remove the line to run on CPU.
+
 ```yaml
 name: ollama
 tags:
@@ -64,6 +66,7 @@ steps:
       resources:
           cpu: "4"
           memory: 8G
+          gpu: nvidia
       link: web
 ```
 
@@ -81,6 +84,7 @@ app.STARTUP_MODEL = smollm2:135m
 [resource]
 app.cpu = 4
 app.memory = 8G
+app.gpu = nvidia
 ```
 
 ```json
@@ -104,5 +108,5 @@ app.memory = 8G
 
 - `STARTUP_MODEL` is pulled on startup and selected in the UI (default `smollm2:135m`, preloaded into the image). Pull more models any time from a terminal with `ollama pull <name>`.
 - The web interface is a React app (served by nginx) that reverse-proxies to the local Ollama server on `11434` — the UI calls it under `/ollama/api/*`, and the standard API is also exposed directly at `/api/*`, so the browser and the API share port `8080`.
-- Small models suit CPU-only runs; for larger models (7B+), attach a GPU and give the step more memory.
+- **GPU vs CPU**: with a GPU attached, Ollama detects it and loads as many layers into VRAM as fit — check `nvidia-smi` while a model answers. Without one it runs on CPU automatically, which suits the small models; for 7B and up, keep the card and give the step more memory.
 - Set a strong `PASSWORD`; it defaults to `dxflow`, which every reader of this page knows. nginx checks it as HTTP basic auth for the user `dxflow` across the whole port, so the UI and the API share one credential.
