@@ -1,12 +1,12 @@
-name: 🐛 Template Problem
-description: Report a problem with an existing template in the hub.
-title: "[Template Bug]: "
-labels: ["bug", "template", "triage"]
+name: 🐛 Workflow Problem
+description: Report a problem with an existing workflow in the hub.
+title: "[Workflow Bug]: "
+labels: ["bug"]
 body:
     - type: markdown
       attributes:
           value: |
-              Found a template that's broken, outdated, or incorrect? Let us know below.
+              Found a workflow that's broken, outdated, or incorrect? Let us know below.
     - type: checkboxes
       id: preflight
       attributes:
@@ -17,28 +17,37 @@ body:
     - type: dropdown
       id: domain
       attributes:
-          label: Domain
-          description: Which domain is the template in?
+          label: Category
+          description: Which category is the workflow in?
           options:
               - Getting Started
               - Genomics
               - Molecular
               - Structural
               - Analytics
+              - AI
               - Simulation
               - Visualization
               - Development
               - Desktop
+              - Browser
+              - Graphics
+              - Messaging
               - Infrastructure
+              - Office
+              - Media
+              - Engineering
+              - Geospatial
+              - Utilities
               - Other
       validations:
           required: true
     - type: input
-      id: template
+      id: workflow
       attributes:
-          label: Which template?
-          description: Name or path of the affected template.
-          placeholder: e.g. 02.genomics/01.fastqc.md
+          label: Which workflow?
+          description: The key you deploy it by — `dxflow workflow create hub://<key>` — or the path to its folder.
+          placeholder: e.g. fastqc, or 02.genomics/01.fastqc
       validations:
           required: true
     - type: dropdown
@@ -51,7 +60,8 @@ body:
               - Wrong or missing output
               - Outdated image or version
               - Incorrect configuration / resources
-              - Documentation in the template is wrong
+              - Uploaded files don't reach the workflow
+              - Documentation in the entry is wrong
               - Other
       validations:
           required: true

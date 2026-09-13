@@ -1,44 +1,53 @@
-name: 🧩 Template Request
-description: Request a new application or workflow template for the dxflow hub.
-title: "[Template]: "
-labels: ["template", "triage"]
+name: 🧩 Workflow Request
+description: Request a new application or workflow for the dxflow hub.
+title: "[Workflow]: "
+labels: ["enhancement"]
 body:
     - type: markdown
       attributes:
           value: |
               Want a tool or workflow added to the hub? Tell us what you need below.
-              Already have one to share? Contributions are welcome — add a Markdown entry under the matching domain and open a pull request instead.
+              Already have one to share? Contributions are welcome — add an entry folder under the matching category and open a pull request instead. See the [README](https://github.com/dxflow-ai/hub/blob/main/README.md) for what an entry holds.
     - type: checkboxes
       id: preflight
       attributes:
           label: Before you start
           options:
-              - label: I have checked the [hub](https://dxflow.ai/hub) and this template doesn't already exist.
+              - label: I have checked the [hub](https://dxflow.ai/hub) and this workflow doesn't already exist.
                 required: true
     - type: input
       id: tool
       attributes:
           label: Tool / workflow name
-          description: The name of the application or workflow you'd like templated.
+          description: The name of the application or workflow you'd like added.
           placeholder: e.g. GROMACS, AlphaFold, Nextflow pipeline
       validations:
           required: true
     - type: dropdown
       id: domain
       attributes:
-          label: Domain
-          description: Which domain does this belong to? (matches the hub's categories)
+          label: Category
+          description: Which category does this belong to? (matches the hub's categories)
           options:
               - Getting Started
               - Genomics
               - Molecular
               - Structural
               - Analytics
+              - AI
               - Simulation
               - Visualization
               - Development
               - Desktop
+              - Browser
+              - Graphics
+              - Messaging
               - Infrastructure
+              - Office
+              - Media
+              - Engineering
+              - Geospatial
+              - Utilities
               - Other
       validations:
           required: true
@@ -52,9 +61,21 @@ body:
     - type: input
       id: image
       attributes:
-          label: Container image
-          description: The Docker/OCI image (and tag) the template should run, if you know it. Templates are defined as dxflow workflow steps.
+          label: Upstream image
+          description: The Docker/OCI image (and tag) the entry should build on, if you know it. Every entry republishes its own image under `ghcr.io/dxflow-ai` with an env-driven entrypoint.
           placeholder: e.g. biocontainers/gromacs:2024.1
+      validations:
+          required: false
+    - type: dropdown
+      id: interface
+      attributes:
+          label: How is it used?
+          description: How would you reach the tool once it's running?
+          options:
+              - Web UI in the browser
+              - Remote desktop (VNC) session
+              - Command line / batch job
+              - Not sure
       validations:
           required: false
     - type: dropdown
@@ -87,6 +108,6 @@ body:
       id: context
       attributes:
           label: Additional context
-          description: Anything else that would help us build a good template (example inputs, expected outputs, etc.).
+          description: Anything else that would help us build a good entry (example inputs, expected outputs, etc.).
       validations:
           required: false
