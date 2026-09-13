@@ -101,6 +101,10 @@ app.memory = 8G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/blender:latest",
     "version": "5.0.0",
+    "size": {
+        "amd64": "569M",
+        "arm64": "515M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "4G",

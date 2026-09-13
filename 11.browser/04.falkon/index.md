@@ -101,6 +101,10 @@ app.memory = 4G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/falkon:latest",
     "version": "26.08.0",
+    "size": {
+        "amd64": "607M",
+        "arm64": "591M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "2G",

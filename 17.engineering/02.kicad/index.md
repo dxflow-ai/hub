@@ -101,6 +101,10 @@ app.memory = 8G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/kicad:latest",
     "version": "10.0.5",
+    "size": {
+        "amd64": "733M",
+        "arm64": "723M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "4G",

@@ -101,6 +101,10 @@ app.memory = 4G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/librecad:latest",
     "version": "2.2.0.2",
+    "size": {
+        "amd64": "526M",
+        "arm64": "515M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "2G",

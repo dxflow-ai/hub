@@ -101,6 +101,10 @@ app.memory = 8G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/libreoffice:latest",
     "version": "26.8.0.3",
+    "size": {
+        "amd64": "1017M",
+        "arm64": "1006M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "4G",

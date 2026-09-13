@@ -101,6 +101,10 @@ app.memory = 4G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/octave:latest",
     "version": "11.1.0",
+    "size": {
+        "amd64": "440M",
+        "arm64": "436M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "2G",

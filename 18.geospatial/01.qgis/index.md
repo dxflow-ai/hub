@@ -101,6 +101,10 @@ app.memory = 8G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/qgis:latest",
     "version": "4.2.2",
+    "size": {
+        "amd64": "936M",
+        "arm64": "743M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "4G",

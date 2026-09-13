@@ -22,6 +22,10 @@ boot:
 version:
 	bash ./.github/scripts/version.sh $(ARGS)
 
+.PHONY: size
+size:
+	bash ./.github/scripts/size.sh $(ARGS)
+
 .PHONY: build
 build:
 	bash ./.github/scripts/build.sh $(ARGS)

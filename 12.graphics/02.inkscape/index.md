@@ -101,6 +101,10 @@ app.memory = 4G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/inkscape:latest",
     "version": "1.4.3",
+    "size": {
+        "amd64": "399M",
+        "arm64": "381M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "2G",

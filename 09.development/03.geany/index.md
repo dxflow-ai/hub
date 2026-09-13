@@ -101,6 +101,10 @@ app.memory = 4G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/geany:latest",
     "version": "2.1",
+    "size": {
+        "amd64": "285M",
+        "arm64": "284M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "2G",

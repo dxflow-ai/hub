@@ -101,6 +101,10 @@ app.memory = 8G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/scilab:latest",
     "version": "2024.1.0",
+    "size": {
+        "amd64": "784M",
+        "arm64": "767M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "4G",

@@ -101,6 +101,9 @@ job.memory = 8G
     "arch": ["amd64"],
     "image": "ghcr.io/dxflow-ai/pangolin:latest",
     "version": "4.3.4",
+    "size": {
+        "amd64": "891M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "4G",

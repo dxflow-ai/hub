@@ -101,6 +101,10 @@ app.memory = 4G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/mypaint:latest",
     "version": "2.0.1",
+    "size": {
+        "amd64": "312M",
+        "arm64": "307M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "2G",

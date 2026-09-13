@@ -101,6 +101,10 @@ app.memory = 4G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/fontforge:latest",
     "version": "20251009",
+    "size": {
+        "amd64": "291M",
+        "arm64": "290M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "2G",

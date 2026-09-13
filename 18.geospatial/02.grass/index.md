@@ -101,6 +101,10 @@ app.memory = 8G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/grass:latest",
     "version": "8.4.2",
+    "size": {
+        "amd64": "602M",
+        "arm64": "587M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "4G",

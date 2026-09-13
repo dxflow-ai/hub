@@ -101,6 +101,10 @@ app.memory = 4G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/audacity:latest",
     "version": "3.7.8",
+    "size": {
+        "amd64": "420M",
+        "arm64": "415M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "2G",

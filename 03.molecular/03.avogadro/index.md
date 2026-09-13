@@ -101,6 +101,10 @@ app.memory = 4G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/avogadro:latest",
     "version": "1.101.0",
+    "size": {
+        "amd64": "521M",
+        "arm64": "509M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "2G",

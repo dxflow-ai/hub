@@ -101,6 +101,10 @@ app.memory = 4G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/wireshark:latest",
     "version": "4.6.8",
+    "size": {
+        "amd64": "318M",
+        "arm64": "316M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "2G",

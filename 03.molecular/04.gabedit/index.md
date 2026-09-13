@@ -101,6 +101,10 @@ app.memory = 4G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/gabedit:latest",
     "version": "2.5.2",
+    "size": {
+        "amd64": "667M",
+        "arm64": "633M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "2G",

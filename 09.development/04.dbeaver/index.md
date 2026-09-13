@@ -101,6 +101,10 @@ app.memory = 8G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/dbeaver:latest",
     "version": "26.2.0",
+    "size": {
+        "amd64": "474M",
+        "arm64": "459M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "4G",

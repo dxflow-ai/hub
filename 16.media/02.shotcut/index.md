@@ -101,6 +101,10 @@ app.memory = 8G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/shotcut:latest",
     "version": "26.8.1",
+    "size": {
+        "amd64": "475M",
+        "arm64": "468M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "4G",

@@ -103,6 +103,10 @@ app.memory = 4G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/ubuntu:latest",
     "version": "26.04",
+    "size": {
+        "amd64": "512M",
+        "arm64": "501M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "2G",

@@ -101,6 +101,10 @@ app.memory = 4G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/veusz:latest",
     "version": "4.1",
+    "size": {
+        "amd64": "538M",
+        "arm64": "524M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "2G",

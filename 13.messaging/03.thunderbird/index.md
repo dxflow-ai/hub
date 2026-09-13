@@ -101,6 +101,10 @@ app.memory = 4G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/thunderbird:latest",
     "version": "140.8.1",
+    "size": {
+        "amd64": "399M",
+        "arm64": "394M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "2G",

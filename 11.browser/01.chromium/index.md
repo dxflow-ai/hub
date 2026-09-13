@@ -101,6 +101,10 @@ app.memory = 4G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/chromium:latest",
     "version": "151.0.7922.108",
+    "size": {
+        "amd64": "447M",
+        "arm64": "443M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "2G",

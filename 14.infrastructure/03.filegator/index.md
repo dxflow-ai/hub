@@ -131,6 +131,10 @@ app.memory = 2G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/filegator:latest",
     "version": "7.16.2",
+    "size": {
+        "amd64": "171M",
+        "arm64": "166M"
+    },
     "minimum": {
         "cpu": 1,
         "memory": "2G",

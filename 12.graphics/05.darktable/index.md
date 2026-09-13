@@ -101,6 +101,10 @@ app.memory = 8G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/darktable:latest",
     "version": "5.6.0",
+    "size": {
+        "amd64": "380M",
+        "arm64": "376M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "4G",

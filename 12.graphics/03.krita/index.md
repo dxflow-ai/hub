@@ -101,6 +101,10 @@ app.memory = 8G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/krita:latest",
     "version": "6.0.3",
+    "size": {
+        "amd64": "555M",
+        "arm64": "543M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "4G",

@@ -101,6 +101,10 @@ app.memory = 8G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/freecad:latest",
     "version": "1.1.3",
+    "size": {
+        "amd64": "685M",
+        "arm64": "674M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "4G",

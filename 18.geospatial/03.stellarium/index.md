@@ -101,6 +101,10 @@ app.memory = 4G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/stellarium:latest",
     "version": "26.2",
+    "size": {
+        "amd64": "888M",
+        "arm64": "882M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "2G",

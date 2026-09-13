@@ -101,6 +101,10 @@ app.memory = 8G
     "arch": ["amd64", "arm64"],
     "image": "ghcr.io/dxflow-ai/kdenlive:latest",
     "version": "26.08.0",
+    "size": {
+        "amd64": "694M",
+        "arm64": "666M"
+    },
     "minimum": {
         "cpu": 2,
         "memory": "4G",
