@@ -2,7 +2,7 @@
 title: Gabedit
 description: Graphical interface to computational chemistry packages
 navigation:
-    icon: i-hugeicons:atom-02
+    icon: i-diphyx:gabedit
 ---
 
 Gabedit is a graphical front end for computational chemistry packages — it builds inputs for Gaussian, ORCA, NWChem, and others, and plots the orbitals, densities, and spectra they return, streamed here in a remote desktop session and backed by remote compute. It builds on the [Fedora Desktop](/hub/desktop/fedora) image — Gabedit launches maximized with the window decorations and taskbar hidden, so the workspace fills the screen.
