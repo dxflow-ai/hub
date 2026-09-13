@@ -2,7 +2,7 @@
 title: Blender
 description: 3D modelling, animation, and rendering suite
 navigation:
-    icon: i-hugeicons:cube
+    icon: i-diphyx:blender
 ---
 
 Blender is a complete 3D creation suite covering modelling, sculpting, animation, simulation, and rendering, streamed here in a remote desktop session and backed by remote compute. It builds on the [Void Desktop](/hub/desktop/void) image — Blender launches maximized with the window decorations and taskbar hidden, so the viewport fills the screen.

@@ -2,7 +2,7 @@
 title: Thunderbird
 description: Mail, calendar, and feed client
 navigation:
-    icon: i-hugeicons:mail-01
+    icon: i-diphyx:thunderbird
 ---
 
 Thunderbird is a mail, calendar, and feed client with local folders and end-to-end encryption support, streamed here in a remote desktop session and backed by remote compute. It builds on the [Void Desktop](/hub/desktop/void) image — Thunderbird launches maximized with the window decorations and taskbar hidden, so the client fills the screen.

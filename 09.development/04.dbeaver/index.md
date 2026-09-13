@@ -2,7 +2,7 @@
 title: DBeaver
 description: Universal database client
 navigation:
-    icon: i-hugeicons:database
+    icon: i-diphyx:dbeaver
 ---
 
 DBeaver is a universal database client with a SQL editor, a schema browser, and drivers for most engines, streamed here in a remote desktop session and backed by remote compute. It builds on the [Void Desktop](/hub/desktop/void) image — DBeaver launches maximized with the window decorations and taskbar hidden, so the workspace fills the screen.

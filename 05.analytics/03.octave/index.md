@@ -2,7 +2,7 @@
 title: GNU Octave
 description: Numerical computing environment, largely MATLAB compatible
 navigation:
-    icon: i-hugeicons:calculator
+    icon: i-diphyx:octave
 ---
 
 GNU Octave is a numerical computing environment with a language largely compatible with MATLAB, streamed here in a remote desktop session and backed by remote compute. It builds on the [Void Desktop](/hub/desktop/void) image — GNU Octave launches maximized with the window decorations and taskbar hidden, so the editor fills the screen.

@@ -2,7 +2,7 @@
 title: Open UI
 description: Accounts, groups and per-model permissions in front of local large language models
 navigation:
-    icon: i-hugeicons:user-shield-01
+    icon: i-diphyx:open-webui
 ---
 
 Open UI is the door your team reaches the GPU through. It runs [Open WebUI](https://docs.openwebui.com/) in front of the model servers on your GPU machines, and everything arrives on one port that asks who is asking: an administrator creates accounts, sorts them into groups, and decides which model each group may call. Everyone else signs in and gets both ways through at once — the chat interface in the browser, and a personal API key for their own tools, answering to the same permissions and recorded in the same audit log.

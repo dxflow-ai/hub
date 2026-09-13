@@ -2,7 +2,7 @@
 title: MyPaint
 description: Pressure-sensitive painting on an infinite canvas
 navigation:
-    icon: i-hugeicons:paint-board
+    icon: i-diphyx:mypaint
 ---
 
 MyPaint is a painting application built around an expressive brush engine and an infinite canvas, streamed here in a remote desktop session and backed by remote compute. It builds on the [Void Desktop](/hub/desktop/void) image — MyPaint launches maximized with the window decorations and taskbar hidden, so the canvas fills the screen.

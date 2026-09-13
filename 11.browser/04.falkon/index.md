@@ -2,7 +2,7 @@
 title: Falkon
 description: Lightweight Qt web browser in a remote desktop session
 navigation:
-    icon: i-hugeicons:browser
+    icon: i-diphyx:falkon
 ---
 
 Falkon is a lightweight web browser built on Qt WebEngine, with a speed dial, bookmarks, and a session manager, streamed here in a remote desktop session and backed by remote compute. It builds on the [Void Desktop](/hub/desktop/void) image — Falkon launches maximized with the window decorations and taskbar hidden, so the browser fills the screen.

@@ -2,7 +2,7 @@
 title: Sigil
 description: EPUB ebook editor with a live preview
 navigation:
-    icon: i-hugeicons:book-open-01
+    icon: i-diphyx:sigil
 ---
 
 Sigil is an EPUB editor for building and correcting ebooks, with a code view, a live preview, and validation, streamed here in a remote desktop session and backed by remote compute. It builds on the [Void Desktop](/hub/desktop/void) image — Sigil launches maximized with the window decorations and taskbar hidden, so the editor fills the screen.

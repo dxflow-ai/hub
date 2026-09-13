@@ -2,7 +2,7 @@
 title: GRASS GIS
 description: Geospatial analysis and modelling system
 navigation:
-    icon: i-hugeicons:layers-01
+    icon: i-diphyx:grass
 ---
 
 GRASS GIS is a geospatial processing system for raster, vector, and temporal analysis, with a large module library and a scripting interface, streamed here in a remote desktop session and backed by remote compute. It builds on the [Ubuntu Desktop](/hub/desktop/ubuntu) image — GRASS GIS launches maximized with the window decorations and taskbar hidden, so the wxGUI fills the screen.

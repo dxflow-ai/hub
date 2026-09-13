@@ -2,7 +2,7 @@
 title: VLC
 description: Media player for nearly every audio and video format
 navigation:
-    icon: i-hugeicons:play-circle
+    icon: i-diphyx:vlc
 ---
 
 VLC is a media player that handles nearly every container and codec without extra plugins, streamed here in a remote desktop session and backed by remote compute. It builds on the [Void Desktop](/hub/desktop/void) image — VLC launches maximized with the window decorations and taskbar hidden, so the player fills the screen.

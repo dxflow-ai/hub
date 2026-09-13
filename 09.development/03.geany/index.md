@@ -2,7 +2,7 @@
 title: Geany
 description: Fast, lightweight IDE
 navigation:
-    icon: i-hugeicons:source-code
+    icon: i-diphyx:geany
 ---
 
 Geany is a small, fast editor with IDE features — symbol browsing, build commands, and a plugin system — streamed here in a remote desktop session and backed by remote compute. It builds on the [Void Desktop](/hub/desktop/void) image — Geany launches maximized with the window decorations and taskbar hidden, so the editor fills the screen.

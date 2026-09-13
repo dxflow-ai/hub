@@ -2,7 +2,7 @@
 title: darktable
 description: Raw photo workflow and non-destructive darkroom
 navigation:
-    icon: i-hugeicons:camera-01
+    icon: i-diphyx:darktable
 ---
 
 darktable is a non-destructive raw photo workflow application — a lighttable for culling and a darkroom for developing, streamed here in a remote desktop session and backed by remote compute. It builds on the [Void Desktop](/hub/desktop/void) image — darktable launches maximized with the window decorations and taskbar hidden, so the lighttable fills the screen.

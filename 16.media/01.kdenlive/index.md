@@ -2,7 +2,7 @@
 title: Kdenlive
 description: Non-linear video editor
 navigation:
-    icon: i-hugeicons:film-01
+    icon: i-diphyx:kdenlive
 ---
 
 Kdenlive is a non-linear video editor with multi-track timelines, effects, transitions, and proxy editing, streamed here in a remote desktop session and backed by remote compute. It builds on the [Void Desktop](/hub/desktop/void) image — Kdenlive launches maximized with the window decorations and taskbar hidden, so the timeline fills the screen.

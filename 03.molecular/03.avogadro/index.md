@@ -2,7 +2,7 @@
 title: Avogadro
 description: Molecular editor and visualizer
 navigation:
-    icon: i-hugeicons:atom-01
+    icon: i-diphyx:avogadro
 ---
 
 Avogadro is a molecular editor and visualizer for building structures, running force-field optimizations, and inspecting computational chemistry output, streamed here in a remote desktop session and backed by remote compute. It builds on the [Ubuntu Desktop](/hub/desktop/ubuntu) image — Avogadro launches maximized with the window decorations and taskbar hidden, so the viewport fills the screen.

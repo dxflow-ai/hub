@@ -2,7 +2,7 @@
 title: KiCad
 description: Schematic capture and PCB design
 navigation:
-    icon: i-hugeicons:cpu
+    icon: i-diphyx:kicad
 ---
 
 KiCad is an EDA suite for schematic capture, PCB layout, and 3D board review, streamed here in a remote desktop session and backed by remote compute. It builds on the [Void Desktop](/hub/desktop/void) image — KiCad launches maximized with the window decorations and taskbar hidden, so the project window fills the screen.

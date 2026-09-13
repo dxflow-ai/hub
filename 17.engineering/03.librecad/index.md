@@ -2,7 +2,7 @@
 title: LibreCAD
 description: 2D CAD drafting for DXF drawings
 navigation:
-    icon: i-hugeicons:pencil-edit-02
+    icon: i-diphyx:librecad
 ---
 
 LibreCAD is a 2D CAD application for technical drawing and DXF work, streamed here in a remote desktop session and backed by remote compute. It builds on the [Ubuntu Desktop](/hub/desktop/ubuntu) image — LibreCAD launches maximized with the window decorations and taskbar hidden, so the drawing area fills the screen.

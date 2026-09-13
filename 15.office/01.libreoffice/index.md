@@ -2,7 +2,7 @@
 title: LibreOffice
 description: Office suite for documents, spreadsheets, and presentations
 navigation:
-    icon: i-hugeicons:file-02
+    icon: i-diphyx:libreoffice
 ---
 
 LibreOffice is a full office suite — Writer, Calc, Impress, Draw, Base, and Math — streamed here in a remote desktop session and backed by remote compute. It builds on the [Void Desktop](/hub/desktop/void) image — LibreOffice launches maximized with the window decorations and taskbar hidden, so the suite fills the screen.
