@@ -21,11 +21,24 @@ run_hook prepare
 USER="${USER:-dxflow}"
 export USER
 export HOME="/volume/${USER}"
+
+# Only dxflow is baked into the image, so an overridden USER has no account to sign
+# in as until we add one
+if ! id "${USER}" > /dev/null 2>&1; then
+  log "creating user ${USER}"
+  useradd -d "${HOME}" -s /bin/bash "${USER}"
+fi
+
 mkdir -p "${HOME}"
 chown -R "${USER}:${USER}" "${HOME}" 2>/dev/null || true
 
-# Give that user the sign-in password RStudio authenticates against
-printf '%s:%s\n' "${USER}" "${PASSWORD:-dxflow}" | chpasswd
+# Give that user the sign-in password RStudio authenticates against through PAM
+if printf '%s:%s\n' "${USER}" "${PASSWORD:-dxflow}" | chpasswd; then
+  log "sign-in ready for ${USER}"
+else
+  log "could not set the password for ${USER} — sign-in will be refused"
+  exit 1
+fi
 
 # Start RStudio Server
 log "starting rstudio-server on :8787"

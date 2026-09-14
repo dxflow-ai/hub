@@ -10,8 +10,8 @@ LABEL org.opencontainers.image.source="https://github.com/dxflow-ai/hub"
 # Bring the pins into the stage (a pin declared above FROM only reaches FROM)
 ARG VERSION
 
-# Install packages (R is required by rstudio-server to run sessions)
-RUN xbps-install -Sy bash shadow binutils findutils tar gzip curl xbps xz openssl R && \
+# Install packages (R runs the sessions, pam authenticates the sign-in)
+RUN xbps-install -Sy bash shadow pam binutils findutils tar gzip curl xbps xz openssl R && \
     xbps-remove -O && \
     rm -rf /var/cache/xbps/*
 
@@ -19,20 +19,25 @@ RUN xbps-install -Sy bash shadow binutils findutils tar gzip curl xbps xz openss
 RUN curl -L -o /tmp/xdeb https://github.com/xdeb-org/xdeb/releases/latest/download/xdeb && \
     chmod +x /tmp/xdeb
 
-# Install rstudio-server (current build, compatible with modern R)
+# Install rstudio-server (current build, compatible with modern R).
+# The deb -> xbps conversion drops the executable bit, so restore it across the whole
+# bin tree: rserver forks rserver-pam to check the password and rsession to open the
+# IDE, and a non-executable helper reads back as a rejected sign-in.
 RUN curl -L -o /tmp/rstudio-server.deb https://download2.rstudio.org/server/jammy/amd64/rstudio-server-${VERSION}-amd64.deb && \
     cd /tmp && \
     /tmp/xdeb -Sd --not-deps="musl1.1" /tmp/rstudio-server.deb && \
     xbps-install -y -R /tmp/binpkgs rstudio-server && \
-    chmod +x /usr/lib/rstudio-server/bin/rserver
+    chmod -R a+x /usr/lib/rstudio-server/bin
 
 # Cleanup
 RUN xbps-remove -O && \
     rm -rf /var/cache/xbps/* && \
     rm -rf /tmp/*
 
-# Create the RStudio session user (rsession runs as a real user, not root)
-RUN useradd -d /volume/dxflow -s /bin/bash dxflow
+# Create the RStudio session user (rsession runs as a real user, not root).
+# pwconv makes sure /etc/shadow is the file the password lands in, so PAM finds it
+RUN useradd -d /volume/dxflow -s /bin/bash dxflow && \
+    pwconv
 
 # Give sign-in a PAM profile to authenticate against (the converted deb omits /etc/pam.d)
 RUN mkdir -p /etc/pam.d && \
