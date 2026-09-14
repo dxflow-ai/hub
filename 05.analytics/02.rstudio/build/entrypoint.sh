@@ -33,7 +33,8 @@ mkdir -p "${HOME}"
 chown -R "${USER}:${USER}" "${HOME}" 2>/dev/null || true
 
 # Give that user the sign-in password RStudio authenticates against through PAM
-if printf '%s:%s\n' "${USER}" "${PASSWORD:-dxflow}" | chpasswd; then
+HASH="$(printf '%s' "${PASSWORD:-dxflow}" | openssl passwd -6 -stdin)"
+if usermod -p "${HASH}" "${USER}" && grep -qF "${USER}:${HASH}:" /etc/shadow; then
   log "sign-in ready for ${USER}"
 else
   log "could not set the password for ${USER} — sign-in will be refused"
